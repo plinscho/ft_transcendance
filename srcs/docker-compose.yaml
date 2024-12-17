@@ -1,0 +1,13 @@
+
+services:
+  web:
+    build: ./back_end/django
+    volumes:
+      - ./back_end/django:/app
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
+
+networks:
+  backend:
