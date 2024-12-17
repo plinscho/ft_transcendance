@@ -12,19 +12,18 @@ build:
 	$(COMPOSE_CMD) up --build
 
 up:
-	${COMPOSE_CMD} up
+	${COMPOSE_CMD} up -d
 
-clean_pycache:
+pycache:
 	@if [ -d "${PYCACHE}" ] && [ "$(ls -A ${PYCACHE})" ]; then \
 		rm ${PYCACHE}/*; \
 	fi
 
 down:
-	
 	${COMPOSE_CMD} down
 
-prune: down clean_pycache
+prune: down pycache
 	@docker system prune -a
 
-.PHONY: all build up down clean fclean clean_pycache prune
+.PHONY: all build up down clean fclean pycache prune
 	
