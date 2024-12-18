@@ -14,4 +14,4 @@ RUN python -m pip install -r requirements.txt
 EXPOSE 8000
 
 # Command to run the Django server
-CMD ["python", "app/manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "project/manage.py", "runserver", "0.0.0.0:8000"]

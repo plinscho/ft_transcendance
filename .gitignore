@@ -1,2 +1,3 @@
 .vscode
 .get-pip.py
+srcs/back_end/django/app/app/__pycache__

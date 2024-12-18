@@ -3,7 +3,7 @@
 
 # Docker compose file location
 COMPOSE = srcs/docker-compose.yaml
-PYCACHE = srcs/back_end/django/app/__pycache__/
+PYCACHE = srcs/back_end/django/project/__pycache__/
 
 COMPOSE_CMD = docker compose -f ${COMPOSE}
 

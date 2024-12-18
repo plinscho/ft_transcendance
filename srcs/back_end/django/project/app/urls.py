@@ -20,5 +20,4 @@ from .views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', index, name='index'),  # Añadir esta línea
-]
+    path('', index, name='index'),
