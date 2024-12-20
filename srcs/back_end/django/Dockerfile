@@ -1,4 +1,7 @@
-# Use an official Python (lighter) version
+
+## PENDIENTE METER EL POSTGRE
+
+#Use an official Python (lighter) version
 FROM python:3.9-slim
 
 # Set the working directory in the container

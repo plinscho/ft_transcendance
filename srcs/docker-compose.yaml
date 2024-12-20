@@ -8,6 +8,21 @@ services:
       - "8000:8000"
     networks:
       - backend
+    
+  db:
+    build:
+      context: ./back_end/postgreSQL
+    env_file:
+      - ./back_end/postgreSQL/.env_db
+    volumes:
+      - postgre_data:/var/lib/postgresql/data
+    ports:
+    - "5432:5432"
+    networks:
+      - backend
+
+volumes:
+  postgre_data:
 
 networks:
   backend:
