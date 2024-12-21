@@ -14,28 +14,39 @@
 services:
 
   frontend:
+    container_name: frontend
     build:
       context: ./frontend
     ports:
       - "80:80"
       - "443:443"
+    networks:
+      - frontend
 
   home_service:
+    container_name: home_service
     build:
       context: ./django/home_service
     ports:
       - "8001:8000"
     depends_on:
       - db
+    networks:
+      - backend
+    restart: always
 
   login_service:
+    container_name: login_service
     build:
       context: ./django/login_service
     ports:
       - "8002:8000"
     depends_on:
       - db
-
+    networks:
+      - backend
+    restart: always
+#
 #
 # game_service:
 #   build:
@@ -61,20 +72,22 @@ services:
 #   depends_on:
 #     - db
 #
-db:
-  context: 
-    build: ./postgreSQL
-  environment:
-    - ./.env
-  volumes:
-    - postgre_data:/var/lib/postgresql/data
-  ports:
-     - "5432:5432"
-  networks:
-    - backend
-
+  db:
+    container_name: postgre
+    build: 
+      context: ./postgreSQL
+    env_file:
+      - ./.env
+    volumes:
+      - postgre_data:/var/lib/postgresql/data
+    ports:
+       - "5432:5432"
+    networks:
+      - backend
+  
 volumes:
   postgre_data:
 
 networks:
   backend:
+  frontend:
