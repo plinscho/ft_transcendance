@@ -1,25 +1,77 @@
+# 
+# DOCKER COMPOSE - FT_TRANSCENDANCE (  ctrl + alt + flechita   para incersion multiple de lineas  )
+# 
+# Cada microservicio tiene su propio docker con django instalado y su proyecto propio. 
+# Todos los django están conectados a la misma base de datos, que es postgreSQL.
+# El frontend hará peticiones a cada endpoint levantado por cada servicio, y no
+# interactua directamente con la base de datos
+#
+# En concepto arquitectura monolito sería un único django 
+# pero con múltiples apps y un solo Dockefile.
+# 
+#
 
 services:
-  web:
-    build: ./back_end/django
-    volumes:
-      - ./back_end/django:/app
-    ports:
-      - "8000:8000"
-    networks:
-      - backend
-    
-  db:
+
+  frontend:
     build:
-      context: ./back_end/postgreSQL
-    env_file:
-      - ./back_end/postgreSQL/.env_db
-    volumes:
-      - postgre_data:/var/lib/postgresql/data
+      context: ./frontend
     ports:
-    - "5432:5432"
-    networks:
-      - backend
+      - "80:80"
+      - "443:443"
+
+  home_service:
+    build:
+      context: ./django/home_service
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+
+  login_service:
+    build:
+      context: ./django/login_service
+    ports:
+      - "8002:8000"
+    depends_on:
+      - db
+
+#
+# game_service:
+#   build:
+#     context: ./django/game_service
+#   ports:
+#     - "8003:8000"
+#   depends_on:
+#     - db
+#
+# chat_service:
+#   build:
+#     context: ./django/chat_service
+#   ports:
+#     - "8004:8000"
+#   depends_on:
+#     - db
+#
+# profile_service:
+#   build:
+#     context: ./django/profile_service
+#   ports:
+#     - "8005:8000"
+#   depends_on:
+#     - db
+#
+db:
+  context: 
+    build: ./postgreSQL
+  environment:
+    - ./.env
+  volumes:
+    - postgre_data:/var/lib/postgresql/data
+  ports:
+     - "5432:5432"
+  networks:
+    - backend
 
 volumes:
   postgre_data:

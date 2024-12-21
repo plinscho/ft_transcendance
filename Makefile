@@ -16,10 +16,10 @@ stop:
 		docker compose stop; \
 	fi
 
-down:
+down: stop
 	${COMPOSE_CMD} down
 
-clean:
+clean: down
 	@if [ ! -z "$$(docker ps -aq)" ]; then \
 		docker stop $$(docker ps -aq); \
 		docker rm $$(docker ps -aq); \
