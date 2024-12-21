@@ -3,8 +3,6 @@
 
 # Docker compose file location
 COMPOSE = srcs/docker-compose.yaml
-PYCACHE = srcs/back_end/django/project/__pycache__/
-
 COMPOSE_CMD = docker compose -f ${COMPOSE}
 
 # Basic build commands
@@ -13,13 +11,18 @@ all:
 
 stop:
 	@if [ ! -z "$$(docker ps -aq)" ]; then \
-		docker compose stop; \
+		$(COMPOSE_CMD) stop; \
 	fi
 
-down:
+down: stop
 	${COMPOSE_CMD} down
 
-clean:
+ps:
+	@if [ ! -z "$$(docker ps -aq)" ]; then \
+		docker ps ;\
+	fi
+
+clean: down
 	@if [ ! -z "$$(docker ps -aq)" ]; then \
 		docker stop $$(docker ps -aq); \
 		docker rm $$(docker ps -aq); \
@@ -40,5 +43,4 @@ fclean: clean
 
 re: clean all
 
-.PHONY: all stop down clean fclean re 
-	
+.PHONY: all stop down ps clean fclean re

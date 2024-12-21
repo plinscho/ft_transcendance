@@ -9,6 +9,7 @@ SOURCES:
 
 Back:
 https://www.w3schools.com/django/
+https://es.wikipedia.org/wiki/Modelo%E2%80%93vista%E2%80%93controlador
 
 
 Building Django
