@@ -13,15 +13,18 @@
 
 services:
 
-  frontend:
-    container_name: frontend
-    build: ./frontend
+  nginx:
+    container_name: nginx
+    build: ./nginx
     ports:
       - "80:80"
       - "443:443"
     networks:
       - frontend
       - backend
+    volumes:
+      - ./frontend/static:/usr/share/nginx/html/static
+      - ./frontend/templates:/usr/share/nginx/html/templates
 #    depends_on:
 #      - home_service
 #      - login_service
@@ -64,7 +67,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
 #
 #
 # game_service:
