@@ -13,15 +13,22 @@
 
 services:
 
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
+  nginx:
+    container_name: nginx
+    build: ./nginx
     ports:
       - "80:80"
       - "443:443"
     networks:
       - frontend
+      - backend
+    volumes:
+      - ./frontend/static:/usr/share/nginx/html/static
+      - ./frontend/templates:/usr/share/nginx/html/templates
+#    depends_on:
+#      - home_service
+#      - login_service
+    restart: always
 
   home_service:
     container_name: home_service
@@ -34,6 +41,13 @@ services:
     networks:
       - backend
     restart: always
+    environment:
+      - DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   login_service:
     container_name: login_service
@@ -46,6 +60,13 @@ services:
     networks:
       - backend
     restart: always
+    environment:
+      - DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 #
 #
 # game_service:
@@ -84,6 +105,12 @@ services:
        - "5432:5432"
     networks:
       - backend
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
   
 volumes:
   postgre_data:

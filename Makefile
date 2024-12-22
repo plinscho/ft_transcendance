@@ -40,7 +40,12 @@ clean: down
 
 fclean: clean
 	@docker system prune -a
+test:
+	$(COMPOSE_CMD) run --rm home_service python manage.py test
+	$(COMPOSE_CMD) run --rm login_service python manage.py test
+logs:
+	$(COMPOSE_CMD) logs -f
 
 re: clean all
 
-.PHONY: all stop down ps clean fclean re
+.PHONY: all stop down ps clean fclean test logs re
