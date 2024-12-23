@@ -11,9 +11,9 @@ ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWEITEBYTECODE 1
 
 # install dependencies
-RUN pip install --upgrade pip pipenv flake8
-COPY Pipfile* ./
-RUN pipenv install --system --ignore-pipfile
+RUN pip install --upgrade pip flake8
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
 
 COPY . .
 
