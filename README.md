@@ -25,6 +25,15 @@ project/app/urls.py
         views, so it can redirect to a certain urls depending on the view.
 
 ___________________________________________________________________________________________________
+# LOGIN / REGISTRATION SERVICE
+
+Located in localhost:8000/app
+___________________________________________________________________________________________________
+# HOME SERVICE
+
+Located in localhost:8001/app
+___________________________________________________________________________________________________
+
 SOURCES:
 
 Back:
