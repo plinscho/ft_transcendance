@@ -23,84 +23,40 @@ services:
     depends_on:
       - db
     networks:
-      - backend
-    restart: always
+      - transcendance
+    restart: on-failure
 
   nginx:
     container_name: nginx
     build: ./nginx
+    depends_on:
+      - django
     ports:
       - "80:80"
       - "443:443"
     networks:
-      - frontend
-      - backend
+      - transcendance
     volumes:
-      - ./frontend/static:/usr/share/nginx/html/static
-      - ./frontend/templates:/usr/share/nginx/html/templates
+      - ./frontend:/usr/share/nginx/html
+      - static_data:/vol/static
+      - static_media:/vol/media
     restart: always
 
-  login_service:
-    container_name: login_service
+  django:
+    container_name: django
     build:
-      context: ./django/login_service
-    command: >
-      sh -c "sleep 10 &&
-            python manage.py migrate &&
-            gunicorn --bind 0.0.0.0:8000 config.wsgi:application"
+      context: ./django/
+    depends_on:
+      - db
     ports:
       - "8000:8000"
-    env_file:
-      - ./django/login_service/.env
-    depends_on:
-      - db
+    volumes:
+      - static_data:/vol/static
+      - static_media:/vol/media
     networks:
-      - backend
+      - transcendance
     restart: always
-
-  home_service:
-    container_name: home_service
-    build:
-      context: ./django/home_service/
-    command: >
-      sh -c "sleep 10 &&
-            python manage.py migrate &&
-            gunicorn --bind 0.0.0.0:8000 config.wsgi:application"
-    ports:
-      - "8001:8000"
-    env_file:
-      - ./django/home_service/.env
-    depends_on:
-      - db
-    networks:
-      - backend
-    restart: always
-
-#
-# game_service:
-#   build:
-#     context: ./django/game_service
-#   ports:
-#     - "8003:8000"
-#   depends_on:
-#     - db
-#
-# chat_service:
-#   build:
-#     context: ./django/chat_service
-#   ports:
-#     - "8004:8000"
-#   depends_on:
-#     - db
-#
-# profile_service:
-#   build:
-#     context: ./django/profile_service
-#   ports:
-#     - "8005:8000"
-#   depends_on:
-#     - db
-#
+    
   db:
     container_name: postgre
     build: 
@@ -112,7 +68,7 @@ services:
     ports:
        - "5432:5432"
     networks:
-      - backend
+      - transcendance
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
@@ -122,8 +78,8 @@ services:
   
 volumes:
   postgres_data:
-  home_service:
+  static_data:
+  static_media:
 
 networks:
-  backend:
-  frontend:
+  transcendance:
