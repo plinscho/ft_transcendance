@@ -6,5 +6,6 @@ class User(models.Model):
     nickname = models.CharField(unique=True, max_length=20)
     email = models.EmailField(unique=True, max_length=100)
     password = models.CharField(max_length=30)
+    image = models.ImageField()
 
     
