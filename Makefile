@@ -22,10 +22,6 @@ ps:
 		docker ps ;\
 	fi
 
-superuser:
-	cd srcs
-	docker-compose exec django python manage.py createsuperuser
-
 clean: down
 	@if [ ! -z "$$(docker ps -aq)" ]; then \
 		docker stop $$(docker ps -aq); \
