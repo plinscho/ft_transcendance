@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-#ho$dbjjj7mxv9ae=^u$eq0-5_-($es2dj*+_tip@)o98r5s!u
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', 'django']
-#CSRF_TRUSTED_ORIGINS = ['https://localhost']
+CSRF_TRUSTED_ORIGINS = ['https://localhost']
 
 # Application definition
 
@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user_management',
+    'rest_framework', # for API endpoints
+    'user_management.apps.UserManagementConfig', # user_management/apps.py
 ]
 
 MIDDLEWARE = [
@@ -126,3 +127,5 @@ MEDIA_ROOT = '/vol/media/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'user_management.User'

@@ -50,6 +50,8 @@ services:
       - db
     ports:
       - "8000:8000"
+    env_file:
+      - ./django/.env
     volumes:
       - static_data:/vol/django_static
       - static_media:/vol/media

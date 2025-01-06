@@ -22,8 +22,9 @@ ps:
 		docker ps ;\
 	fi
 
-nginx_re:
-	@docker exec nginx nginx -s reload
+superuser:
+	cd srcs
+	docker-compose exec django python manage.py createsuperuser
 
 clean: down
 	@if [ ! -z "$$(docker ps -aq)" ]; then \
