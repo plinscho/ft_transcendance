@@ -22,6 +22,9 @@ ps:
 		docker ps ;\
 	fi
 
+nginx_re:
+	@docker exec nginx nginx -s reload
+
 clean: down
 	@if [ ! -z "$$(docker ps -aq)" ]; then \
 		docker stop $$(docker ps -aq); \

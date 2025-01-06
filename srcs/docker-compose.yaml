@@ -38,7 +38,7 @@ services:
       - transcendance
     volumes:
       - ./frontend:/usr/share/nginx/html
-      - static_data:/vol/static
+      - static_data:/vol/django_static
       - static_media:/vol/media
     restart: always
 
@@ -51,7 +51,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - static_data:/vol/static
+      - static_data:/vol/django_static
       - static_media:/vol/media
     networks:
       - transcendance
