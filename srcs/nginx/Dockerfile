@@ -7,16 +7,13 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Copy the gen_openssl.sh script and make it executable
 COPY gen_openssl.sh /usr/local/bin/gen_openssl.sh
 
-RUN mkdir -p /etc/letsencrypt/live/pong_server
-RUN chown 777 /etc/letsencrypt/live/pong_server
+RUN mkdir -p /etc/letsencrypt/live/pong_server && \
+    mkdir -p /usr/share/nginx/html/static && \
+    mkdir -p /usr/share/nginx/html/templates && \
+    mkdir -p /vol/static && \
+    mkdir -p /vol/media && \
+    chmod 755 /usr/share/nginx/html && \
+    chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod +x /usr/local/bin/gen_openssl.sh
 
-# Make directories for the volumes
-RUN mkdir -p /usr/share/nginx/html/static
-RUN mkdir -p /usr/share/nginx/html/templates
-
-
-RUN chmod +x /usr/local/bin/gen_openssl.sh
-
-# Copiar las plantillas y archivos estáticos al directorio de Nginx
 ENTRYPOINT [ "/usr/local/bin/gen_openssl.sh" ]
-#CMD ["nginx -g 'daemon off;'"]

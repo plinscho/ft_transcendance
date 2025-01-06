@@ -12,4 +12,4 @@ else
 	openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout $cert_file -out $key_file -subj "/C=ES/ST=Barcelona/L=Barcelona/O=42/OU=Education/CN=plinscho.42.fr"
 fi
 
-exec nginx -g 'daemon off;'
+exec nginx -g "daemon off;";
