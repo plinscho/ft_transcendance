@@ -11,7 +11,7 @@
    Password: postgres
 
 ___________________________________________________________________________________________________
-# DJANGO PROJECTS
+# DJANGO 
 
 1. Start by running "django-admin startproject <project_name>"
 2. To run the service, cd inside the project and run "python3 manage.py runserver"
@@ -25,13 +25,14 @@ project/app/urls.py
         views, so it can redirect to a certain urls depending on the view.
 
 ___________________________________________________________________________________________________
-# LOGIN / REGISTRATION SERVICE
+# DJANGO/USER_MANAGEMENT
 
-Located in localhost:8000/app
-___________________________________________________________________________________________________
-# HOME SERVICE
+This appication is meant to manage the user data.
+Creating a user, getting the authentication token and changing some fields from the user
+will be managed by this application.
 
-Located in localhost:8001/app
+The url for those api is https://localhost/user_management/create/.
+You can access the correspondant API by addind /create, /token or /user.
 ___________________________________________________________________________________________________
 
 SOURCES:

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework', # for API endpoints
+    'rest_framework.authtoken',
     'user_management.apps.UserManagementConfig', # user_management/apps.py
 ]
 
