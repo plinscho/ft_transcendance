@@ -3,5 +3,7 @@ from user_management import views
 
 
 urlpatterns = [
-    path('list/', views.ListUsersView.as_view()),
+    path('create/', views.CreateUserView.as_view()),
+    path('token/', views.CreateTokenView.as_view()),
+    path('user/', views.RetrieveUpdateUserView().as_view()),
 ]
