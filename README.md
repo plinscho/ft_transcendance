@@ -17,8 +17,12 @@ ________________________________________________________________________________
 2. To run the service, cd inside the project and run "python3 manage.py runserver"
 3. Create apps with "python3 manage.py startapp <app_name>"
 
+Each App has its own views and urls.
+Views.py processes the resquests from the web, and it is mapped in the urls.py.
+Later we have to configure the globals urls.py from the project
+
 project/app/views.py:
-    -   Take http requests and return a htp response.
+    -   Take http requests and return a http response.
 
 project/app/urls.py
     -   Executes de view. It can allocate multiple urls for different
