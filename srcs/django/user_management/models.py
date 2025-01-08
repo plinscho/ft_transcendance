@@ -24,7 +24,11 @@ class UserManager(BaseUserManager):
 
         return user
     
-
+"""
+The name of each Field instance (e.g. username or email) is the fields name, 
+in machine-friendly format. You will use this value in your Python code, 
+and your database will use it as the column name.
+"""
 class User(AbstractBaseUser,PermissionsMixin):
     email = models.EmailField(unique=True, max_length=100)
     

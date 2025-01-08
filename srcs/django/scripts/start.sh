@@ -7,6 +7,9 @@ echo "DJANGO_SUPERUSER_USERNAME: $DJANGO_SUPERUSER_USERNAME"
 echo "DJANGO_SUPERUSER_EMAIL: $DJANGO_SUPERUSER_EMAIL"
 echo "DJANGO_SUPERUSER_PASSWORD: $DJANGO_SUPERUSER_PASSWORD"
 
+# The migrate command looks at the INSTALLED_APPS setting and 
+# creates any necessary database tables according to the database 
+# settings in your mysite/settings.py
 python manage.py makemigrations
 python manage.py migrate
 

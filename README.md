@@ -42,8 +42,9 @@ ________________________________________________________________________________
 SOURCES:
 
 Back:
-https://nginx.org/en/docs/
-https://medium.com/django-unleashed/serving-static-and-media-files-using-nginx-in-django-a4a125af95d
-https://www.w3schools.com/django/
-https://es.wikipedia.org/wiki/Modelo%E2%80%93vista%E2%80%93controlador
+https://docs.djangoproject.com/en/5.1/topics/install/#database-installation     
+https://nginx.org/en/docs/  
+https://medium.com/django-unleashed/serving-static-and-media-files-using-nginx-in-django-a4a125af95d    
+https://www.w3schools.com/django/   
+https://es.wikipedia.org/wiki/Modelo%E2%80%93vista%E2%80%93controlador  
 
