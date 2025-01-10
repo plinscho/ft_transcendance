@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -25,22 +26,9 @@ class UserSerializer(serializers.ModelSerializer):
 
         return user
 
-class AuthTokenSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField(style={'input_type': 'password'})
 
-    def validate(self, data):
-        email = data.get('email')
-        password = data.get('password')
-        user = authenticate(
-            request=self.context.get('request'),
-            username=email,
-            password=password
-        )
-
-        if not user:
-            raise serializers.ValidationError('User could not authenticate!', code='authorization')
-        
-        data['user']= user
+class AuthTokenSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data.update({'username': self.user.username})
         return data
-
