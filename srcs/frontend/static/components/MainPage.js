@@ -19,6 +19,7 @@ function draw() {
 
 // Main page content
 const main = () => {
+    
     setTimeout(() => draw(), 0); // Ensure draw is called after the DOM update
     return `
         <canvas id="canvas" width="200" height="200"></canvas>
