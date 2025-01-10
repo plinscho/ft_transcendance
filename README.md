@@ -29,14 +29,15 @@ project/app/urls.py
         views, so it can redirect to a certain urls depending on the view.
 
 ___________________________________________________________________________________________________
-# DJANGO/USER_MANAGEMENT
+# DJANGO/API/USER
 
 This appication is meant to manage the user data.
 Creating a user, getting the authentication token and changing some fields from the user
 will be managed by this application.
 
-The url for those api is https://localhost/user_management/.
-You can access the correspondant API by addind /create, /token or /user.
+The url for those api is https://localhost/api/user.
+You can access the correspondant API by addind /signup or /login.
+
 ___________________________________________________________________________________________________
 
 SOURCES:

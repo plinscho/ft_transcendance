@@ -3,7 +3,7 @@ from user import views
 
 # The path() function expects at least two arguments: route and view.
 urlpatterns = [
-    path('create/', views.CreateUserView.as_view()),
-    path('token/', views.CreateTokenView.as_view()),
-    path('user/', views.RetrieveUpdateUserView().as_view()),
+    path('signup/', views.CreateUserView.as_view(), name='signup'),
+    path('login/', views.CreateTokenView.as_view(), name='login'),
+#    path('user/', views.RetrieveUpdateUserView().as_view()),
 ]
