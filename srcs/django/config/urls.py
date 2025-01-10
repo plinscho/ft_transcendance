@@ -17,7 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# The path() function expects at least two arguments: route and view.
+# The include() function allows referencing other URLconfs.
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user_management/', include('user_management.urls')),
+    # path ('another_app/', include('another_app.urls')),
 ]
