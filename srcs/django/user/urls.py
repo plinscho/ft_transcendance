@@ -1,5 +1,5 @@
 from django.urls import path
-from user_management import views
+from user import views
 
 # The path() function expects at least two arguments: route and view.
 urlpatterns = [
