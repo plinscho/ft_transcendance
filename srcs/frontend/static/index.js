@@ -1,38 +1,32 @@
-class Reactive {
-    constructor (obj) {
-        this.contents = obj;
-        this.listeners = {};
-        this.makeReactive(obj);
+import state from './state/state.js';
+import { renderNavbar } from './components/navbar.js'
+import { renderContent } from './components/RenderContent.js';
+
+
+// Initialization
+const navbarContainer = document.getElementById('navbar-container');
+const contentContainer = document.getElementById('content-container');
+
+navbarContainer.innerHTML = renderNavbar(state.contents);
+contentContainer.innerHTML = renderContent(state.contents.activePage);
+
+// Reactivity
+state.listen('activePage', () => {
+    contentContainer.innerHTML = renderContent(state.contents.activePage);
+});
+
+state.listen('isLogged', () => {
+    contentContainer.innerHTML = renderContent(state.contents.activePage);
+});
+
+state.listen('showRegister', () => {
+    contentContainer.innerHTML = renderContent(state.contents.activePage);
+});
+
+// Navbar click handling
+navbarContainer.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A' && e.target.dataset.page) {
+        e.preventDefault();
+        state.contents.activePage = e.target.dataset.page;
     }
-
-    makeReactive(obj) {
-        Object.keys(obj).forEach(prop => this.makePropReactive(obj, prop));
-    }
-
-    makePropReactive(obj, key) {
-        let value = obj[key];
-
-        // Gotta be careful with this here
-        const that = this;
-
-        Object.defineProperty(obj, key, {
-            get () {
-                    return value;
-            },
-            set (newValue) {
-                value = newValue;
-                that.notify(key)
-            }
-        });
-    }
-
-    listen(prop, handler) {
-        if (!this.listeners[prop]) this.listeners[prop] = [];
-
-        this.listeners[prop].push(handler);
-    }
-
-    notify(prop) {
-        this.listeners[prop].forEach(listener => listener(this.contents[prop]));
-    }
-}
+});
