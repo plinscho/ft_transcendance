@@ -10,7 +10,7 @@ class UserManager(BaseUserManager):
     def create_user(self, email, password, username, **extra_field):
         if not email:
             raise ValueError('Email is required')
-        user = self.model(email=email, **extra_field)
+        user = self.model(email=email, username=username, **extra_field)
         user.set_password(password)
         user.save(using=self._db)
 
@@ -33,7 +33,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     email = models.EmailField(unique=True, max_length=100)
     
     username = models.CharField(max_length=20)
-    password = models.CharField(max_length=30)
+    password = models.CharField(max_length=255)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     image = models.ImageField()
@@ -41,3 +41,4 @@ class User(AbstractBaseUser,PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']

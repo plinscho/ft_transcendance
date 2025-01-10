@@ -35,7 +35,7 @@ This appication is meant to manage the user data.
 Creating a user, getting the authentication token and changing some fields from the user
 will be managed by this application.
 
-The url for those api is https://localhost/user_management/create/.
+The url for those api is https://localhost/user_management/.
 You can access the correspondant API by addind /create, /token or /user.
 ___________________________________________________________________________________________________
 
