@@ -65,7 +65,6 @@ function handleLogin() {
     if (email && password) {
         state.contents.isLogged = true;
         state.contents.activePage = 'Play';
-        alert('Login successful!');
     } else {
         alert('Enter valid credentials');
     }
@@ -80,8 +79,9 @@ async function handleRegister() {
 
     try {
         const response = await registerUser(userData);
-        alert("Registration successful! Please log in.");
-        toggleForm(); // Switch to login form
+        state.contents.isLogged = true;
+        state.contents.activePage = 'Play';
+        
     } catch (error) {
         alert(`Registration failed: ${error.message}`);
     }
