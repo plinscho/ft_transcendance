@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework', # for API endpoints
     'rest_framework.authtoken',
-    'user_management.apps.UserManagementConfig', # user_management/apps.py
+    'user.apps.UserConfig', # user/apps.py
 ]
 
 MIDDLEWARE = [
@@ -138,4 +138,4 @@ MEDIA_ROOT = '/vol/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'user_management.User'
+AUTH_USER_MODEL = 'user.User'
