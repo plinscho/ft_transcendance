@@ -42,7 +42,8 @@ ________________________________________________________________________________
 
 SOURCES:
 
-Back:
+Back:   
+https://www.dj4e.com/lessons   
 https://docs.djangoproject.com/en/5.1/topics/install/#database-installation     
 https://nginx.org/en/docs/  
 https://medium.com/django-unleashed/serving-static-and-media-files-using-nginx-in-django-a4a125af95d    
