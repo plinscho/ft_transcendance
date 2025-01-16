@@ -44,6 +44,15 @@ class VerifyUserView(generics.CreateAPIView):
             return Response({"error":"Invalid Token"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
+class PopulateUserDataView(generics.CreateAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user # Check que el AuthToken sea match con el de user
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class CreateTokenView(TokenObtainPairView):
     serializer_class = AuthTokenSerializer
     permission_classes = [permissions.AllowAny]
