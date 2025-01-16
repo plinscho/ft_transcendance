@@ -62,9 +62,6 @@ let currentView = () => {
 	return View.OK;
 };
 
-// Count messages
-let messageCount = () => (state.data?.messages?.length || 0);
-
 // DOM node references
 let $viewLoading = D.getElementById('view-loading');
 let $viewFailure = D.getElementById('view-failure');
@@ -91,6 +88,7 @@ let updateView = () => {
 };
 
 let updateInitialView = () => {
+	startGame();
 	updateView();
 };
 
@@ -147,6 +145,88 @@ D.getElementById('registerButton').addEventListener('click', async () => {
 		updateView();
 	}
 });
+
+class Game {
+	constructor() {
+		this.canvas = document.getElementById('gameCanvas');
+		this.ctx = this.canvas.getContext('2d');
+
+		// Initial position of the square
+		this.squareX = 50;
+		this.squareY = 50;
+		this.squareSize = 50;
+
+		// Movement speed
+		this.speed = 4;
+
+		// Initialize keyboard tracking
+		this.keys = {};
+		this.initKeyboard();
+
+		// Start the game loop
+		this.gameLoop();
+	}
+
+	// Method to initialize keyboard event listeners
+	initKeyboard() {
+		window.addEventListener("keydown", (e) => {
+			this.keys[e.keyCode] = true;
+		});
+		window.addEventListener("keyup", (e) => {
+			this.keys[e.keyCode] = false;
+		});
+	}
+
+	// Method to check if a key is pressed
+	isKeyPressed(keyCode) {
+		return this.keys[keyCode] || false;
+	}
+
+	// Update square position based on key presses
+	moveSquare() {
+		if (this.isKeyPressed(37)) {
+			// Left arrow
+			this.squareX -= this.speed;
+		}
+		if (this.isKeyPressed(38)) {
+			// Up arrow
+			this.squareY -= this.speed;
+		}
+		if (this.isKeyPressed(39)) {
+			// Right arrow
+			this.squareX += this.speed;
+		}
+		if (this.isKeyPressed(40)) {
+			// Down arrow
+			this.squareY += this.speed;
+		}
+	}
+
+	// Draw the square on the canvas
+	drawSquare() {
+		this.ctx.fillStyle = "red";
+		this.ctx.fillRect(this.squareX, this.squareY, this.squareSize, this.squareSize);
+	}
+
+	// Clear the canvas
+	clearCanvas() {
+		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	}
+
+	// Game loop to update and render the game
+	gameLoop() {
+		this.clearCanvas();
+		this.moveSquare();
+		this.drawSquare();
+
+		// Request the next animation frame
+		requestAnimationFrame(() => this.gameLoop());
+	}
+}
+
+let startGame = () => {
+	let G = new Game();
+}
 
 // Initialize the app
 if (!AUTH) {
