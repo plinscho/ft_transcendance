@@ -36,6 +36,7 @@ CSRF_TRUSTED_ORIGINS = ['https://localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'user.apps.UserConfig', # user/apps.py
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,7 +46,6 @@ INSTALLED_APPS = [
     'rest_framework', # for API endpoints
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
-    'user.apps.UserConfig', # user/apps.py
 ]
 
 REST_FRAMEWORK = {

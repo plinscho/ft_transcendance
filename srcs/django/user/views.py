@@ -1,6 +1,8 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from user.serializers import UserSerializer, AuthTokenSerializer
@@ -27,6 +29,19 @@ class CreateUserView(generics.CreateAPIView):
         }
 
         return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+# Recibimos un auth token y yo devuelvo un 200 si el token coincide o un error si no coincide
+class VerifyUserView(generics.CreateAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def verify(self, request): # Recibimos el AuthToken en el request
+        try:
+            user = request.user
+            return Response({"message": "Token is valid", "user":user.username})
+        except:
+            return Response({"error":"Invalid Token"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class CreateTokenView(TokenObtainPairView):
