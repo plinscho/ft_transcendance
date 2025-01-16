@@ -124,6 +124,30 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 	}
 });
 
+D.getElementById('registerButton').addEventListener('click', async () => {
+	const username = D.getElementById('registerUsername').value;
+	const email = D.getElementById('registerEmail').value;
+	const password = D.getElementById('registerPassword').value;
+
+	const resp = await fetch(URL + '/api/user/signup/', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ username, email, password }),
+	});
+
+	if (resp.ok) {
+		const data = await resp.json();
+		localStorage.setItem('authToken', data.token);
+		state.authenticated = true;
+		return loadData().then(updateInitialView);
+	} else {
+		state.error = true;
+		updateView();
+	}
+});
+
 // Initialize the app
 if (!AUTH) {
 	state.authenticated = false;
