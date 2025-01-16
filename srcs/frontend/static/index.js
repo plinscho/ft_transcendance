@@ -16,6 +16,7 @@ let state = {
 };
 const AUTH = localStorage.getItem('authToken');
 
+
 // Fetch and handle data
 let loadData = () => {
 	return fetch(URL + '/api/user/verify/', {
