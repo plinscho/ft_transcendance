@@ -1,32 +1,91 @@
-import state from './state/state.js';
-import { renderNavbar } from './components/navbar.js'
-import { renderContent } from './components/RenderContent.js';
+const View = {
+    LOADING: 0,
+    OK: 1,
+    NEEDS_AUTH: 2,
+    ERROR: 3,
+  };
 
-
-// Initialization
-const navbarContainer = document.getElementById('navbar-container');
-const contentContainer = document.getElementById('content-container');
-
-navbarContainer.innerHTML = renderNavbar(state.contents);
-contentContainer.innerHTML = renderContent(state.contents.activePage);
-
-// Reactivity
-state.listen('activePage', () => {
-    contentContainer.innerHTML = renderContent(state.contents.activePage);
-});
-
-state.listen('isLogged', () => {
-    contentContainer.innerHTML = renderContent(state.contents.activePage);
-});
-
-state.listen('showRegister', () => {
-    contentContainer.innerHTML = renderContent(state.contents.activePage);
-});
-
-// Navbar click handling
-navbarContainer.addEventListener('click', (e) => {
-    if (e.target.tagName === 'A' && e.target.dataset.page) {
-        e.preventDefault();
-        state.contents.activePage = e.target.dataset.page;
-    }
-});
+  const URL = 'http://localhost';
+  
+  // Application state
+  let state = {
+    loading: true,
+    authenticated: false,
+    error: false,
+    data: null,
+  };
+  
+  // Fetch and handle data
+  let loadData = () => {
+    return fetch(URL + '/verify')
+      .then((resp) => {
+        state.authenticated = resp.ok;
+        if (resp.ok) return fetch('/data/');
+        throw new Error('Authentication failed');
+      })
+      .then((resp) => {
+        if (resp && resp.ok) return resp.json();
+        throw new Error('Data fetch failed');
+      })
+      .then((data) => {
+        state.data = data || null;
+        state.error = false;
+      })
+      .catch(() => {
+        state.error = true;
+        state.data = null;
+      })
+      .finally(() => {
+        state.loading = false;
+      });
+  };
+  
+  // Determine the current view
+  let currentView = () => {
+    if (state.loading) return View.LOADING;
+    if (state.error) return View.ERROR;
+    if (!state.authenticated) return View.NEEDS_AUTH;
+    return View.OK;
+  };
+  
+  // Count messages
+  let messageCount = () => (state.data?.messages?.length || 0);
+  
+  // DOM node references
+  let $viewLoading = document.getElementById('view-loading');
+  let $viewFailure = document.getElementById('view-failure');
+  let $viewNeedsLogin = document.getElementById('view-needs-login');
+  let $viewReady = document.getElementById('view-ready');
+  let $messageCount = document.getElementById('message-count');
+  let $currentView = $viewLoading;
+  
+  let $$viewNodes = [
+    $viewLoading,
+    $viewReady,
+    $viewNeedsLogin,
+    $viewFailure,
+  ];
+  
+  // DOM updates
+  let updateView = () => {
+    let $nextView = $$viewNodes[currentView()];
+    if ($nextView === $currentView) return;
+    $currentView.classList.add('invisible');
+    $nextView.classList.remove('invisible');
+    $currentView = $nextView;
+  };
+  
+  let updateMessageCount = () => {
+    let n = messageCount();
+    $messageCount.textContent = `${n || 'no'} message${n === 1 ? '' : 's'}`;
+    $messageCount.classList.toggle('warning', n > 100);
+  };
+  
+  let updateInitialView = () => {
+    updateMessageCount();
+    updateView();
+  };
+  
+  // Initialize the app
+  loadData().then(updateInitialView);
+  
