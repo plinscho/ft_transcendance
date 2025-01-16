@@ -107,7 +107,7 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 
 	if (resp.ok) {
 		const data = await resp.json();
-		localStorage.setItem('authToken', data.token);
+		localStorage.setItem('authToken', data.access);
 		state.authenticated = true;
 		loadData().then(updateInitialView);
 	} else {
