@@ -16,7 +16,6 @@ let state = {
 };
 const AUTH = localStorage.getItem('authToken');
 
-
 // Fetch and handle data
 let loadData = () => {
 	//console.log("Authentication token: " + AUTH)
@@ -24,7 +23,7 @@ let loadData = () => {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${AUTH}`
+			'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
 		}
 	})
 		.then((resp) => {
@@ -33,7 +32,7 @@ let loadData = () => {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json', 
-					'Authorization': `Bearer ${AUTH}`,
+					'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
 				}
 			});
 			throw new Error('Authentication failed');
