@@ -36,7 +36,7 @@ class VerifyUserView(generics.CreateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def verify(self, request): # Recibimos el AuthToken en el request
+    def get(self, request): # Recibimos el AuthToken en el request
         try:
             user = request.user
             return Response({"message": "Token is valid", "user":user.username})
