@@ -7,7 +7,6 @@ const View = {
 const D = document;
 const URL = 'https://localhost';
 
-
 // Application state
 let state = {
 	loading: true,
@@ -16,6 +15,7 @@ let state = {
 	data: null,
 };
 const AUTH = localStorage.getItem('authToken');
+
 
 // Fetch and handle data
 let loadData = () => {
@@ -66,10 +66,12 @@ let currentView = () => {
 let messageCount = () => (state.data?.messages?.length || 0);
 
 // DOM node references
-let $viewLoading = document.getElementById('view-loading');
-let $viewFailure = document.getElementById('view-failure');
-let $viewNeedsLogin = document.getElementById('view-needs-login');
-let $viewReady = document.getElementById('view-ready');
+let $viewLoading = D.getElementById('view-loading');
+let $viewFailure = D.getElementById('view-failure');
+let $viewNeedsLogin = D.getElementById('view-needs-login');
+let $viewReady = D.getElementById('view-ready');
+let $loginForm = D.getElementById('loginForm');
+let $registerForm = D.getElementById('registerForm');
 let $currentView = $viewLoading;
 
 let $$viewNodes = [
@@ -89,10 +91,16 @@ let updateView = () => {
 };
 
 let updateInitialView = () => {
-
 	updateView();
 };
 
+// AUTHENTICATION
+let toggleRegister = () => {
+	$loginForm.classList.toggle('invisible');
+	$registerForm.classList.toggle('invisible');
+}
+D.getElementById('registerLink').addEventListener('click', toggleRegister);
+D.getElementById('loginLink').addEventListener('click', toggleRegister);
 D.getElementById('loginButton').addEventListener('click', async () => {
 	const email = D.getElementById('loginEmail').value;
 	const password = D.getElementById('loginPassword').value;
@@ -109,9 +117,10 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 		const data = await resp.json();
 		localStorage.setItem('authToken', data.access);
 		state.authenticated = true;
-		loadData().then(updateInitialView);
+		return loadData().then(updateInitialView);
 	} else {
 		state.error = true;
+		updateView();
 	}
 });
 
