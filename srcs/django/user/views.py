@@ -7,6 +7,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from user.serializers import UserSerializer, AuthTokenSerializer
 
+from django.core.mail import send_mail, EmailMessage  # Para enviar correos
+from django.conf import settings  # Para acceder a las configuraciones de EMAIL_HOST_USER
+from rest_framework import generics, permissions, status  # Para la vista y permisos de DRF
+from some_totp_library import TOTP  # Reemplaza esto con la librería que uses para TOTP
+from some_random_library import random_hex  # Reemplaza esto con la función que genere claves aleatorias
 
 class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
@@ -57,6 +62,27 @@ class CreateTokenView(TokenObtainPairView):
     serializer_class = AuthTokenSerializer
     permission_classes = [permissions.AllowAny]
 
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.user
+
+        # Enviar código de 2FA
+        totp = TOTP(key=random_hex(20), step=300)
+        code = totp.token()
+        user.otp_code = code
+        user.save()
+
+        send_mail(
+            'Your 2FA Code',
+          f'Your 2FA code is {code}, it will expire in 5 minutes',
+            settings.EMAIL_HOST_USER,
+            [user.email],
+            fail_silently=False,
+        )
+
+        return Response({"message": "2FA code sent"}, status=status.HTTP_200_OK)
+
 #class RetrieveUpdateUserView(generics.RetrieveUpdateAPIView):
 #    serializer_class = UserSerializer
 #    authentication_classes = [authentication.TokenAuthentication]
@@ -70,4 +96,25 @@ class CreateTokenView(TokenObtainPairView):
 #
 #    def get_queryset(self):
 #        return User.get_queryset()
-    
+
+#Enviamos el mail para que el usuario reciba el código de 2FA que se crea en la vista
+#Guardamos el codigo y la fecha de expiración en el modelo de usuario
+class Verify2FACodeView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        code = request.data.get('code')
+
+        if user.otp_code == code:
+            user.otp_code = None
+            user.save()
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        else:
+            return Response({"error": "Invalid 2FA code"}, status=status.HTTP_400_BAD_REQUEST)
+
+
