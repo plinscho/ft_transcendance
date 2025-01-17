@@ -173,7 +173,7 @@ AUTH_USER_MODEL = 'user.User'
 
 
 # Email settings (Usando Simple Mail Transfer Protocol)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = env('EMAIL_BACKEND')
 EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = env('EMAIL_PORT')
 EMAIL_USE_TLS = env('EMAIL_USE_TLS')
