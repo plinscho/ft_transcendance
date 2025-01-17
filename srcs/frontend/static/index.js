@@ -69,6 +69,7 @@ let $viewNeedsLogin = D.getElementById('view-needs-login');
 let $viewReady = D.getElementById('view-ready');
 let $loginForm = D.getElementById('loginForm');
 let $registerForm = D.getElementById('registerForm');
+let $2fa = D.getElementById('2fa');
 let $currentView = $viewLoading;
 
 let $$viewNodes = [
@@ -110,17 +111,47 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 		},
 		body: JSON.stringify({ email, password }),
 	});
-
+	
 	if (resp.ok) {
 		const data = await resp.json();
-		localStorage.setItem('authToken', data.access);
-		state.authenticated = true;
-		return loadData().then(updateInitialView);
+
+		// Show 2FA form and hide login form
+		$2fa.classList.remove('invisible');
+		$loginForm.classList.add('invisible');
+
+		// Avoid adding multiple event listeners
+		if (!$2fa.dataset.listenerAttached) {
+			$2fa.addEventListener('submit', async (e) => {
+				e.preventDefault(); // Prevent form from reloading the page
+
+				const token = D.getElementById('2faCode').value;
+				const resp = await fetch(URL + '/api/user/2fa/', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+					},
+					body: JSON.stringify({ token }),
+				});
+				
+				if (resp.ok) {
+					const data = await resp.json();
+					localStorage.setItem('authToken', data.access);
+					state.authenticated = true;
+					return loadData().then(updateInitialView);
+				} else {
+					state.error = true;
+					updateView(); // Show error view if 2FA fails
+				}
+			});
+			$2fa.dataset.listenerAttached = true; // Mark listener as attached
+		}
 	} else {
 		state.error = true;
-		updateView();
+		updateView(); // Show error view if login fails
 	}
 });
+
 
 D.getElementById('registerButton').addEventListener('click', async () => {
 	const username = D.getElementById('registerUsername').value;
