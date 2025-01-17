@@ -38,6 +38,10 @@ class User(AbstractBaseUser,PermissionsMixin):
     is_active = models.BooleanField(default=True)
     image = models.ImageField()
 
+    # campos para OTP
+    otp_code = models.CharField(max_length=6, blank=True, null=True)  # Código OTP (6 dígitos, puedes cambiar el max_length si lo deseas)
+    otp_code_expiration = models.DateTimeField(blank=True, null=True)  # Fecha de expiración del OTP
+
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
