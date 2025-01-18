@@ -13,6 +13,7 @@ from django.contrib.auth import get_user_model  # Import get_user_model
 from django.conf import settings  # Para acceder a las configuraciones de EMAIL_HOST_USER
 from rest_framework import generics, permissions, status  # Para la vista y permisos de DRF
 import pyotp
+import logging
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -60,26 +61,30 @@ class PopulateUserDataView(generics.CreateAPIView):
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+# Debug purpose
+logger = logging.getLogger(__name__)
+
 class LoginUserView(TokenObtainPairView):
     serializer_class = AuthTokenSerializer
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
-            response = super().post(request, *args, **kwargs)
-            if response.status_code == 200:
-                user = self.get_user(request.data['email'])
-                if user:
-                    # Verificar si TwoFactorAuth ya existe y actualizarla si es necesario
-                    two_factor_auth, created = TwoFactorAuth.objects.get_or_create(user=user)
-                    if not created:
-                        two_factor_auth.secret = pyotp.random_base32()
-                        two_factor_auth.is_verified = False
-                        two_factor_auth.save()
-    
-                    totp = pyotp.TOTP(two_factor_auth.secret)
-                    code = totp.now()
-    
-                    # Enviar el código de verificación por correo electrónico
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            user = self.get_user(request.data['email'])
+            if user:
+                # Verificar si TwoFactorAuth ya existe y actualizarla si es necesario
+                two_factor_auth, created = TwoFactorAuth.objects.get_or_create(user=user)
+                if not created:
+                    two_factor_auth.secret = pyotp.random_base32()
+                    two_factor_auth.is_verified = False
+                    two_factor_auth.save()
+
+                totp = pyotp.TOTP(two_factor_auth.secret)
+                code = totp.now()
+
+                # Enviar el código de verificación por correo electrónico
+                try:
                     send_mail(
                         'Your verification code',
                         f'Your verification code is {code}',
@@ -87,7 +92,15 @@ class LoginUserView(TokenObtainPairView):
                         [user.email],
                         fail_silently=False,
                     )
-            return response
+                    logger.info(f'Verification code sent to {user.email}')
+                except Exception as e:
+                    logger.error(f'Error sending email: {e}')
+                    logger.error(f'EMAIL_HOST: {settings.EMAIL_HOST}')
+                    logger.error(f'EMAIL_PORT: {settings.EMAIL_PORT}')
+                    logger.error(f'EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}')
+                    logger.error(f'EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}')
+                    logger.error(f'EMAIL_HOST_PASSWORD: {settings.EMAIL_HOST_PASSWORD}')
+        return response
 
     def get_user(self, email):
         try:
