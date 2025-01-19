@@ -114,10 +114,12 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 	
 	if (resp.ok) {
 		const data = await resp.json();
-
+		localStorage.setItem('authToken', data.access);
+		console.log("Authentication token: " + localStorage.getItem('authToken'));
 		// Show 2FA form and hide login form
 		$2fa.classList.remove('invisible');
 		$loginForm.classList.add('invisible');
+		
 
 		// Avoid adding multiple event listeners
 		if (!$2fa.dataset.listenerAttached) {
@@ -135,8 +137,6 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 				});
 				
 				if (resp.ok) {
-					const data = await resp.json();
-					localStorage.setItem('authToken', data.access);
 					state.authenticated = true;
 					return loadData().then(updateInitialView);
 				} else {
