@@ -1,10 +1,10 @@
 from django.db import models
+import pyotp
 from django.contrib.auth.models import (
     AbstractBaseUser,
     PermissionsMixin,
     BaseUserManager
 )
-import pyotp
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password, username, **extra_field):
@@ -14,7 +14,10 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
 
-        TwoFactorAuth.objects.create(user=user, secret=pyotp.random_base32()) # Crear la tabla
+        # Crear la instancia de TwoFactorAuth y asociarla al usuario
+        tabla = TwoFactorAuth.objects.create(user=user, secret=pyotp.random_base32())
+        user.two_factor_auth = tabla
+        user.save(using=self._db)  # Guardar el usuario nuevamente para persistir la relación
 
         return user
 
@@ -26,9 +29,6 @@ class UserManager(BaseUserManager):
 
         return user
 
-"""
-# Modelo para enviar el email y el 2fa
-"""
 class TwoFactorAuth(models.Model):
     user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='two_factor_auth_data')
     secret = models.CharField(max_length=32, default=pyotp.random_base32)
@@ -37,12 +37,7 @@ class TwoFactorAuth(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.secret}"
 
-"""
-The name of each Field instance (e.g. username or email) is the fields name, 
-in machine-friendly format. You will use this value in your Python code, 
-and your database will use it as the column name.
-"""
-class User(AbstractBaseUser,PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, max_length=100)
     username = models.CharField(max_length=20)
     password = models.CharField(max_length=255)
@@ -50,7 +45,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     is_active = models.BooleanField(default=True)
     image = models.ImageField()
     two_factor_auth = models.OneToOneField(TwoFactorAuth, 
-                                        on_delete=models.SET_NULL, 
+                                        on_delete=models.CASCADE, 
                                         null=True, 
                                         blank=True, 
                                         related_name='user_data')
