@@ -189,8 +189,6 @@ class Game {
 		document.body.appendChild(this.renderer.domElement);
 
 		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		this.camera.position.z = 5;
-
 		// Estados del juego
 		this.states = {
 			MENU: 'menu',
@@ -206,6 +204,13 @@ class Game {
 			play: this.createPlayScene(),
 			multiplayer: this.createSettingsScene(),
 		};
+
+		const loader = new THREE.TextureLoader();
+		loader.load('/static/img/bg.webp', (texture) => {
+			this.scenes.menu.background = texture;
+		});
+		this.camera.position.z = 5;
+
 
 		// Agregar detección de clics
 		this.setupEventListeners();
