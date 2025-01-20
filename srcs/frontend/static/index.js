@@ -184,103 +184,179 @@ D.getElementById('registerButton').addEventListener('click', async () => {
 class Game {
 	constructor() {
 		// Configurar escena, cámara y renderizador
-		this.scene = new THREE.Scene();
-		this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		document.body.appendChild(this.renderer.domElement);
 
+		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 		this.camera.position.z = 5;
 
-		// Crear un cubo para la escena
-		this.geometry = new THREE.BoxGeometry(1, 1, 1);
-		this.material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-		this.cube = new THREE.Mesh(this.geometry, this.material);
-		this.scene.add(this.cube);
+		// Estados del juego
+		this.states = {
+			MENU: 'menu',
+			PLAY: 'play',
+			MULTIPLAYER: 'multiplayer',
+			TOURNAMENTS: 'tournament',
+		};
+		this.currentState = this.states.MENU;
 
-		// Crear un botón
-		this.button = this.createButton();
+		// Escenas para cada estado
+		this.scenes = {
+			menu: this.createMenuScene(),
+			play: this.createPlayScene(),
+			multiplayer: this.createSettingsScene(),
+		};
+
+		// Agregar detección de clics
+		this.setupEventListeners();
 
 		// Iniciar el bucle del juego
 		this.gameLoop();
 	}
 
-	// Crear un botón como un plano 2D
-	createButton() {
-		// Crear geometría y material
-		const buttonGeometry = new THREE.PlaneGeometry(1.5, 0.75); // Tamaño del botón
-		const buttonMaterial = new THREE.MeshBasicMaterial({ color: 0x424242 }); // Color del botón
+	// Crear escena del menú
+	createMenuScene() {
+		const scene = new THREE.Scene();
 
-		// Crear malla
-		const buttonMesh = new THREE.Mesh(buttonGeometry, buttonMaterial);
+		// Botón 1: Jugar
+		const playButton = this.createButton('Play', 0, 1);
+		scene.add(playButton);
 
-		// Posicionar el botón en el centro inferior
-		buttonMesh.position.set(0, -2, 0); // Ajustar según la cámara
-		this.scene.add(buttonMesh);
+		// Botón 2: Multijugador
+		const settingsButton = this.createButton('Multiplayer', 0, -1);
+		scene.add(settingsButton);
 
-		return buttonMesh;
+		//Boton 3: LOUGOUT
+		const logoutButton = this.createButton('Logout', 0, -3);
+		scene.add(logoutButton);
+		
+
+		// Asociar botones a acciones
+		playButton.userData.onClick = () => this.changeState(this.states.PLAY);
+		settingsButton.userData.onClick = () => this.changeState(this.states.MULTIPLAYER);
+		logoutButton.userData.onClick = () => { localStorage.removeItem('authToken'); location.reload(); };
+
+		return scene;
 	}
 
-	// Dibujar texto en el botón (opcional, usando un material de textura)
-	addButtonText(text) {
+	// Crear escena de juego
+	createPlayScene() {
+		const scene = new THREE.Scene();
+
+		// Agregar cubo
+		const geometry = new THREE.BoxGeometry(1, 1, 1);
+		const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+		const cube = new THREE.Mesh(geometry, material);
+		scene.add(cube);
+
+		// Agregar botón para volver al menú principal
+		const menuButton = this.createButton('Menu', -3.5, 2, 0.5, 0.25);
+		menuButton.userData.onClick = () => this.changeState(this.states.MENU);
+		scene.add(menuButton);
+
+		return scene;
+	}
+
+	// Crear escena de configuración
+	createSettingsScene() {
+		const scene = new THREE.Scene();
+
+		// Texto "Configuración"
+		const textGeometry = new THREE.PlaneGeometry(4, 1);
 		const canvas = document.createElement('canvas');
 		const ctx = canvas.getContext('2d');
+		canvas.width = 512;
+		canvas.height = 128;
+		ctx.fillStyle = 'white';
+		ctx.font = '40px Arial';
+		ctx.fillText('Multiplayer', 150, 80);
 
-		// Tamaño del canvas y texto
+		const texture = new THREE.CanvasTexture(canvas);
+		const textMaterial = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+		const settingsText = new THREE.Mesh(textGeometry, textMaterial);
+		scene.add(settingsText);
+
+		// Agregar botón para volver al menú principal
+		const menuButton = this.createButton('Menu', -3.5, 2, 0.5, 0.25);
+		menuButton.userData.onClick = () => this.changeState(this.states.MENU);
+		scene.add(menuButton);
+
+		return scene;
+	}
+
+	// Crear un botón en forma de plano
+	createButton(label, x, y, width = 2, height = 1) {
+		const buttonGeometry = new THREE.PlaneGeometry(width, height);
+		const buttonMaterial = new THREE.MeshBasicMaterial({ color: 0x007bff });
+
+		const button = new THREE.Mesh(buttonGeometry, buttonMaterial);
+		button.position.set(x, y, 0);
+
+		// Agregar texto al botón
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
 		canvas.width = 256;
 		canvas.height = 128;
-		ctx.fillStyle = '#424242'; // Fondo del botón
+		ctx.fillStyle = '#007bff';
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.fillStyle = '#ffffff'; // Color del texto
+		ctx.fillStyle = 'white';
 		ctx.font = '30px Arial';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
-		ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+		ctx.fillText(label, canvas.width / 2, canvas.height / 2);
 
-		// Crear textura a partir del canvas
 		const texture = new THREE.CanvasTexture(canvas);
-		this.button.material.map = texture;
-		this.button.material.needsUpdate = true;
+		button.material.map = texture;
+		button.material.needsUpdate = true;
+
+		return button;
 	}
 
-	animate() {
-		this.cube.rotation.x += 0.01;
-		this.cube.rotation.y += 0.01;
-		this.renderer.setSize(window.innerWidth, window.innerHeight);
+	// Configurar detección de clics
+	setupEventListeners() {
+		document.addEventListener('click', (event) => {
+			const mouse = new THREE.Vector2(
+				(event.clientX / window.innerWidth) * 2 - 1,
+				-(event.clientY / window.innerHeight) * 2 + 1
+			);
+
+			const raycaster = new THREE.Raycaster();
+			raycaster.setFromCamera(mouse, this.camera);
+
+			const intersects = raycaster.intersectObjects(this.scenes[this.currentState].children);
+			if (intersects.length > 0) {
+				const clickedObject = intersects[0].object;
+				if (clickedObject.userData.onClick) {
+					clickedObject.userData.onClick();
+				}
+			}
+		});
 	}
 
-	// Bucle del juego para actualizar y renderizar
+	// Cambiar el estado del juego
+	changeState(newState) {
+		this.currentState = newState;
+	}
+
+	animateCube() {
+		this.scenes[this.states.PLAY].children[0].rotation.x += 0.01;
+		this.scenes[this.states.PLAY].children[0].rotation.y += 0.01;
+	}
+
+	// Bucle del juego
 	gameLoop() {
-		// Renderizar la escena
-		this.renderer.render(this.scene, this.camera);
-
-		// Animar
-		this.animate();
-
+		// Renderizar la escena actual
+		this.renderer.render(this.scenes[this.currentState], this.camera);
+		if (this.states.PLAY === this.currentState) {
+			this.animateCube();
+		}
 		// Solicitar el próximo frame
 		requestAnimationFrame(() => this.gameLoop());
 	}
 }
 
-
-
 let startGame = () => {
 	let G = new Game();
-	G.addButtonText('Click me!');
-	document.addEventListener('click', (event) => {
-		const mouse = new THREE.Vector2(
-			(event.clientX / window.innerWidth) * 2 - 1,
-			-(event.clientY / window.innerHeight) * 2 + 1
-		);
-
-		const raycaster = new THREE.Raycaster();
-		raycaster.setFromCamera(mouse, G.camera);
-	
-		const intersects = raycaster.intersectObject(G.button);
-		if (intersects.length > 0) {
-			console.log('Button clicked!');
-		}
-	});
 }
 
 // Initialize the app
