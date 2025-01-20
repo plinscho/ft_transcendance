@@ -18,3 +18,5 @@ COPY . /app/
 RUN chmod +x ./scripts/start.sh
 
 ENTRYPOINT [ "sh", "-c", "./scripts/start.sh" ]
+#Asegúrate de que el archivo Dockerfile ejecute el servidor ASGI en lugar del servidor WSGI
+#ENTRYPOINT [ "sh", "-c", "daphne -b 0.0.0.0 -p 8000 config.asgi:application" ]
