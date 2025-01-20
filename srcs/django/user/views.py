@@ -73,12 +73,11 @@ class LoginUserView(TokenObtainPairView):
         if response.status_code == 200:
             user = self.get_user(request.data['email'])
             if user:
-                # Verificar si TwoFactorAuth ya existe y actualizarla si es necesario
-                two_factor_auth, created = TwoFactorAuth.objects.get_or_create(user=user)
-                if not created:
-                    two_factor_auth.secret = pyotp.random_base32()
-                    two_factor_auth.is_verified = False
-                    two_factor_auth.save()
+                # Actualizar el secreto y el estado de verificación de TwoFactorAuth
+                two_factor_auth = user.two_factor_auth
+                two_factor_auth.secret = pyotp.random_base32()
+                two_factor_auth.is_verified = False
+                two_factor_auth.save()
 
                 totp = pyotp.TOTP(two_factor_auth.secret)
                 code = totp.now()
@@ -108,20 +107,6 @@ class LoginUserView(TokenObtainPairView):
         except get_user_model().DoesNotExist:
             return None
 
-#class RetrieveUpdateUserView(generics.RetrieveUpdateAPIView):
-#    serializer_class = UserSerializer
-#    authentication_classes = [authentication.TokenAuthentication]
-#    permission_classes = [permissions.IsAuthenticated]
-#
-#    def get_object(self):
-#        return self.request.user
-
-#class ListUsersView(generics.ListAPIView):
-#    serializer_class = UserSerializer
-#
-#    def get_queryset(self):
-#        return User.get_queryset()
-
 #Enviamos el mail para que el usuario reciba el código de 2FA que se crea en la vista
 #Guardamos el codigo y la fecha de expiración en el modelo de usuario
 class Verify2FACodeView(generics.GenericAPIView):
@@ -130,11 +115,14 @@ class Verify2FACodeView(generics.GenericAPIView):
 
     def post(self, request):
         user = request.user
-        code = request.data.get('code')
+        code = request.data.get('token')
 
         try:
-            totp = pyotp.TOTP(user.two_factor_auth.secret)
-            if totp.verify(code):
+            if user.two_factor_auth is None:
+                return Response({"error": "Two-factor authentication not set up"}, status=status.HTTP_400_BAD_REQUEST)
+
+            totp = user.two_factor_auth.secret
+            if totp == code:
                 user.two_factor_auth.is_verified = True
                 user.two_factor_auth.save()
                 return Response({"message": "Verification successful"}, status=status.HTTP_200_OK)
