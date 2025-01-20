@@ -143,6 +143,7 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 					state.authenticated = true;
 					return loadData().then(updateInitialView);
 				} else {
+					localStorage.removeItem('authToken');
 					state.error = true;
 					updateView(); // Show error view if 2FA fails
 				}
