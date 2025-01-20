@@ -1,3 +1,6 @@
+//imports 
+import * as THREE from 'three';
+
 const View = {
 	LOADING: 0,
 	OK: 1,
@@ -23,7 +26,7 @@ let loadData = () => {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
+			'Authorization': `Bearer ${localStorage.getItem('authToken')}`
 		}
 	})
 		.then((resp) => {
@@ -31,7 +34,7 @@ let loadData = () => {
 			if (resp.ok) return fetch(URL + '/api/user/data/', {
 				method: 'GET',
 				headers: {
-					'Content-Type': 'application/json', 
+					'Content-Type': 'application/json',
 					'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
 				}
 			});
@@ -111,7 +114,7 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 		},
 		body: JSON.stringify({ email, password }),
 	});
-	
+
 	if (resp.ok) {
 		const data = await resp.json();
 		localStorage.setItem('authToken', data.access);
@@ -119,7 +122,7 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 		// Show 2FA form and hide login form
 		$2fa.classList.remove('invisible');
 		$loginForm.classList.add('invisible');
-		
+
 
 		// Avoid adding multiple event listeners
 		if (!$2fa.dataset.listenerAttached) {
@@ -135,7 +138,7 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 					},
 					body: JSON.stringify({ token }),
 				});
-				
+
 				if (resp.ok) {
 					state.authenticated = true;
 					return loadData().then(updateInitialView);
@@ -179,84 +182,104 @@ D.getElementById('registerButton').addEventListener('click', async () => {
 
 class Game {
 	constructor() {
-		this.canvas = document.getElementById('gameCanvas');
-		this.ctx = this.canvas.getContext('2d');
+		// Configurar escena, cámara y renderizador
+		this.scene = new THREE.Scene();
+		this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+		this.renderer = new THREE.WebGLRenderer();
+		this.renderer.setSize(window.innerWidth, window.innerHeight);
+		document.body.appendChild(this.renderer.domElement);
 
-		// Initial position of the square
-		this.squareX = 50;
-		this.squareY = 50;
-		this.squareSize = 50;
+		this.camera.position.z = 5;
 
-		// Movement speed
-		this.speed = 4;
+		// Crear un cubo para la escena
+		this.geometry = new THREE.BoxGeometry(1, 1, 1);
+		this.material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+		this.cube = new THREE.Mesh(this.geometry, this.material);
+		this.scene.add(this.cube);
 
-		// Initialize keyboard tracking
-		this.keys = {};
-		this.initKeyboard();
+		// Crear un botón
+		this.button = this.createButton();
 
-		// Start the game loop
+		// Iniciar el bucle del juego
 		this.gameLoop();
 	}
 
-	// Method to initialize keyboard event listeners
-	initKeyboard() {
-		window.addEventListener("keydown", (e) => {
-			this.keys[e.keyCode] = true;
-		});
-		window.addEventListener("keyup", (e) => {
-			this.keys[e.keyCode] = false;
-		});
+	// Crear un botón como un plano 2D
+	createButton() {
+		// Crear geometría y material
+		const buttonGeometry = new THREE.PlaneGeometry(1.5, 0.75); // Tamaño del botón
+		const buttonMaterial = new THREE.MeshBasicMaterial({ color: 0x424242 }); // Color del botón
+
+		// Crear malla
+		const buttonMesh = new THREE.Mesh(buttonGeometry, buttonMaterial);
+
+		// Posicionar el botón en el centro inferior
+		buttonMesh.position.set(0, -2, 0); // Ajustar según la cámara
+		this.scene.add(buttonMesh);
+
+		return buttonMesh;
 	}
 
-	// Method to check if a key is pressed
-	isKeyPressed(keyCode) {
-		return this.keys[keyCode] || false;
+	// Dibujar texto en el botón (opcional, usando un material de textura)
+	addButtonText(text) {
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+
+		// Tamaño del canvas y texto
+		canvas.width = 256;
+		canvas.height = 128;
+		ctx.fillStyle = '#424242'; // Fondo del botón
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = '#ffffff'; // Color del texto
+		ctx.font = '30px Arial';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+		// Crear textura a partir del canvas
+		const texture = new THREE.CanvasTexture(canvas);
+		this.button.material.map = texture;
+		this.button.material.needsUpdate = true;
 	}
 
-	// Update square position based on key presses
-	moveSquare() {
-		if (this.isKeyPressed(37)) {
-			// Left arrow
-			this.squareX -= this.speed;
-		}
-		if (this.isKeyPressed(38)) {
-			// Up arrow
-			this.squareY -= this.speed;
-		}
-		if (this.isKeyPressed(39)) {
-			// Right arrow
-			this.squareX += this.speed;
-		}
-		if (this.isKeyPressed(40)) {
-			// Down arrow
-			this.squareY += this.speed;
-		}
+	animate() {
+		this.cube.rotation.x += 0.01;
+		this.cube.rotation.y += 0.01;
+		this.renderer.setSize(window.innerWidth, window.innerHeight);
 	}
 
-	// Draw the square on the canvas
-	drawSquare() {
-		this.ctx.fillStyle = "red";
-		this.ctx.fillRect(this.squareX, this.squareY, this.squareSize, this.squareSize);
-	}
-
-	// Clear the canvas
-	clearCanvas() {
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-	}
-
-	// Game loop to update and render the game
+	// Bucle del juego para actualizar y renderizar
 	gameLoop() {
-		this.clearCanvas();
-		this.moveSquare();
-		this.drawSquare();
+		// Renderizar la escena
+		this.renderer.render(this.scene, this.camera);
 
-		// Request the next animation frame
+		// Animar
+		this.animate();
+
+		// Solicitar el próximo frame
 		requestAnimationFrame(() => this.gameLoop());
 	}
 }
 
+
+
 let startGame = () => {
 	let G = new Game();
+	G.addButtonText('Click me!');
+	document.addEventListener('click', (event) => {
+		const mouse = new THREE.Vector2(
+			(event.clientX / window.innerWidth) * 2 - 1,
+			-(event.clientY / window.innerHeight) * 2 + 1
+		);
+
+		const raycaster = new THREE.Raycaster();
+		raycaster.setFromCamera(mouse, G.camera);
+	
+		const intersects = raycaster.intersectObject(G.button);
+		if (intersects.length > 0) {
+			console.log('Button clicked!');
+		}
+	});
 }
 
 // Initialize the app
