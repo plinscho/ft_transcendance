@@ -8,3 +8,5 @@ djangorestframework_simplejwt
 
 django-otp
 pyotp
+channels
+daphne

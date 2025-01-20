@@ -36,6 +36,7 @@ CSRF_TRUSTED_ORIGINS = ['https://localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne', # Para el servidor de WebSockets (Daphne)
     'user.apps.UserConfig', # user/apps.py
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,7 +47,19 @@ INSTALLED_APPS = [
     'rest_framework', # for API endpoints
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    'pong.apps.PongConfig', # pong/apps.py
+    'channels', # Para los WebSockets (Django Channels)
 ]
+
+# Configuración de channels (Se define en el config/file asgi.py):
+ASGI_APPLICATION = 'config.asgi.application'
+
+# Configuración del canal de capas (puedes usar Redis o InMemoryChannelLayer para desarrollo)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
