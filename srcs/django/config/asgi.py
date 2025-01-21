@@ -21,12 +21,15 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 #Router que redirige las solicitudes segun su tipo (HTTP, WebSocket,...)
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack( #Añade soporte de autenticación a las connexiones WebSocket
-        URLRouter(
-            pong.routing.websocket_urlpatterns, #Donde definimos las rutas
-            # Aquí puedes añadir más rutas de WebSockets
-        )
+    "websocket": AllowedHostsOriginValidator(
+        AuthMiddlewareStack( #Añade soporte de autenticación a las connexiones WebSocket
+            URLRouter(
+                pong.routing.websocket_urlpatterns, #Donde definimos las rutas
+                # Aquí puedes añadir más rutas de WebSockets
+            )
+        ),
     ),
     # Aquí puedes añadir más protocolos como WebSocket
+    
 })
 
