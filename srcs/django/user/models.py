@@ -31,7 +31,7 @@ class UserManager(BaseUserManager):
 
 class TwoFactorAuth(models.Model):
     user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='two_factor_auth_data')
-    secret = models.CharField(max_length=32, default=pyotp.random_base32)
+    secret = models.CharField(max_length=32, null=True)
     is_verified = models.BooleanField(default=False)
 
     def __str__(self):

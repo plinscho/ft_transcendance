@@ -73,14 +73,21 @@ class LoginUserView(TokenObtainPairView):
         if response.status_code == 200:
             user = self.get_user(request.data['email'])
             if user:
-                # Actualizar el secreto y el estado de verificación de TwoFactorAuth
-                two_factor_auth = user.two_factor_auth
-                two_factor_auth.secret = pyotp.random_base32()
-                two_factor_auth.is_verified = False
-                two_factor_auth.save()
+                # Verificar si TwoFactorAuth ya existe y actualizarla si es necesario
+                two_factor_auth, created = TwoFactorAuth.objects.get_or_create(user=user)
+                if created:
+                    two_factor_auth.secret = pyotp.random_base32()
+                    two_factor_auth.is_verified = False
+                    two_factor_auth.save()
+                    user.two_factor_auth = two_factor_auth
+                    user.save()
+                    print(f"New secret code generated for: {user.email}")
 
                 totp = pyotp.TOTP(two_factor_auth.secret)
                 code = totp.now()
+
+                #debug print
+                print(f"Generated code: {code}")
 
                 # Enviar el código de verificación por correo electrónico
                 try:
@@ -116,15 +123,18 @@ class Verify2FACodeView(generics.GenericAPIView):
     def post(self, request):
         user = request.user
         code = request.data.get('token')
+        #debug print
+        print(f"Request Code from browser: {code}")
 
         try:
             if user.two_factor_auth is None:
                 return Response({"error": "Two-factor authentication not set up"}, status=status.HTTP_400_BAD_REQUEST)
 
-            totp = user.two_factor_auth.secret
-            if totp == code:
+            totp = pyotp.TOTP(user.two_factor_auth.secret)
+            if totp.verify(code):
                 user.two_factor_auth.is_verified = True
                 user.two_factor_auth.save()
+                print(f"User logged in succesfully!")
                 return Response({"message": "Verification successful"}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
