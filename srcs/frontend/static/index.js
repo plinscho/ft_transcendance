@@ -104,56 +104,69 @@ let toggleRegister = () => {
 D.getElementById('registerLink').addEventListener('click', toggleRegister);
 D.getElementById('loginLink').addEventListener('click', toggleRegister);
 D.getElementById('loginButton').addEventListener('click', async () => {
-	const email = D.getElementById('loginEmail').value;
-	const password = D.getElementById('loginPassword').value;
+    const email = D.getElementById('loginEmail').value;
+    const password = D.getElementById('loginPassword').value;
 
-	const resp = await fetch(URL + '/api/user/login/', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({ email, password }),
-	});
+    const resp = await fetch(URL + '/api/user/login/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+    });
 
-	if (resp.ok) {
-		const data = await resp.json();
-		localStorage.setItem('authToken', data.access);
-		console.log("Authentication token: " + localStorage.getItem('authToken'));
-		// Show 2FA form and hide login form
-		$2fa.classList.remove('invisible');
-		$loginForm.classList.add('invisible');
+    if (resp.ok) {
+        const data = await resp.json();
+        localStorage.setItem('authToken', data.access);
+        console.log("Authentication token: " + localStorage.getItem('authToken'));
+        // Show 2FA form and hide login form
+        $2fa.classList.remove('invisible');
+        $loginForm.classList.add('invisible');
 
+        // Generate and send 2FA code
+        const generate2FAResp = await fetch(URL + '/api/user/generate-2fa/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            },
+        });
 
-		// Avoid adding multiple event listeners
-		if (!$2fa.dataset.listenerAttached) {
-			$2fa.addEventListener('submit', async (e) => {
-				e.preventDefault(); // Prevent form from reloading the page
+        if (!generate2FAResp.ok) {
+            state.error = true;
+            updateView(); // Show error view if 2FA code generation fails
+        }
 
-				const token = D.getElementById('2faCode').value;
-				const resp = await fetch(URL + '/api/user/2fa/', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-					},
-					body: JSON.stringify({ token }),
-				});
+        // Avoid adding multiple event listeners
+        if (!$2fa.dataset.listenerAttached) {
+            $2fa.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Prevent form from reloading the page
 
-				if (resp.ok) {
-					state.authenticated = true;
-					return loadData().then(updateInitialView);
-				} else {
-					localStorage.removeItem('authToken');
-					state.error = true;
-					updateView(); // Show error view if 2FA fails
-				}
-			});
-			$2fa.dataset.listenerAttached = true; // Mark listener as attached
-		}
-	} else {
-		state.error = true;
-		updateView(); // Show error view if login fails
-	}
+                const token = D.getElementById('2faCode').value;
+                const resp = await fetch(URL + '/api/user/2fa/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    },
+                    body: JSON.stringify({ token }),
+                });
+
+                if (resp.ok) {
+                    state.authenticated = true;
+                    return loadData().then(updateInitialView);
+                } else {
+                    localStorage.removeItem('authToken');
+                    state.error = true;
+                    updateView(); // Show error view if 2FA fails
+                }
+            });
+            $2fa.dataset.listenerAttached = true; // Mark listener as attached
+        }
+    } else {
+        state.error = true;
+        updateView(); // Show error view if login fails
+    }
 });
 
 

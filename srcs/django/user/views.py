@@ -73,39 +73,18 @@ class LoginUserView(TokenObtainPairView):
         if response.status_code == 200:
             user = self.get_user(request.data['email'])
             if user:
-                # Verificar si TwoFactorAuth ya existe y actualizarla si es necesario
-                two_factor_auth, created = TwoFactorAuth.objects.get_or_create(user=user)
-                if created:
-                    two_factor_auth.secret = pyotp.random_base32()
-                    two_factor_auth.is_verified = False
-                    two_factor_auth.save()
-                    user.two_factor_auth = two_factor_auth
-                    user.save()
-                    print(f"New secret code generated for: {user.email}")
+                # Generar token JWT
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
 
-                totp = pyotp.TOTP(two_factor_auth.secret)
-                code = totp.now()
+                # Incluir el token en la respuesta
+                response_data = {
+                    'email': user.email,
+                    'username': user.username,
+                    'access': access_token
+                }
 
-                #debug print
-                print(f"Generated code: {code}")
-
-                # Enviar el código de verificación por correo electrónico
-                try:
-                    send_mail(
-                        'Your verification code',
-                        f'Your verification code is {code}',
-                        settings.EMAIL_HOST_USER,
-                        [user.email],
-                        fail_silently=False,
-                    )
-                    logger.info(f'Verification code sent to {user.email}')
-                except Exception as e:
-                    logger.error(f'Error sending email: {e}')
-                    logger.error(f'EMAIL_HOST: {settings.EMAIL_HOST}')
-                    logger.error(f'EMAIL_PORT: {settings.EMAIL_PORT}')
-                    logger.error(f'EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}')
-                    logger.error(f'EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}')
-                    logger.error(f'EMAIL_HOST_PASSWORD: {settings.EMAIL_HOST_PASSWORD}')
+                return Response(response_data, status=status.HTTP_200_OK)
         return response
 
     def get_user(self, email):
@@ -113,6 +92,50 @@ class LoginUserView(TokenObtainPairView):
             return get_user_model().objects.get(email=email)
         except get_user_model().DoesNotExist:
             return None
+
+class Generate2FACodeView(generics.GenericAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        if user:
+            # Verificar si TwoFactorAuth ya existe y actualizarla si es necesario
+            two_factor_auth, created = TwoFactorAuth.objects.get_or_create(user=user)
+            if created:
+                two_factor_auth.secret = pyotp.random_base32()
+                two_factor_auth.is_verified = False
+                two_factor_auth.save()
+                user.two_factor_auth = two_factor_auth
+                user.save()
+                print(f"New secret code generated for: {user.email}")
+
+            totp = pyotp.TOTP(two_factor_auth.secret)
+            code = totp.now()
+
+            # debug print
+            print(f"Generated code: {code}")
+
+            # Enviar el código de verificación por correo electrónico
+            try:
+                send_mail(
+                    'Your verification code',
+                    f'Your verification code is {code}',
+                    settings.EMAIL_HOST_USER,
+                    [user.email],
+                    fail_silently=False,
+                )
+                logger.info(f'Verification code sent to {user.email}')
+                return Response({"message": "Verification code sent"}, status=status.HTTP_200_OK)
+            except Exception as e:
+                logger.error(f'Error sending email: {e}')
+                logger.error(f'EMAIL_HOST: {settings.EMAIL_HOST}')
+                logger.error(f'EMAIL_PORT: {settings.EMAIL_PORT}')
+                logger.error(f'EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}')
+                logger.error(f'EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}')
+                logger.error(f'EMAIL_HOST_PASSWORD: {settings.EMAIL_HOST_PASSWORD}')
+                return Response({"error": "Error sending email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
 
 #Enviamos el mail para que el usuario reciba el código de 2FA que se crea en la vista
 #Guardamos el codigo y la fecha de expiración en el modelo de usuario
