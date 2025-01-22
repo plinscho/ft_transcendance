@@ -59,16 +59,21 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("redis", 6379)],
         },
     },
 }
-#CHANNEL_LAYERS = {
-#    'default': {
-#        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#    },
-#}
 
+# Configuración de caché usando Redis
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
