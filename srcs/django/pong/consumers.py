@@ -10,42 +10,37 @@ from pong.game import PongGame
 #Receive: Se llama cuando el servidor recibe un mensaje del cliente. Se envía el mismo mensaje de vuelta al cliente
 class PongConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
         await self.accept()
 
     async def disconnect(self, close_code):
-        pass
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
 
     #La función es el punto de entrada para todos los mensajes que llegan a través del WebSocket
     async def receive(self, text_data):
         data = json.loads(text_data)
-        message_type = data.get('type')
-        
-        if message_type == 'move':
-            await self.handle_move(data)
-        elif message_type == 'chat':
-            await self.handle_chat(data)
-        else:
-            await self.send(text_data=json.dumps({
-                'error': 'Unknown message type'
-            }))
+        message = data['message']
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message
+            }
+        )
+    
+    async def chat_message(self, event):
+        message = event['message']
+        await self.send(text_data=json.dumps({
+            'message': message
+        }))
 
     #Funciones auxiliares para realizar acciones en el juego (Ejemplos que no estan bien implementados)
 
-    async def handle_move(self, data):
-        # Lógica para manejar movimientos en el juego
-        move = data['move']
-        # Procesa el movimiento y envía una respuesta
-        await self.send(text_data=json.dumps({
-            'type': 'move',
-            'move': move
-        }))
-
-    async def handle_chat(self, data):
-        # Lógica para manejar mensajes de chat
-        message = data['message']
-        # Procesa el mensaje de chat y envía una respuesta
-        await self.send(text_data=json.dumps({
-            'type': 'chat',
-            'message': message
-        }))()
 
