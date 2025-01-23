@@ -1,3 +1,6 @@
+//imports 
+import * as THREE from 'three';
+
 const View = {
 	LOADING: 0,
 	OK: 1,
@@ -23,7 +26,7 @@ let loadData = () => {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${localStorage.getItem('authToken')}` 
+			'Authorization': `Bearer ${localStorage.getItem('authToken')}`
 		}
 	})
 		.then((resp) => {
@@ -31,7 +34,7 @@ let loadData = () => {
 			if (resp.ok) return fetch(URL + '/api/user/data/', {
 				method: 'GET',
 				headers: {
-					'Content-Type': 'application/json', 
+					'Content-Type': 'application/json',
 					'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
 				}
 			});
@@ -101,55 +104,69 @@ let toggleRegister = () => {
 D.getElementById('registerLink').addEventListener('click', toggleRegister);
 D.getElementById('loginLink').addEventListener('click', toggleRegister);
 D.getElementById('loginButton').addEventListener('click', async () => {
-	const email = D.getElementById('loginEmail').value;
-	const password = D.getElementById('loginPassword').value;
+    const email = D.getElementById('loginEmail').value;
+    const password = D.getElementById('loginPassword').value;
 
-	const resp = await fetch(URL + '/api/user/login/', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({ email, password }),
-	});
-	
-	if (resp.ok) {
-		const data = await resp.json();
+    const resp = await fetch(URL + '/api/user/login/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+    });
 
-		// Show 2FA form and hide login form
-		$2fa.classList.remove('invisible');
-		$loginForm.classList.add('invisible');
+    if (resp.ok) {
+        const data = await resp.json();
+        localStorage.setItem('authToken', data.access);
+        console.log("Authentication token: " + localStorage.getItem('authToken'));
+        // Show 2FA form and hide login form
+        $2fa.classList.remove('invisible');
+        $loginForm.classList.add('invisible');
 
-		// Avoid adding multiple event listeners
-		if (!$2fa.dataset.listenerAttached) {
-			$2fa.addEventListener('submit', async (e) => {
-				e.preventDefault(); // Prevent form from reloading the page
+        // Generate and send 2FA code
+        const generate2FAResp = await fetch(URL + '/api/user/generate-2fa/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            },
+        });
 
-				const token = D.getElementById('2faCode').value;
-				const resp = await fetch(URL + '/api/user/2fa/', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-					},
-					body: JSON.stringify({ token }),
-				});
-				
-				if (resp.ok) {
-					const data = await resp.json();
-					localStorage.setItem('authToken', data.access);
-					state.authenticated = true;
-					return loadData().then(updateInitialView);
-				} else {
-					state.error = true;
-					updateView(); // Show error view if 2FA fails
-				}
-			});
-			$2fa.dataset.listenerAttached = true; // Mark listener as attached
-		}
-	} else {
-		state.error = true;
-		updateView(); // Show error view if login fails
-	}
+        if (!generate2FAResp.ok) {
+            state.error = true;
+            updateView(); // Show error view if 2FA code generation fails
+        }
+
+        // Avoid adding multiple event listeners
+        if (!$2fa.dataset.listenerAttached) {
+            $2fa.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Prevent form from reloading the page
+
+                const token = D.getElementById('2faCode').value;
+                const resp = await fetch(URL + '/api/user/2fa/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    },
+                    body: JSON.stringify({ token }),
+                });
+
+                if (resp.ok) {
+                    state.authenticated = true;
+                    return loadData().then(updateInitialView);
+                } else {
+                    localStorage.removeItem('authToken');
+                    state.error = true;
+                    updateView(); // Show error view if 2FA fails
+                }
+            });
+            $2fa.dataset.listenerAttached = true; // Mark listener as attached
+        }
+    } else {
+        state.error = true;
+        updateView(); // Show error view if login fails
+    }
 });
 
 
@@ -179,78 +196,179 @@ D.getElementById('registerButton').addEventListener('click', async () => {
 
 class Game {
 	constructor() {
-		this.canvas = document.getElementById('gameCanvas');
-		this.ctx = this.canvas.getContext('2d');
+		// Configurar escena, cámara y renderizador
+		this.renderer = new THREE.WebGLRenderer();
+		this.renderer.setSize(window.innerWidth, window.innerHeight);
+		document.body.appendChild(this.renderer.domElement);
 
-		// Initial position of the square
-		this.squareX = 50;
-		this.squareY = 50;
-		this.squareSize = 50;
+		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+		// Estados del juego
+		this.states = {
+			MENU: 'menu',
+			PLAY: 'play',
+			MULTIPLAYER: 'multiplayer',
+			TOURNAMENTS: 'tournament',
+		};
+		this.currentState = this.states.MENU;
 
-		// Movement speed
-		this.speed = 4;
+		// Escenas para cada estado
+		this.scenes = {
+			menu: this.createMenuScene(),
+			play: this.createPlayScene(),
+			multiplayer: this.createSettingsScene(),
+		};
 
-		// Initialize keyboard tracking
-		this.keys = {};
-		this.initKeyboard();
+		const loader = new THREE.TextureLoader();
+		loader.load('/static/img/bg.webp', (texture) => {
+			this.scenes.menu.background = texture;
+		});
+		this.camera.position.z = 5;
 
-		// Start the game loop
+
+		// Agregar detección de clics
+		this.setupEventListeners();
+
+		// Iniciar el bucle del juego
 		this.gameLoop();
 	}
 
-	// Method to initialize keyboard event listeners
-	initKeyboard() {
-		window.addEventListener("keydown", (e) => {
-			this.keys[e.keyCode] = true;
+	// Crear escena del menú
+	createMenuScene() {
+		const scene = new THREE.Scene();
+
+		// Botón 1: Jugar
+		const playButton = this.createButton('Play', 0, 1);
+		scene.add(playButton);
+
+		// Botón 2: Multijugador
+		const settingsButton = this.createButton('Multiplayer', 0, -1);
+		scene.add(settingsButton);
+
+		//Boton 3: LOUGOUT
+		const logoutButton = this.createButton('Logout', 0, -3);
+		scene.add(logoutButton);
+		
+
+		// Asociar botones a acciones
+		playButton.userData.onClick = () => this.changeState(this.states.PLAY);
+		settingsButton.userData.onClick = () => this.changeState(this.states.MULTIPLAYER);
+		logoutButton.userData.onClick = () => { localStorage.removeItem('authToken'); location.reload(); };
+
+		return scene;
+	}
+
+	// Crear escena de juego
+	createPlayScene() {
+		const scene = new THREE.Scene();
+
+		// Agregar cubo
+		const geometry = new THREE.BoxGeometry(1, 1, 1);
+		const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+		const cube = new THREE.Mesh(geometry, material);
+		scene.add(cube);
+
+		// Agregar botón para volver al menú principal
+		const menuButton = this.createButton('Menu', -3.5, 2, 0.5, 0.25);
+		menuButton.userData.onClick = () => this.changeState(this.states.MENU);
+		scene.add(menuButton);
+
+		return scene;
+	}
+
+	// Crear escena de configuración
+	createSettingsScene() {
+		const scene = new THREE.Scene();
+
+		// Texto "Configuración"
+		const textGeometry = new THREE.PlaneGeometry(4, 1);
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		canvas.width = 512;
+		canvas.height = 128;
+		ctx.fillStyle = 'white';
+		ctx.font = '40px Arial';
+		ctx.fillText('Multiplayer', 150, 80);
+
+		const texture = new THREE.CanvasTexture(canvas);
+		const textMaterial = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+		const settingsText = new THREE.Mesh(textGeometry, textMaterial);
+		scene.add(settingsText);
+
+		// Agregar botón para volver al menú principal
+		const menuButton = this.createButton('Menu', -3.5, 2, 0.5, 0.25);
+		menuButton.userData.onClick = () => this.changeState(this.states.MENU);
+		scene.add(menuButton);
+
+		return scene;
+	}
+
+	// Crear un botón en forma de plano
+	createButton(label, x, y, width = 2, height = 1) {
+		const buttonGeometry = new THREE.PlaneGeometry(width, height);
+		const buttonMaterial = new THREE.MeshBasicMaterial({ color: 0x007bff });
+
+		const button = new THREE.Mesh(buttonGeometry, buttonMaterial);
+		button.position.set(x, y, 0);
+
+		// Agregar texto al botón
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		canvas.width = 256;
+		canvas.height = 128;
+		ctx.fillStyle = '#007bff';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = 'white';
+		ctx.font = '30px Arial';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText(label, canvas.width / 2, canvas.height / 2);
+
+		const texture = new THREE.CanvasTexture(canvas);
+		button.material.map = texture;
+		button.material.needsUpdate = true;
+
+		return button;
+	}
+
+	// Configurar detección de clics
+	setupEventListeners() {
+		document.addEventListener('click', (event) => {
+			const mouse = new THREE.Vector2(
+				(event.clientX / window.innerWidth) * 2 - 1,
+				-(event.clientY / window.innerHeight) * 2 + 1
+			);
+
+			const raycaster = new THREE.Raycaster();
+			raycaster.setFromCamera(mouse, this.camera);
+
+			const intersects = raycaster.intersectObjects(this.scenes[this.currentState].children);
+			if (intersects.length > 0) {
+				const clickedObject = intersects[0].object;
+				if (clickedObject.userData.onClick) {
+					clickedObject.userData.onClick();
+				}
+			}
 		});
-		window.addEventListener("keyup", (e) => {
-			this.keys[e.keyCode] = false;
-		});
 	}
 
-	// Method to check if a key is pressed
-	isKeyPressed(keyCode) {
-		return this.keys[keyCode] || false;
+	// Cambiar el estado del juego
+	changeState(newState) {
+		this.currentState = newState;
 	}
 
-	// Update square position based on key presses
-	moveSquare() {
-		if (this.isKeyPressed(37)) {
-			// Left arrow
-			this.squareX -= this.speed;
-		}
-		if (this.isKeyPressed(38)) {
-			// Up arrow
-			this.squareY -= this.speed;
-		}
-		if (this.isKeyPressed(39)) {
-			// Right arrow
-			this.squareX += this.speed;
-		}
-		if (this.isKeyPressed(40)) {
-			// Down arrow
-			this.squareY += this.speed;
-		}
+	animateCube() {
+		this.scenes[this.states.PLAY].children[0].rotation.x += 0.01;
+		this.scenes[this.states.PLAY].children[0].rotation.y += 0.01;
 	}
 
-	// Draw the square on the canvas
-	drawSquare() {
-		this.ctx.fillStyle = "red";
-		this.ctx.fillRect(this.squareX, this.squareY, this.squareSize, this.squareSize);
-	}
-
-	// Clear the canvas
-	clearCanvas() {
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-	}
-
-	// Game loop to update and render the game
+	// Bucle del juego
 	gameLoop() {
-		this.clearCanvas();
-		this.moveSquare();
-		this.drawSquare();
-
-		// Request the next animation frame
+		// Renderizar la escena actual
+		this.renderer.render(this.scenes[this.currentState], this.camera);
+		if (this.states.PLAY === this.currentState) {
+			this.animateCube();
+		}
+		// Solicitar el próximo frame
 		requestAnimationFrame(() => this.gameLoop());
 	}
 }

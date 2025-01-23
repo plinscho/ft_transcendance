@@ -1,10 +1,10 @@
 from django.db import models
+import pyotp
 from django.contrib.auth.models import (
     AbstractBaseUser,
     PermissionsMixin,
     BaseUserManager
 )
-
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password, username, **extra_field):
@@ -13,6 +13,11 @@ class UserManager(BaseUserManager):
         user = self.model(email=email, username=username, **extra_field)
         user.set_password(password)
         user.save(using=self._db)
+
+        # Crear la instancia de TwoFactorAuth y asociarla al usuario
+        tabla = TwoFactorAuth.objects.create(user=user, secret=pyotp.random_base32())
+        user.two_factor_auth = tabla
+        user.save(using=self._db)  # Guardar el usuario nuevamente para persistir la relación
 
         return user
 
@@ -23,24 +28,27 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
 
         return user
-    
-"""
-The name of each Field instance (e.g. username or email) is the fields name, 
-in machine-friendly format. You will use this value in your Python code, 
-and your database will use it as the column name.
-"""
-class User(AbstractBaseUser,PermissionsMixin):
+
+class TwoFactorAuth(models.Model):
+    user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='two_factor_auth_data')
+    secret = models.CharField(max_length=32, null=True)
+    is_verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.secret}"
+
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, max_length=100)
-    
     username = models.CharField(max_length=20)
     password = models.CharField(max_length=255)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     image = models.ImageField()
-
-    # campos para OTP
-    otp_code = models.CharField(max_length=6, blank=True, null=True)  # Código OTP (6 dígitos, puedes cambiar el max_length si lo deseas)
-    otp_code_expiration = models.DateTimeField(blank=True, null=True)  # Fecha de expiración del OTP
+    two_factor_auth = models.OneToOneField(TwoFactorAuth, 
+                                        on_delete=models.CASCADE, 
+                                        null=True, 
+                                        blank=True, 
+                                        related_name='user_data')
 
     objects = UserManager()
 
