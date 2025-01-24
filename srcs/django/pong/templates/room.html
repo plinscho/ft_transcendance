@@ -1,4 +1,4 @@
-<!-- chat/templates/chat/room.html -->
+<!-- filepath: /home/uri/42Barcelona/trascendence/srcs/django/pong/templates/room.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,13 +13,25 @@
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
-        const chatSocket = new WebSocket(
+        /*const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
             + '/ws/pong/'
             + roomName
             + '/'
+        );*/
+
+        const chatSocket = new WebSocket(
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://')
+            + window.location.host
+            + '/ws/pong/'
+            + roomName
+            + '/'
         );
+
+        chatSocket.onopen = function(e) {
+            console.log('WebSocket connection established');
+        };
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
@@ -27,7 +39,7 @@
         };
 
         chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
+            console.error('Chat socket closed unexpectedly ' + roomName);
         };
 
         document.querySelector('#chat-message-input').focus();
