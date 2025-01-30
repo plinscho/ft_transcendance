@@ -1,3 +1,7 @@
+# USE WEBSITE:
+To use the website go to https://localhost:8443
+
+___________________________________________________________________________________________________
 # PGADMIN CONNECTION:
 1) go to localhost:5050
 2) Insert the email provided in the .env
