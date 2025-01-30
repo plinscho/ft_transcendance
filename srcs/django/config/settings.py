@@ -37,6 +37,8 @@ CSRF_TRUSTED_ORIGINS = ['https://localhost']
 
 INSTALLED_APPS = [
     'daphne', # Para el servidor de WebSockets (Daphne)
+    'pong.apps.PongConfig', # pong/apps.py
+    'channels', # Para los WebSockets (Django Channels)
     'user.apps.UserConfig', # user/apps.py
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,8 +49,6 @@ INSTALLED_APPS = [
     'rest_framework', # for API endpoints
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
-    'pong.apps.PongConfig', # pong/apps.py
-    'channels', # Para los WebSockets (Django Channels)
 ]
 
 # Configuración de channels (Se define en el config/file asgi.py):
@@ -56,9 +56,23 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 # Configuración del canal de capas (puedes usar Redis o InMemoryChannelLayer para desarrollo)
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
     },
+}
+
+# Configuración de caché usando Redis
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
 }
 
 REST_FRAMEWORK = {

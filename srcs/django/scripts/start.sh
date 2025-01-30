@@ -20,5 +20,8 @@ python manage.py collectstatic --noinput
 python manage.py create_first_superuser
 
 # Where "config" is, its just the name of the django project (config in this case)
-gunicorn config.wsgi -b 0.0.0.0:8000
+#gunicorn config.wsgi -b 0.0.0.0:8000
+
+# Where "config" is, its just the name of the django project (config in this case)
+daphne -b 0.0.0.0 -p 8000 config.asgi:application
 

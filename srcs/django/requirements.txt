@@ -9,3 +9,6 @@ django-otp
 pyotp
 channels
 daphne
+redis
+channels_redis
+django-redis
