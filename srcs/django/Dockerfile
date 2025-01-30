@@ -10,9 +10,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install --upgrade pip
 
-EXPOSE 8080
-EXPOSE 8443
-
 COPY ./requirements.txt /app/
 
 RUN pip install -r requirements.txt
