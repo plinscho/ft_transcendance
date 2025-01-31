@@ -24,4 +24,4 @@ python manage.py create_first_superuser
 
 # Where "config" is, its just the name of the django project (config in this case)
 daphne -b 0.0.0.0 -p 8000 config.asgi:application
-
+#gunicorn config.wsgi --bind 0.0.0.0:8000 --reload & daphne -b 0.0.0.0 -p 8089 config.asgi:application &

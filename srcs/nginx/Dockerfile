@@ -7,6 +7,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Copy the gen_openssl.sh script and make it executable
 COPY gen_openssl.sh /usr/local/bin/gen_openssl.sh
 
+EXPOSE 8080
+EXPOSE 8443
+
 RUN mkdir -p /etc/letsencrypt/live/pong_server && \
     mkdir -p /usr/share/nginx/html/static && \
     mkdir -p /usr/share/nginx/html/templates && \
