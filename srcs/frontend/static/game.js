@@ -1,5 +1,8 @@
 import * as THREE from 'three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { logout } from './auth.js';
+
 
 export class Game {
 	constructor() {
@@ -25,10 +28,7 @@ export class Game {
 			multiplayer: this.createSettingsScene(),
 		};
 
-		const loader = new THREE.TextureLoader();
-		loader.load('/static/img/bg.webp', (texture) => {
-			this.scenes.menu.background = texture;
-		});
+        this.scenes.menu.background = new THREE.Color(0x424242);
 		this.camera.position.z = 5;
 
 
@@ -41,27 +41,39 @@ export class Game {
 
 	// Crear escena del menú
 	createMenuScene() {
-		const scene = new THREE.Scene();
+        const scene = new THREE.Scene();
+        const loader = new FontLoader();
+    
+        loader.load('/static/fonts/helvetiker_regular.typeface.json', (font) => {
+            let geometry = new TextGeometry('Play', {
+                font: font,
+                size: 0.9, // Ajustado para ser visible
+                depth: 0.1,
+                curveSegments: 4,
 
-		// Botón 1: Jugar
-		const playButton = this.createButton('Play', 0, 1);
-		scene.add(playButton);
+            });
+    
+            const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const textMesh = new THREE.Mesh(geometry, material);
+            
+            textMesh.position.set(-1, 0, 0);
 
-		// Botón 2: Multijugador
-		const settingsButton = this.createButton('Multiplayer', 0, -1);
-		scene.add(settingsButton);
-
-		//Boton 3: LOUGOUT
-		const logoutButton = this.createButton('Logout', 0, -3);
-		scene.add(logoutButton);
-		
-
+            // Agregar evento de clic
+            textMesh.userData.onClick = () => console.log('Texto clickeado');
+    
+            scene.add(textMesh);
+        });
+    
+        return scene;
+            
+            
+        //textMesh.userData.onClick = () => this.changeState(this.states.PLAY);
 		// Asociar botones a acciones
-		playButton.userData.onClick = () => this.changeState(this.states.PLAY);
-		settingsButton.userData.onClick = () => this.changeState(this.states.MULTIPLAYER);
-		logoutButton.userData.onClick = () => { logout(); };
 
-		return scene;
+		//settingsButton.userData.onClick = () => this.changeState(this.states.MULTIPLAYER);
+		//logoutButton.userData.onClick = () => { logout() };
+
+		//return scene;
 	}
 
 	// Crear escena de juego
