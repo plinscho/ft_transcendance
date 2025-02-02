@@ -38,14 +38,12 @@ export class Menu {
     
         this.buttonConfigs.forEach(({ text, state, action }, index) => {
             const position = this.getScreenRelativePosition(index);
-    
-            // Select a random color from the predefined list
             const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
     
             const button = new Text3D(
                 text,
                 position,
-                index === this.selectedIndex ? randomColor : 0xffffff, // Highlight first button with a random color
+                index === this.selectedIndex ? randomColor : 0xffffff, // Highlight first button
                 0.5,
                 0,
                 () => {
@@ -60,13 +58,25 @@ export class Menu {
             );
     
             button.createText((textMesh) => {
-                this.scene.add(textMesh);
-                textMesh.userData.onClick = button.onClick;
-                this.buttons.push({ mesh: textMesh, index, color: randomColor }); // Store the assigned color
+                // Create a larger, invisible hitbox
+                const hitboxGeometry = new THREE.BoxGeometry(2.5, 0.6, 0.1); // Increase width/height
+                const hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Invisible hitbox
+                const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+                
+                hitbox.position.copy(textMesh.position); // Match text position
+    
+                // Create a group to keep the text + hitbox together
+                const buttonGroup = new THREE.Group();
+                buttonGroup.add(textMesh);
+                buttonGroup.add(hitbox);
+                buttonGroup.userData.onClick = button.onClick; // Assign click function
+    
+                this.scene.add(buttonGroup);
+                this.buttons.push({ group: buttonGroup, index }); // Store reference
             });
         });
     }
-    
+
 
     // Calculate button position based on screen size
     getScreenRelativePosition(index) {
@@ -124,30 +134,31 @@ export class Menu {
             }
     
             raycaster.setFromCamera(mouse, this.camera);
-            const intersects = raycaster.intersectObjects(this.scene.children);
+            const intersects = raycaster.intersectObjects(this.scene.children, true); // Allow checking groups
     
             if (intersects.length > 0) {
-                const hoveredObject = intersects[0].object;
+                const hoveredObject = intersects[0].object.parent; // Get the parent group
                 const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
-                // Remove highlight from all buttons
-                this.buttons.forEach(({ mesh }, index) => {
-                    mesh.material.color.setHex(index === this.selectedIndex ? randomColor : 0xffffff);
+    
+                // Reset all button colors
+                this.buttons.forEach(({ group }, index) => {
+                    group.children[0].material.color.setHex(index === this.selectedIndex ? randomColor : 0xffffff);
                 });
     
                 // Highlight the hovered button
-                hoveredObject.material.color.setHex(randomColor);
+                hoveredObject.children[0].material.color.setHex(randomColor);
     
                 // Update the selected index based on the hovered object
-                this.selectedIndex = this.buttons.findIndex(({ mesh }) => mesh === hoveredObject);
+                this.selectedIndex = this.buttons.findIndex(({ group }) => group === hoveredObject);
             }
         });
     
         window.addEventListener('click', (e) => {
             raycaster.setFromCamera(mouse, this.camera);
-            const intersects = raycaster.intersectObjects(this.scene.children);
+            const intersects = raycaster.intersectObjects(this.scene.children, true);
     
             if (intersects.length > 0) {
-                const clickedObject = intersects[0].object;
+                const clickedObject = intersects[0].object.parent; // Get the parent group
     
                 if (clickedObject.userData.onClick) {
                     clickedObject.userData.onClick();
