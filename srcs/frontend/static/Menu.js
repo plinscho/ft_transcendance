@@ -107,22 +107,28 @@ export class Menu {
     }
 
     moveSelection(direction) {
+        if (this.buttons.length === 0) return; // Prevent errors if no buttons exist
+    
         // Remove highlight from previous selection
-        this.buttons[this.selectedIndex].mesh.material.color.setHex(0xffffff);
-
+        const previousButton = this.buttons[this.selectedIndex].group.children[0]; // Get text mesh
+        previousButton.material.color.setHex(0xffffff); // Reset to white
+    
         // Update selected index (loop around)
         this.selectedIndex = (this.selectedIndex + direction + this.buttons.length) % this.buttons.length;
-
-        //Random color 
+    
+        // Random color for selection
         const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+    
         // Highlight new selection
-        this.buttons[this.selectedIndex].mesh.material.color.setHex(randomColor);
+        const selectedButton = this.buttons[this.selectedIndex].group.children[0]; // Get text mesh
+        selectedButton.material.color.setHex(randomColor);
     }
-
+    
 
     menuIntersect() {
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+        let lastHoveredObject = null; // Store the last hovered button
     
         window.addEventListener('mousemove', (e) => {
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -138,18 +144,25 @@ export class Menu {
     
             if (intersects.length > 0) {
                 const hoveredObject = intersects[0].object.parent; // Get the parent group
-                const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
     
-                // Reset all button colors
-                this.buttons.forEach(({ group }, index) => {
-                    group.children[0].material.color.setHex(index === this.selectedIndex ? randomColor : 0xffffff);
-                });
+                if (hoveredObject !== lastHoveredObject) { // Change only if a different button is hovered
+                    const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
     
-                // Highlight the hovered button
-                hoveredObject.children[0].material.color.setHex(randomColor);
+                    // Reset the previous hovered button color
+                    if (lastHoveredObject) {
+                        lastHoveredObject.children[0].material.color.setHex(0xffffff);
+                    }
     
-                // Update the selected index based on the hovered object
-                this.selectedIndex = this.buttons.findIndex(({ group }) => group === hoveredObject);
+                    // Highlight the new hovered button
+                    hoveredObject.children[0].material.color.setHex(randomColor);
+    
+                    // Update tracking variables
+                    lastHoveredObject = hoveredObject;
+                }
+            } else if (lastHoveredObject) {
+                // If no button is hovered, reset the last hovered button color
+                lastHoveredObject.children[0].material.color.setHex(0xffffff);
+                lastHoveredObject = null; // Reset tracking variable
             }
         });
     
@@ -166,7 +179,8 @@ export class Menu {
             }
         });
     }
-    
+
+
     getScene() {
         return this.scene;
     }
