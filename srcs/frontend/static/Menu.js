@@ -7,18 +7,9 @@ export class Menu {
         this.scene = new THREE.Scene();
         this.state = state;
         this.camera = camera;
-        this.selectedIndex = 0; // Track the selected button index
+        this.selectedIndex = 0; // Track selected button index
         this.buttons = []; // Store button meshes
-        this.createMenuScene();
-        this.setupKeyboardNavigation();
-        this.menuIntersect();
-    }
-
-    createMenuScene() {
-        const basePosition = { x: -5, y: 1, z: 0 };
-        const offset = -0.7;
-
-        const buttonConfigs = [
+        this.buttonConfigs = [ // Define buttons
             { text: 'Play', state: this.state.states.PLAY },
             { text: 'Multiplayer', state: this.state.states.MULTIPLAYER },
             { text: 'Tournament', state: this.state.states.TOURNAMENTS },
@@ -26,8 +17,19 @@ export class Menu {
             { text: 'Logout', action: () => logout() }
         ];
 
-        buttonConfigs.forEach(({ text, state, action }, index) => {
-            const position = { x: basePosition.x, y: basePosition.y + offset * index, z: basePosition.z };
+        this.createMenuScene();
+        this.setupKeyboardNavigation();
+        this.menuIntersect();
+
+        // Add event listener for screen resize
+        window.addEventListener('resize', this.updateMenuPositions.bind(this));
+    }
+
+    createMenuScene() {
+        this.buttons = []; // Clear previous buttons
+
+        this.buttonConfigs.forEach(({ text, state, action }, index) => {
+            const position = this.getScreenRelativePosition(index);
 
             const button = new Text3D(
                 text,
@@ -49,55 +51,97 @@ export class Menu {
             button.createText((textMesh) => {
                 this.scene.add(textMesh);
                 textMesh.userData.onClick = button.onClick;
-                this.buttons.push(textMesh); // Store the button mesh
+                this.buttons.push({ mesh: textMesh, index }); // Store reference for resizing
             });
+        });
+    }
+
+    // Calculate button position based on screen size
+    getScreenRelativePosition(index) {
+        const xOffset = -this.camera.aspect * 3; // Keeps menu aligned dynamically
+        const yOffset = 1 - index * 0.7; // Space between buttons
+
+        return { x: xOffset, y: yOffset, z: 0 };
+    }
+
+    // Update positions when resizing
+    updateMenuPositions() {
+        this.buttons.forEach(({ mesh, index }) => {
+            const newPosition = this.getScreenRelativePosition(index);
+            mesh.position.set(newPosition.x, newPosition.y, newPosition.z);
         });
     }
 
     setupKeyboardNavigation() {
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'W' || e.key === 'w') {
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
                 this.moveSelection(-1);
-            } else if (e.key === 'ArrowDown' || e.key === 'S' || e.key === 's') {
+            } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
                 this.moveSelection(1);
             } else if (e.key === 'Enter') {
-                this.buttons[this.selectedIndex]?.userData.onClick();
+                this.buttons[this.selectedIndex]?.mesh.userData.onClick();
             }
         });
     }
 
     moveSelection(direction) {
         // Remove highlight from previous selection
-        this.buttons[this.selectedIndex].material.color.setHex(0xffffff);
+        this.buttons[this.selectedIndex].mesh.material.color.setHex(0xffffff);
 
-        // Update selected index (loop around if needed)
+        // Update selected index (loop around)
         this.selectedIndex = (this.selectedIndex + direction + this.buttons.length) % this.buttons.length;
 
         // Highlight new selection
-        this.buttons[this.selectedIndex].material.color.setHex(0xffff00);
+        this.buttons[this.selectedIndex].mesh.material.color.setHex(0xffff00);
     }
 
+
     menuIntersect() {
-        window.addEventListener('click', (e) => {
-            const raycaster = new THREE.Raycaster();
-            const mouse = new THREE.Vector2();
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+    
+        window.addEventListener('mousemove', (e) => {
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
+    
             if (!this.camera) {
-                console.error("Error: La cámara no está definida en Menu.js");
+                console.error("Error: Camera is not defined in Menu.js");
                 return;
             }
-
+    
             raycaster.setFromCamera(mouse, this.camera);
             const intersects = raycaster.intersectObjects(this.scene.children);
-
-            if (intersects.length > 0 && intersects[0].object.userData.onClick) {
-                intersects[0].object.userData.onClick();
+    
+            if (intersects.length > 0) {
+                const hoveredObject = intersects[0].object;
+    
+                // Remove highlight from all buttons
+                this.buttons.forEach(({ mesh }, index) => {
+                    mesh.material.color.setHex(index === this.selectedIndex ? 0xffff00 : 0xffffff);
+                });
+    
+                // Highlight the hovered button
+                hoveredObject.material.color.setHex(0xffff00);
+    
+                // Update the selected index based on the hovered object
+                this.selectedIndex = this.buttons.findIndex(({ mesh }) => mesh === hoveredObject);
+            }
+        });
+    
+        window.addEventListener('click', (e) => {
+            raycaster.setFromCamera(mouse, this.camera);
+            const intersects = raycaster.intersectObjects(this.scene.children);
+    
+            if (intersects.length > 0) {
+                const clickedObject = intersects[0].object;
+    
+                if (clickedObject.userData.onClick) {
+                    clickedObject.userData.onClick();
+                }
             }
         });
     }
-
+    
     getScene() {
         return this.scene;
     }
