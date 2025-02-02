@@ -17,6 +17,14 @@ export class Menu {
             { text: 'Logout', action: () => logout() }
         ];
 
+        this.colors = [
+            0xffacfc,
+            0xf148fb, 
+            0x7122fa,
+            0xffd300,
+            0xde38c8,
+        ];
+
         this.createMenuScene();
         this.setupKeyboardNavigation();
         this.menuIntersect();
@@ -27,14 +35,17 @@ export class Menu {
 
     createMenuScene() {
         this.buttons = []; // Clear previous buttons
-
+    
         this.buttonConfigs.forEach(({ text, state, action }, index) => {
             const position = this.getScreenRelativePosition(index);
-
+    
+            // Select a random color from the predefined list
+            const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+    
             const button = new Text3D(
                 text,
                 position,
-                index === this.selectedIndex ? 0xffff00 : 0xffffff, // Highlight first button
+                index === this.selectedIndex ? randomColor : 0xffffff, // Highlight first button with a random color
                 0.5,
                 0,
                 () => {
@@ -47,14 +58,15 @@ export class Menu {
                     }
                 }
             );
-
+    
             button.createText((textMesh) => {
                 this.scene.add(textMesh);
                 textMesh.userData.onClick = button.onClick;
-                this.buttons.push({ mesh: textMesh, index }); // Store reference for resizing
+                this.buttons.push({ mesh: textMesh, index, color: randomColor }); // Store the assigned color
             });
         });
     }
+    
 
     // Calculate button position based on screen size
     getScreenRelativePosition(index) {
@@ -91,8 +103,10 @@ export class Menu {
         // Update selected index (loop around)
         this.selectedIndex = (this.selectedIndex + direction + this.buttons.length) % this.buttons.length;
 
+        //Random color 
+        const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
         // Highlight new selection
-        this.buttons[this.selectedIndex].mesh.material.color.setHex(0xffff00);
+        this.buttons[this.selectedIndex].mesh.material.color.setHex(randomColor);
     }
 
 
@@ -114,14 +128,14 @@ export class Menu {
     
             if (intersects.length > 0) {
                 const hoveredObject = intersects[0].object;
-    
+                const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
                 // Remove highlight from all buttons
                 this.buttons.forEach(({ mesh }, index) => {
-                    mesh.material.color.setHex(index === this.selectedIndex ? 0xffff00 : 0xffffff);
+                    mesh.material.color.setHex(index === this.selectedIndex ? randomColor : 0xffffff);
                 });
     
                 // Highlight the hovered button
-                hoveredObject.material.color.setHex(0xffff00);
+                hoveredObject.material.color.setHex(randomColor);
     
                 // Update the selected index based on the hovered object
                 this.selectedIndex = this.buttons.findIndex(({ mesh }) => mesh === hoveredObject);
