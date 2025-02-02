@@ -54,9 +54,9 @@ export class Menu {
 
     setupKeyboardNavigation() {
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp') {
+            if (e.key === 'ArrowUp' || e.key === 'W') {
                 this.moveSelection(-1);
-            } else if (e.key === 'ArrowDown') {
+            } else if (e.key === 'ArrowDown' || e.key === 'S') {
                 this.moveSelection(1);
             } else if (e.key === 'Enter') {
                 this.buttons[this.selectedIndex]?.userData.onClick();
