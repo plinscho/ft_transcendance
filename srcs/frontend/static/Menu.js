@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
+import { logout } from './auth.js';
 
 export class Menu {
     constructor(state, camera) {
@@ -21,7 +22,8 @@ export class Menu {
             { text: 'Play', state: this.state.states.PLAY },
             { text: 'Multiplayer', state: this.state.states.MULTIPLAYER },
             { text: 'Tournament', state: this.state.states.TOURNAMENTS },
-            { text: 'Languages', action: () => console.log("Languages menu not implemented") }
+            { text: 'Languages', action: () => console.log("Languages menu not implemented") },
+            { text: 'Logout', action: () => logout() }
         ];
 
         buttonConfigs.forEach(({ text, state, action }, index) => {
@@ -54,9 +56,9 @@ export class Menu {
 
     setupKeyboardNavigation() {
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'W') {
+            if (e.key === 'ArrowUp' || e.key === 'W' || e.key === 'w') {
                 this.moveSelection(-1);
-            } else if (e.key === 'ArrowDown' || e.key === 'S') {
+            } else if (e.key === 'ArrowDown' || e.key === 'S' || e.key === 's') {
                 this.moveSelection(1);
             } else if (e.key === 'Enter') {
                 this.buttons[this.selectedIndex]?.userData.onClick();
