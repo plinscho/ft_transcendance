@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Menu } from './Menu.js';
 import { Pong } from './Pong.js';
+import { Multiplayer } from './Multiplayer.js';
 
 export class Game {
     constructor() {
@@ -27,7 +28,7 @@ export class Game {
         this.scenes = {
             menu: new Menu(this, this.camera),
             play: new Pong(this),
-            multiplayer: new Pong(this),
+            multiplayer: new Multiplayer(this),
             tournament: new Pong(this),
             languages: new Pong(this),
         };

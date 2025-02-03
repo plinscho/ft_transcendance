@@ -13,20 +13,19 @@
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
-        /*const chatSocket = new WebSocket(
-            'ws://'
-            + window.location.host
-            + '/ws/pong/'
-            + roomName
-            + '/'
-        );*/
+        const token = localStorage.getItem('authToken'); //Obtenemos el JWT para mandarlo
+
+        if (!roomName) {
+            console.error("roomName está vacío o undefined");
+        }
 
         const chatSocket = new WebSocket(
             (window.location.protocol === 'https:' ? 'wss://' : 'ws://')
             + window.location.host
             + '/ws/pong/'
             + roomName
-            + '/'
+            + '/?authToken=' + token
+            //+ '/?authToken=' + token
         );
 
         chatSocket.onopen = function(e) {
@@ -39,7 +38,7 @@
         };
 
         chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly ' + roomName);
+            console.error('Chat socket closed unexpectedly ' + roomName + ' ' + token);
         };
 
         document.querySelector('#chat-message-input').focus();
