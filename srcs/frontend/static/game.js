@@ -34,10 +34,10 @@ export class Game {
         // Escenas
         this.scenes = {
             menu: new Menu(this, this.camera),
-            play: new Pong(this),
-            multiplayer: new Multiplayer(this.socket),
-            tournament: new Pong(this),
-            languages: new Pong(this),
+            play: null, //new Pong(this),
+            multiplayer: null, //new Multiplayer(this.socket),
+            tournament: null, //new Pong(this),
+            languages: null, //new Pong(this),
         };
 
         // Set initial camera
@@ -48,6 +48,33 @@ export class Game {
 
         // Iniciar el bucle del juego
         this.gameLoop();
+    }
+
+    loadScene(sceneName){
+        if (!this.scenes[sceneName]) {
+            switch (sceneName) {
+                case this.states.PLAY:
+                    this.scenes[sceneName] = new Pong(this);
+                    break;
+                
+                case this.states.MULTIPLAYER:
+                    this.scenes[sceneName] = new Multiplayer(this.socket);
+                    break;
+                    
+                case this.states.TOURNAMENTS:
+                    this.scenes[sceneName] = new Pong(this);
+                    break;
+                
+                case this.states.LANGUAGES:
+                    this.scenes[sceneName] = new Pong(this);
+                    break;
+
+                default:
+                    console.error(`Scene only in you head. ${sceneName}`)
+            }
+        }
+
+        this.changeState(sceneName);
     }
 
     // Create websocket
