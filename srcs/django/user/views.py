@@ -101,6 +101,9 @@ class Generate2FACodeView(generics.GenericAPIView):
         user = request.user
         if user:
             # Verificar si TwoFactorAuth ya existe y actualizarla si es necesario
+
+            two_factor_auth = TwoFactorAuth.objects.get(user=user)
+
             two_factor_auth, created = TwoFactorAuth.objects.get_or_create(user=user)
             if created:
                 two_factor_auth.secret = pyotp.random_base32()
@@ -110,7 +113,7 @@ class Generate2FACodeView(generics.GenericAPIView):
                 user.save()
                 print(f"New secret code generated for: {user.email}")
 
-            totp = pyotp.TOTP(two_factor_auth.secret)
+            totp = pyotp.TOTP(two_factor_auth.secret, interval=300)
             code = totp.now()
 
             # debug print
@@ -153,13 +156,14 @@ class Verify2FACodeView(generics.GenericAPIView):
             if user.two_factor_auth is None:
                 return Response({"error": "Two-factor authentication not set up"}, status=status.HTTP_400_BAD_REQUEST)
 
-            totp = pyotp.TOTP(user.two_factor_auth.secret)
+            totp = pyotp.TOTP(user.two_factor_auth.secret, interval=300)
             if totp.verify(code):
                 user.two_factor_auth.is_verified = True
                 user.two_factor_auth.save()
-                print(f"User logged in succesfully!")
+                print(f"User {user.username} logged in succesfully!")
                 return Response({"message": "Verification successful"}, status=status.HTTP_200_OK)
             else:
+                print(f"Code {code} is not valid. Sending 400 HTTP")
                 return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
         except TwoFactorAuth.DoesNotExist:
             return Response({"error": "Two-factor authentication not set up"}, status=status.HTTP_400_BAD_REQUEST)
