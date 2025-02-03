@@ -29,6 +29,13 @@ export class Multiplayer {
         this.camera = this.createCamera();  // Create a dedicated camera
         console.log("Hello from Multiplayer.");
         this.socket = socket;
+
+        var message = {
+            type: "message",
+            message: "PING"
+        };
+
+        this.socket.send(JSON.stringify(message));
         this.listenEvent();
     }
     

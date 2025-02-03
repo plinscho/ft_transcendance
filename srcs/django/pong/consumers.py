@@ -77,7 +77,8 @@ class PongConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         message = data['message']
         logger.debug(f"Received message: {message}")
-
+        if message == "PING":
+            await self.send(text_data=json.dumps({"message": "PONG"}))
         await self.channel_layer.group_send(
             self.room_group_name,
             {
