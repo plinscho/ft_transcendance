@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { logout } from './auth.js';
+import { Pong } from './Pong.js';
 
 
 export class Menu {
@@ -36,6 +37,8 @@ export class Menu {
         window.addEventListener('resize', this.updateMenuPositions.bind(this));
     }
 
+
+
     createMenuScene() {
         this.buttons = []; // Clear previous buttons
     
@@ -51,7 +54,7 @@ export class Menu {
                 0,
                 () => {
                     if (state && this.state.changeState) {
-                        this.state.changeState(state);
+                        this.state.loadScene(state);
                     } else if (action) {
                         action();
                     } else {
