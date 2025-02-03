@@ -15,6 +15,7 @@ class PongConsumer(AsyncWebsocketConsumer):
     #Método que se llama cuando un cliente se conecta al servidor a travś de un WebSocket
     #Recibe el JWT y mira si el usuario esta autenticado
     async def connect(self):
+        
         if self.scope['user'].is_anonymous:
             logger.debug("User is anonymous, closing connection")
             await self.close()
@@ -29,6 +30,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             )
             await self.accept()
             logger.debug("WebSocket connection accepted")
+            await self.send("Hola perra desde el servidor.")
+            
 
     async def disconnect(self, close_code):
         logger.debug(f"Disconnecting from room: {self.room_name}")
