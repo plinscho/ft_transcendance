@@ -1,5 +1,5 @@
 import { loadData } from './api.js';
-import { updateInitialView, updateView } from './ui.js';
+import { updateInitialView, updateView } from './views.js';
 import { AUTH, state } from './state.js';
 
 if (!AUTH) {

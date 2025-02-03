@@ -1,6 +1,7 @@
 import { state } from './state.js';
-import { updateInitialView, updateView } from './ui.js';
+import { updateInitialView, updateView } from './views.js';
 import { loadData } from './api.js';
+
 
 const URL = 'https://localhost:8443';
 const D = document
