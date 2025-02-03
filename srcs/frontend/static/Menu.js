@@ -2,11 +2,13 @@ import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { logout } from './auth.js';
 
+
 export class Menu {
     constructor(state, camera) {
         this.scene = new THREE.Scene();
         this.state = state;
         this.camera = camera;
+        this.scene.background = new THREE.Color(0x424242);
         this.selectedIndex = 0; // Track selected button index
         this.buttons = []; // Store button meshes
         this.buttonConfigs = [ // Define buttons
@@ -28,6 +30,7 @@ export class Menu {
         this.createMenuScene();
         this.setupKeyboardNavigation();
         this.menuIntersect();
+        
 
         // Add event listener for screen resize
         window.addEventListener('resize', this.updateMenuPositions.bind(this));
@@ -44,7 +47,7 @@ export class Menu {
                 text,
                 position,
                 index === this.selectedIndex ? randomColor : 0xffffff, // Highlight first button
-                0.5,
+                0.4,
                 0,
                 () => {
                     if (state && this.state.changeState) {
@@ -59,7 +62,7 @@ export class Menu {
     
             button.createText((textMesh) => {
                 // Create a larger, invisible hitbox
-                const hitboxGeometry = new THREE.BoxGeometry(2.5, 0.6, 0.1); // Increase width/height
+                const hitboxGeometry = new THREE.BoxGeometry(8, 0.5, 0); // Increase width/height
                 const hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Invisible hitbox
                 const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
                 
@@ -80,7 +83,7 @@ export class Menu {
 
     // Calculate button position based on screen size
     getScreenRelativePosition(index) {
-        const xOffset = -this.camera.aspect * 3; // Keeps menu aligned dynamically
+        const xOffset = -this.camera.aspect * 2.5; // Keeps menu aligned dynamically
         const yOffset = 1 - index * 0.7; // Space between buttons
 
         return { x: xOffset, y: yOffset, z: 0 };
@@ -88,11 +91,20 @@ export class Menu {
 
     // Update positions when resizing
     updateMenuPositions() {
-        this.buttons.forEach(({ mesh, index }) => {
+        this.buttons.forEach(({ group, index }) => {
             const newPosition = this.getScreenRelativePosition(index);
-            mesh.position.set(newPosition.x, newPosition.y, newPosition.z);
+
+            group.children.forEach((child) => {
+                child.position.set(0, 0, 0); // Reset internal offset
+            });
+            // Move the entire group (text + hitbox)
+            group.position.set(newPosition.x, newPosition.y, newPosition.z);
+    
+            // Hitbox stay at correct relative offsets inside the group
+
         });
     }
+    
 
     setupKeyboardNavigation() {
         window.addEventListener('keydown', (e) => {
@@ -101,7 +113,7 @@ export class Menu {
             } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
                 this.moveSelection(1);
             } else if (e.key === 'Enter') {
-                this.buttons[this.selectedIndex]?.mesh.userData.onClick();
+                this.buttons[this.selectedIndex]?.group.userData?.onClick?.();
             }
         });
     }

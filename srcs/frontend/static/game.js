@@ -1,15 +1,15 @@
 import * as THREE from 'three';
-import { logout } from './auth.js';
 import { Menu } from './Menu.js';
 import { Pong } from './Pong.js';
 
 export class Game {
     constructor() {
-        // Configurar escena, cámara y renderizador
+        // Configurar renderizador
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
+        // Cámara por defecto
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.z = 5;
 
@@ -23,30 +23,41 @@ export class Game {
         };
         this.currentState = this.states.MENU;
 
-        // Escenas para cada estado
+        // Escenas
         this.scenes = {
-            menu: new Menu(this, this.camera).getScene(),
-            play: new Pong(this).getScene(),
-            multiplayer: new Pong(this).getScene(),
-            tournament: new Pong(this).getScene(),
-            languages: new Pong(this).getScene(),
+            menu: new Menu(this, this.camera),
+            play: new Pong(this),
+            multiplayer: new Pong(this),
+            tournament: new Pong(this),
+            languages: new Pong(this),
         };
 
-        this.scenes.menu.background = new THREE.Color(0x424242);
+        // Set initial camera
+        this.updateCamera();
 
-        // Add event listener for window resizing
+        // Event listener para redimensionar
         window.addEventListener('resize', this.resize.bind(this));
 
         // Iniciar el bucle del juego
         this.gameLoop();
     }
 
-    // Cambiar el estado del juego
+    // Cambiar el estado del juego y actualizar la cámara si es necesario
     changeState(newState) {
         this.currentState = newState;
+        this.updateCamera();
     }
 
-    // Resize only when the window actually changes
+    // Actualiza la cámara según la escena actual
+    updateCamera() {
+        if (this.currentState !== this.states.MENU) {
+            this.camera = this.scenes[this.currentState].getCamera(); // Use Pong's camera
+        } else {
+            this.camera = this.scenes.menu.camera; // Use default menu camera
+        }
+    }
+
+    // Redimensionar correctamente la cámara activa
     resize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
@@ -55,8 +66,9 @@ export class Game {
 
     // Bucle del juego
     gameLoop() {
-        // Renderizar la escena actual
-        this.renderer.render(this.scenes[this.currentState], this.camera);
+        // Ensure `getScene()` is always called
+        const currentScene = this.scenes[this.currentState].getScene();
+        this.renderer.render(currentScene, this.camera);
         requestAnimationFrame(() => this.gameLoop());
     }
 }
