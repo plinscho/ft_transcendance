@@ -4,7 +4,16 @@ export class Pong {
     constructor(state) {
         this.scene = new THREE.Scene();
         this.state = state;
-        this.createPongField();  // Creates the playing field
+        this.camera = this.createCamera();  // Create a dedicated camera
+
+        this.createPongField();
+    }
+
+    createCamera() {
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 6, 6);  // Move camera up and back
+        camera.lookAt(new THREE.Vector3(0, 3, 3));  // Ensure camera looks at the field
+        return camera;
     }
 
     createPongField() {
@@ -18,13 +27,14 @@ export class Pong {
         const fieldMaterial = new THREE.MeshBasicMaterial({ color: 0x424242, side: THREE.DoubleSide });
         const field = new THREE.Mesh(fieldGeometry, fieldMaterial);
         field.rotation.x = -Math.PI / 2;
+        field.position.y = -0.05;  // Lower field slightly to prevent z-fighting
         this.scene.add(field);
 
         // Center line
         const centerLineGeometry = new THREE.PlaneGeometry(0.1, fieldWidth);
         const centerLineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
         const centerLine = new THREE.Mesh(centerLineGeometry, centerLineMaterial);
-        centerLine.position.y = 0.01; // Elevate slightly
+        centerLine.position.y = 0.01;
         centerLine.rotation.x = -Math.PI / 2;
         this.scene.add(centerLine);
 
@@ -33,7 +43,7 @@ export class Pong {
         const magentaMaterial = new THREE.MeshBasicMaterial({ color: 0xff00ff });
 
         // Left border
-        const leftBorder = new THREE.Mesh(new THREE.BoxGeometry(borderThickness, fieldWidth, borderHeight), cyanMaterial);
+        const leftBorder = new THREE.Mesh(new THREE.BoxGeometry(borderThickness, borderHeight, fieldWidth), cyanMaterial);
         leftBorder.position.set(-fieldLength / 2 - borderThickness / 2, borderHeight / 2, 0);
         this.scene.add(leftBorder);
 
@@ -55,5 +65,9 @@ export class Pong {
 
     getScene() {
         return this.scene;
+    }
+
+    getCamera() {
+        return this.camera;
     }
 }

@@ -8,6 +8,7 @@ export class Menu {
         this.scene = new THREE.Scene();
         this.state = state;
         this.camera = camera;
+        this.scene.background = new THREE.Color(0x424242);
         this.selectedIndex = 0; // Track selected button index
         this.buttons = []; // Store button meshes
         this.buttonConfigs = [ // Define buttons
