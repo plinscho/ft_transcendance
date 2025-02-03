@@ -1,10 +1,14 @@
 import * as THREE from 'three';
 import { Menu } from './Menu.js';
 import { Pong } from './Pong.js';
-import { Multiplayer } from './Multiplayer.js';
+import { Multiplayer, PlayerSocket} from './Multiplayer.js';
 
 export class Game {
     constructor() {
+
+        // Start initializing to null
+        this.socket = null;
+
         // Configurar renderizador
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -13,6 +17,9 @@ export class Game {
         // Cámara por defecto
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.z = 5;
+
+        // Call method for new connection
+        this.createWebSocket()
 
         // Estados del juego
         this.states = {
@@ -28,7 +35,7 @@ export class Game {
         this.scenes = {
             menu: new Menu(this, this.camera),
             play: new Pong(this),
-            multiplayer: new Multiplayer(this),
+            multiplayer: new Multiplayer(this.socket),
             tournament: new Pong(this),
             languages: new Pong(this),
         };
@@ -41,6 +48,17 @@ export class Game {
 
         // Iniciar el bucle del juego
         this.gameLoop();
+    }
+
+    // Create websocket
+    createWebSocket() {
+        // If there already is a socket, do not make another one
+        if (this.socket) return ;
+        // If the socket is not created, make one.
+        this.socket = new PlayerSocket().getSocket();
+        if (this.socket === null){
+            this.socket.close();
+        }
     }
 
     // Cambiar el estado del juego y actualizar la cámara si es necesario
