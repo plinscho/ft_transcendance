@@ -30,9 +30,11 @@ class UserManager(BaseUserManager):
         return user
 
 class TwoFactorAuth(models.Model):
-    user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='two_factor_auth_data')
     secret = models.CharField(max_length=32, null=True)
     is_verified = models.BooleanField(default=False)
+    user = models.OneToOneField('User',
+                                on_delete=models.CASCADE, 
+                                related_name='two_factor_auth_data')
 
     def __str__(self):
         return f"{self.user.username} - {self.secret}"
