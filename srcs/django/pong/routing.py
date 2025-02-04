@@ -5,4 +5,5 @@ from pong import consumers
 
 websocket_urlpatterns = [
     path('ws/pong/', consumers.PongConsumer.as_asgi()),
+    path('ws/tournament/', consumers.TournamentConsumer.as_asgi()),
 ]
