@@ -2,7 +2,8 @@ import { state } from './state.js';
 
 const URL = 'https://localhost:8443';
 
-export const loadData = async () => {
+					// Antes async
+export const loadData = () => {
 	//console.log("Authentication token: " + AUTH)
 	return fetch(URL + '/api/user/verify/', {
 		method: 'GET',
@@ -33,6 +34,9 @@ export const loadData = async () => {
 		.catch(() => {
 			state.error = true;
 			state.data = null;
+			localStorage.removeItem("authToken");
+			location.reload(); // F5
+			console.log("Removed previous authToken");
 		})
 		.finally(() => {
 			state.loading = false;
