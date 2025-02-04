@@ -8,8 +8,8 @@ export class PlayerSocket {
             'ws://'
             + 'localhost:8000'
             + '/ws/pong/'
-            + 'room'
-            + '/?authToken=' + this.token
+            //+ 'room/'
+            + '?authToken=' + this.token
         );
     
         console.log("Socket created for Token: " + this.token);
@@ -24,7 +24,7 @@ export class Multiplayer {
 
     constructor (socket) {
         const token = localStorage.getItem('authToken'); //Obtenemos el JWT para mandarlo
-        const roomName = "room";
+        //const roomName = "room";
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();  // Create a dedicated camera
         console.log("Hello from Multiplayer.");
