@@ -70,7 +70,6 @@ class PongConsumer(AsyncWebsocketConsumer):
         else:
             await self.send(text_data=json.dumps({"status": "waiting" , "room": self.room_name}))
 
-
     #El metodo se llama cuando un jugador se desconecta de la sala
     async def disconnect(self, close_code):
         logger.debug(f"Disconnecting from room: {self.room_name}")
@@ -144,6 +143,11 @@ class PongConsumer(AsyncWebsocketConsumer):
                 }
             )
             return
+        
+        if message_type == 'QUIT':
+            logger.info(f"Player {self.channel_name} quit the game")
+            await self.close()
+            return
 
         logger.warning(f"Unknown message type received: {message_type}")
         
@@ -172,3 +176,15 @@ class PongConsumer(AsyncWebsocketConsumer):
             'message': message,
             'from': self.scope['user'].username
         }))
+
+
+
+class TournamentConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        pass
+
+    async def receive(self, text_data):
+        pass
