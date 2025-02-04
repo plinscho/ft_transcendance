@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { logout } from './auth.js';
-import { Pong } from './Pong.js';
 
 
 export class Menu {
@@ -14,8 +13,8 @@ export class Menu {
         this.buttons = []; // Store button meshes
         this.buttonConfigs = [ // Define buttons
             { text: 'Play', state: this.state.states.PLAY },
-            { text: 'Multiplayer', state: this.state.states.MULTIPLAYER },
-            { text: 'Tournament', state: this.state.states.TOURNAMENTS },
+            { text: 'Multiplayer', state: this.state.states.WAITING_ROOM },
+            { text: 'Tournament', state: this.state.states.WAITING_ROOM },
             { text: 'Languages', action: () => console.log("Languages menu not implemented") },
             { text: 'Logout', action: () => logout() }
         ];
@@ -36,8 +35,6 @@ export class Menu {
         // Add event listener for screen resize
         window.addEventListener('resize', this.updateMenuPositions.bind(this));
     }
-
-
 
     createMenuScene() {
         this.buttons = []; // Clear previous buttons

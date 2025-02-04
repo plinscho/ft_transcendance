@@ -1,13 +1,10 @@
 import * as THREE from 'three';
 import { Menu } from './Menu.js';
 import { Pong } from './Pong.js';
-import { Multiplayer, PlayerSocket} from './Multiplayer.js';
+import { WaitingRoom } from './WaitingRoom.js';
 
 export class Game {
     constructor() {
-
-        // Start initializing to null
-        this.socket = null;
 
         // Configurar renderizador
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -18,26 +15,24 @@ export class Game {
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.z = 5;
 
-        // Call method for new connection
-        this.createWebSocket()
-
         // Estados del juego
         this.states = {
             MENU: 'menu',
             PLAY: 'play',
+            WAITING_ROOM: 'waiting_room',
             MULTIPLAYER: 'multiplayer',
             TOURNAMENTS: 'tournament',
             LANGUAGES: 'languages',
         };
         this.currentState = this.states.MENU;
-
         // Escenas
         this.scenes = {
             menu: new Menu(this, this.camera),
-            play: null, //new Pong(this),
-            multiplayer: null, //new Multiplayer(this.socket),
-            tournament: null, //new Pong(this),
-            languages: null, //new Pong(this),
+            play: null, 
+            waiting_room: null,
+            multiplayer: null,
+            tournament: null,
+            languages: null, 
         };
 
         // Set initial camera
@@ -54,17 +49,18 @@ export class Game {
         if (!this.scenes[sceneName]) {
             switch (sceneName) {
                 case this.states.PLAY:
-                    this.scenes[sceneName] = new Pong(this);
+                    this.scenes[sceneName] = new Pong(this, false);
                     break;
-                
+                case this.states.WAITING_ROOM:
+                        this.scenes[sceneName] = new WaitingRoom(this);
+                        break;
                 case this.states.MULTIPLAYER:
-                    this.scenes[sceneName] = new Multiplayer(this.socket);
+                    this.scenes[sceneName] = new Pong(this, true);
                     break;
                     
                 case this.states.TOURNAMENTS:
                     this.scenes[sceneName] = new Pong(this);
                     break;
-                
                 case this.states.LANGUAGES:
                     this.scenes[sceneName] = new Pong(this);
                     break;
@@ -75,17 +71,6 @@ export class Game {
         }
 
         this.changeState(sceneName);
-    }
-
-    // Create websocket
-    createWebSocket() {
-        // If there already is a socket, do not make another one
-        if (this.socket) return ;
-        // If the socket is not created, make one.
-        this.socket = new PlayerSocket().getSocket();
-        if (this.socket === null){
-            this.socket.close();
-        }
     }
 
     // Cambiar el estado del juego y actualizar la cámara si es necesario
