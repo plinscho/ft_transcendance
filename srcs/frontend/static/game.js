@@ -53,7 +53,7 @@ export class Game {
                     this.scenes[sceneName] = new Pong(this, false);
                     break;
                 case this.states.WAITING_ROOM:
-                    this.scenes[sceneName] = new WaitingRoom(this);
+                    this.scenes[sceneName] = new WaitingRoom(this, this.isTournament);
                     break;
                 case this.states.MULTIPLAYER:
                     this.scenes[sceneName] = new Pong(this, true);

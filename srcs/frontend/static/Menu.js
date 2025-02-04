@@ -42,6 +42,10 @@ export class Menu {
         this.scene.visible = isActive;
     }
 
+    setTournamentMode() {
+        this.state.isTournament = true;
+    }
+
     createMenuScene() {
         this.buttons = []; // Clear previous buttons
     
@@ -58,6 +62,10 @@ export class Menu {
                 () => {
                     if (this.active) {
                         if (state && this.state.changeState) {
+                            if (text === 'Tournament') {
+                                this.setTournamentMode();
+                                console.log("Tournament mode enabled");
+                            }
                             this.state.loadScene(state);
                             this.setActive(false); // Hide menu when switching
                         } else if (action) {

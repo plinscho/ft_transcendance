@@ -3,15 +3,22 @@ export class NetworkManager {
         this.token = localStorage.getItem('authToken');
         this.socket = null;
         this.messageCallback = null;
+        this.isTournament = false;
     }
 
-    connect() {
-        this.socket = new WebSocket(
-            'ws://localhost:8000/ws/pong/?authToken=' + this.token
-        );
+    connect(isTournament) {
+        if (isTournament) {
+            this.socket = new WebSocket(
+                'ws://localhost:8000/ws/tournament/?authToken=' + this.token
+            );
+            this.socket.onopen = () => console.log('Connected to tournament server');
+        } else {
+            this.socket = new WebSocket(
+                'ws://localhost:8000/ws/pong/?authToken=' + this.token
+            );
+            this.socket.onopen = () => console.log('Connected to multiplayer server');
 
-        this.socket.onopen = () => console.log('Connected to server');
-
+        }    
         this.socket.onmessage = (msg) => {
             const data = JSON.parse(msg.data);
             console.log("Server data:", data);
@@ -27,7 +34,7 @@ export class NetworkManager {
             this.socket.close();
         }
     }
-    
+
 
     onMessage(callback) {
         this.messageCallback = callback;
