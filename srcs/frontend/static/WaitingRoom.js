@@ -3,13 +3,14 @@ import { Text3D } from './Text3D.js';
 import { NetworkManager } from './NetworkManager.js';
 
 export class WaitingRoom {
-    constructor(state) {
+    constructor(state, isTournament) {
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.network = new NetworkManager();
         this.isWaiting = true;
         this.active = true;
         this.state = state;
+        this.isTournament = isTournament;
         this.buttons = [];
         this.escListener = this.handleKeyPress.bind(this); // Store reference to listener
 
@@ -33,7 +34,7 @@ export class WaitingRoom {
 
         const backToMenu = new Text3D(
             "ESC TO LEAVE QUEUE",
-            { x: -8, y: 4, z: 0 },
+            { x: -6, y: 4, z: 0 },
             0xfff55ff,
             0.15,
             0,
@@ -46,7 +47,7 @@ export class WaitingRoom {
             this.buttons.push(textMesh);
         });
 
-        this.network.connect();
+        this.network.connect(this.isTournament);
         this.network.onMessage((data) => this.handleServerMessage(data));
     }
 
