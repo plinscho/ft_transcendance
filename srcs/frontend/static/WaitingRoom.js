@@ -32,8 +32,8 @@ export class WaitingRoom {
         const backToMenu = new Text3D(
             "ESC TO LEAVE QUEUE",
             { x: -8, y: 4, z: 0 },
-            0xffffff,
-            0.4,
+            0xfff55ff,
+            0.15,
             0,
             () => this.backToMenu()
         );
@@ -63,9 +63,20 @@ export class WaitingRoom {
 
 
     createCamera() {
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 4, 4);
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        const aspect = window.innerWidth / window.innerHeight;
+        const frustumSize = 5; // Adjust for zoom
+    
+        const camera = new THREE.OrthographicCamera(
+            -frustumSize * aspect,  // left
+            frustumSize * aspect,   // right
+            frustumSize,            // top
+            -frustumSize,           // bottom
+            0.1, 100                // near and far planes
+        );
+    
+        camera.position.set(0, 0, 10); // Move camera above the scene
+        camera.lookAt(new THREE.Vector3(0, 0, 0)); // Look at the center of the scene
+    
         return camera;
     }
 
