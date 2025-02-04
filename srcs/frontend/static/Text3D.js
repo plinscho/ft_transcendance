@@ -37,7 +37,7 @@ export class Text3D {
                 callback(this.mesh);
             },
             undefined,
-            (error) => console.error('Error al cargar la fuente:', error) // Manejo de errores
+            (error) => console.error('Error al cargar la fuente:', error)
         );
     }
 }
