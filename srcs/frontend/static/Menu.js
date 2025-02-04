@@ -8,6 +8,7 @@ export class Menu {
         this.scene = new THREE.Scene();
         this.state = state;
         this.camera = camera;
+        this.active = true;
         this.scene.background = new THREE.Color(0x424242);
         this.selectedIndex = 0; // Track selected button index
         this.buttons = []; // Store button meshes
@@ -36,6 +37,11 @@ export class Menu {
         window.addEventListener('resize', this.updateMenuPositions.bind(this));
     }
 
+    setActive(isActive) {
+        this.active = isActive;
+        this.scene.visible = isActive; // Hides objects if inactive
+    }
+
     createMenuScene() {
         this.buttons = []; // Clear previous buttons
     
@@ -50,12 +56,15 @@ export class Menu {
                 0.4,
                 0,
                 () => {
-                    if (state && this.state.changeState) {
-                        this.state.loadScene(state);
-                    } else if (action) {
-                        action();
-                    } else {
-                        console.error(`Error: No action for button ${text}`);
+                    if (this.active) { // Prevent interaction if menu is inactive
+                        if (state && this.state.changeState) {
+                            this.state.loadScene(state);
+                            this.setActive(false); // Hide menu when switching
+                        } else if (action) {
+                            action();
+                        } else {
+                            console.error(`Error: No action for button ${text}`);
+                        }
                     }
                 }
             );

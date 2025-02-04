@@ -5,7 +5,6 @@ import { WaitingRoom } from './WaitingRoom.js';
 
 export class Game {
     constructor() {
-
         // Configurar renderizador
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -25,81 +24,113 @@ export class Game {
             LANGUAGES: 'languages',
         };
         this.currentState = this.states.MENU;
+        this.previousScene = null;
+
         // Escenas
         this.scenes = {
             menu: new Menu(this, this.camera),
-            play: null, 
+            play: null,
             waiting_room: null,
             multiplayer: null,
             tournament: null,
-            languages: null, 
+            languages: null,
         };
 
-        // Set initial camera
         this.updateCamera();
 
-        // Event listener para redimensionar
         window.addEventListener('resize', this.resize.bind(this));
-
-        // Iniciar el bucle del juego
         this.gameLoop();
     }
 
-    loadScene(sceneName){
-        if (!this.scenes[sceneName]) {
+    loadScene(sceneName) {
+        if (this.scenes[sceneName]) {
+            this.unloadScene(this.currentState);
+        } else {
             switch (sceneName) {
+                case this.states.MENU:
+                    this.scenes[sceneName] = new Menu(this, this.camera);
                 case this.states.PLAY:
                     this.scenes[sceneName] = new Pong(this, false);
                     break;
                 case this.states.WAITING_ROOM:
-                        this.scenes[sceneName] = new WaitingRoom(this);
-                        break;
+                    this.scenes[sceneName] = new WaitingRoom(this);
+                    break;
                 case this.states.MULTIPLAYER:
                     this.scenes[sceneName] = new Pong(this, true);
                     break;
-                    
                 case this.states.TOURNAMENTS:
                     this.scenes[sceneName] = new Pong(this);
                     break;
                 case this.states.LANGUAGES:
                     this.scenes[sceneName] = new Pong(this);
                     break;
-
                 default:
-                    console.error(`Scene only in you head. ${sceneName}`)
+                    console.error(`Scene only exists in your head: ${sceneName}`);
+                    return;
             }
         }
 
         this.changeState(sceneName);
     }
 
-    // Cambiar el estado del juego y actualizar la cámara si es necesario
+    // **Unload the previous scene**
+    unloadScene(sceneName) {
+        if (this.scenes[sceneName] === this.scenes.menu) return;
+        if (!this.scenes[sceneName]) return;
+
+        console.log(`Unloading scene: ${sceneName}`);
+
+        const scene = this.scenes[sceneName];
+        
+        // Remove all objects from the scene
+        scene.getScene().children.forEach((child) => {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                if (Array.isArray(child.material)) {
+                    child.material.forEach(mat => mat.dispose());
+                } else {
+                    child.material.dispose();
+                }
+            }
+            this.scenes[sceneName].getScene().remove(child);
+        });
+
+        this.scenes[sceneName] = null;
+    }
+
     changeState(newState) {
+        if (this.currentState === this.states.MENU && this.scenes.menu) {
+            this.scenes.menu.setActive(false); // Hide menu when leaving
+        }
+    
         this.currentState = newState;
+    
+        if (newState === this.states.MENU && this.scenes.menu) {
+            this.scenes.menu.setActive(true); // Show menu when returning
+        }
+    
         this.updateCamera();
     }
 
-    // Actualiza la cámara según la escena actual
     updateCamera() {
         if (this.currentState !== this.states.MENU) {
-            this.camera = this.scenes[this.currentState].getCamera(); // Use Pong's camera
+            this.camera = this.scenes[this.currentState]?.getCamera() || this.camera;
         } else {
-            this.camera = this.scenes.menu.camera; // Use default menu camera
+            this.camera = this.scenes.menu.camera;
         }
     }
 
-    // Redimensionar correctamente la cámara activa
     resize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    // Bucle del juego
     gameLoop() {
-        // Ensure `getScene()` is always called
-        const currentScene = this.scenes[this.currentState].getScene();
-        this.renderer.render(currentScene, this.camera);
+        const currentScene = this.scenes[this.currentState]?.getScene();
+        if (currentScene) {
+            this.renderer.render(currentScene, this.camera);
+        }
         requestAnimationFrame(() => this.gameLoop());
     }
 }

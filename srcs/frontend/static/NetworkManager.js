@@ -22,6 +22,13 @@ export class NetworkManager {
         };
     }
 
+    disconnect() {
+        if (this.socket) {
+            this.socket.close();
+        }
+    }
+    
+
     onMessage(callback) {
         this.messageCallback = callback;
     }
