@@ -9,6 +9,9 @@ export class WaitingRoom {
         this.network = new NetworkManager();
         this.isWaiting = true;
         this.state = state;
+        this.buttons = [];
+
+        this.setUpKeyboard();
         this.createWaitingRoom();
     }
 
@@ -21,13 +24,27 @@ export class WaitingRoom {
             0,
             () => {}
         );
-    
-        waitingText.createText((textMesh) => {
-            this.scene.add(textMesh); // Only add when ready
-        });
-        this.network.connect();
 
-        // Listen for a message when another player joins
+        waitingText.createText((textMesh) => {
+            this.scene.add(textMesh);
+        });
+
+        const backToMenu = new Text3D(
+            "ESC TO LEAVE QUEUE",
+            { x: -8, y: 4, z: 0 },
+            0xffffff,
+            0.4,
+            0,
+            () => this.backToMenu()
+        );
+
+        backToMenu.createText((textMesh) => {
+            textMesh.userData.onClick = backToMenu.onClick; // Set click event correctly
+            this.scene.add(textMesh);
+            this.buttons.push(textMesh); // Store for interaction detection
+        });
+
+        this.network.connect();
         this.network.onMessage((data) => this.handleServerMessage(data));
     }
 
@@ -35,23 +52,37 @@ export class WaitingRoom {
         if (data.type === "START_GAME") {
             console.log("Match found! Starting game...");
             this.isWaiting = false;
-            this.scene.remove(this.waitingText); // Remove waiting text
             this.startMultiplayerGame();
         }
     }
 
     startMultiplayerGame() {
-        // Here you would change state to actually launch the Pong game
         console.log("Starting multiplayer Pong...");
         this.state.loadScene(this.state.states.MULTIPLAYER);
     }
 
+
     createCamera() {
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 6, 6);
-        camera.lookAt(new THREE.Vector3(0, 3, 3));
+        camera.position.set(0, 4, 4);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
         return camera;
     }
+
+    setUpKeyboard() {
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && this.isWaiting) {
+                this.backToMenu();
+            }
+        });
+    }
+
+    backToMenu() {
+        this.state.loadScene(this.state.states.MENU);
+        this.network.sendData({ type: "QUIT" });
+        this.network.disconnect();
+    }
+
 
     getScene() {
         return this.scene;
