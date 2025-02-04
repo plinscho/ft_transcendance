@@ -8,11 +8,13 @@ export class WaitingRoom {
         this.camera = this.createCamera();
         this.network = new NetworkManager();
         this.isWaiting = true;
+        this.active = true;
         this.state = state;
         this.buttons = [];
+        this.escListener = this.handleKeyPress.bind(this); // Store reference to listener
 
-        this.setUpKeyboard();
         this.createWaitingRoom();
+        this.setUpKeyboard();
     }
 
     createWaitingRoom() {
@@ -35,13 +37,13 @@ export class WaitingRoom {
             0xfff55ff,
             0.15,
             0,
-            () => this.backToMenu()
+            () => { if (this.active) { this.backToMenu(); }}
         );
 
         backToMenu.createText((textMesh) => {
-            textMesh.userData.onClick = backToMenu.onClick; // Set click event correctly
+            textMesh.userData.onClick = backToMenu.onClick;
             this.scene.add(textMesh);
-            this.buttons.push(textMesh); // Store for interaction detection
+            this.buttons.push(textMesh);
         });
 
         this.network.connect();
@@ -52,6 +54,7 @@ export class WaitingRoom {
         if (data.type === "START_GAME") {
             console.log("Match found! Starting game...");
             this.isWaiting = false;
+            this.removeKeyboardListener(); 
             this.startMultiplayerGame();
         }
     }
@@ -61,39 +64,47 @@ export class WaitingRoom {
         this.state.loadScene(this.state.states.MULTIPLAYER);
     }
 
-
     createCamera() {
         const aspect = window.innerWidth / window.innerHeight;
-        const frustumSize = 5; // Adjust for zoom
+        const frustumSize = 5;
     
         const camera = new THREE.OrthographicCamera(
-            -frustumSize * aspect,  // left
-            frustumSize * aspect,   // right
-            frustumSize,            // top
-            -frustumSize,           // bottom
-            0.1, 100                // near and far planes
+            -frustumSize * aspect,
+            frustumSize * aspect,
+            frustumSize,
+            -frustumSize,
+            0.1, 100
         );
     
-        camera.position.set(0, 0, 10); // Move camera above the scene
-        camera.lookAt(new THREE.Vector3(0, 0, 0)); // Look at the center of the scene
+        camera.position.set(0, 0, 10);
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
     
         return camera;
     }
 
     setUpKeyboard() {
-        window.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && this.isWaiting) {
-                this.backToMenu();
-            }
-        });
+        window.addEventListener('keydown', this.escListener);
+    }
+
+    handleKeyPress(event) {
+        if (event.key === 'Escape' && this.isWaiting) {
+            this.backToMenu();
+        }
     }
 
     backToMenu() {
-        this.state.loadScene(this.state.states.MENU);
         this.network.sendData({ type: "QUIT" });
         this.network.disconnect();
+        this.isWaiting = false;
+        this.active = false;
+
+        this.removeKeyboardListener();
+        this.state.loadScene(this.state.states.MENU);
     }
 
+    removeKeyboardListener() {
+        window.removeEventListener('keydown', this.escListener);
+    }
 
     getScene() {
         return this.scene;

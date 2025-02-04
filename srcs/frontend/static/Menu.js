@@ -11,8 +11,8 @@ export class Menu {
         this.active = true;
         this.scene.background = new THREE.Color(0x424242);
         this.selectedIndex = 0; // Track selected button index
-        this.buttons = []; // Store button meshes
-        this.buttonConfigs = [ // Define buttons
+        this.buttons = [];
+        this.buttonConfigs = [ 
             { text: 'Play', state: this.state.states.PLAY },
             { text: 'Multiplayer', state: this.state.states.WAITING_ROOM },
             { text: 'Tournament', state: this.state.states.WAITING_ROOM },
@@ -39,7 +39,7 @@ export class Menu {
 
     setActive(isActive) {
         this.active = isActive;
-        this.scene.visible = isActive; // Hides objects if inactive
+        this.scene.visible = isActive;
     }
 
     createMenuScene() {
@@ -56,7 +56,7 @@ export class Menu {
                 0.4,
                 0,
                 () => {
-                    if (this.active) { // Prevent interaction if menu is inactive
+                    if (this.active) {
                         if (state && this.state.changeState) {
                             this.state.loadScene(state);
                             this.setActive(false); // Hide menu when switching
