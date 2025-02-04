@@ -2,7 +2,6 @@ import { state } from './state.js';
 import { updateInitialView, updateView } from './views.js';
 import { loadData } from './api.js';
 
-
 const URL = 'https://localhost:8443';
 const D = document
 
@@ -102,8 +101,18 @@ let toggleRegister = () => {
     $registerForm.classList.toggle('invisible');
 };
 
+let $viewFailure = D.getElementById('view-failure');
+let $viewNeedsLogin = D.getElementById('view-needs-login');
+
+let backToLogin = () => {
+    state.authenticated = false;
+    state.error = false;
+    updateView();
+}
+
 D.getElementById('registerLink').addEventListener('click', toggleRegister);
 D.getElementById('loginLink').addEventListener('click', toggleRegister);
+D.getElementById('errorLogin').addEventListener('click', backToLogin);
 
 D.getElementById('loginButton').addEventListener('click', async () => {
     const email = D.getElementById('loginEmail').value;
