@@ -2,7 +2,6 @@
 
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer #Crear consumidores de WebSockets asincronos
-from pong.game import PongGame
 import logging
 import asyncio
 
@@ -26,10 +25,12 @@ class PongConsumer(AsyncWebsocketConsumer):
         if self.scope['user'].is_anonymous:
             logger.debug("User is anonymous, closing connection")
             await self.close()
-            return    
-        self.room_name = None
+            return
+        
+        
         #Usamos un lock para evitar problemas de concurrencia
         async with lock:
+            self.room_name = None
             #Miramos si ya hay un jugador esperando
             for room_id, players in waiting_rooms.items():
                 if len(players) == 1:
@@ -176,15 +177,3 @@ class PongConsumer(AsyncWebsocketConsumer):
             'message': message,
             'from': self.scope['user'].username
         }))
-
-
-
-class TournamentConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        await self.accept()
-
-    async def disconnect(self, close_code):
-        pass
-
-    async def receive(self, text_data):
-        pass
