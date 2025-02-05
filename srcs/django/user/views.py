@@ -38,7 +38,6 @@ class CreateUserView(generics.CreateAPIView):
 
         return Response(response_data, status=status.HTTP_201_CREATED)
 
-
 # Recibimos un auth token y yo devuelvo un 200 si el token coincide o un error si no coincide
 class VerifyUserView(generics.CreateAPIView):
     authentication_classes = [JWTAuthentication]
@@ -51,7 +50,6 @@ class VerifyUserView(generics.CreateAPIView):
         except:
             return Response({"error":"Invalid Token"}, status=status.HTTP_401_UNAUTHORIZED)
 
-
 class PopulateUserDataView(generics.CreateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
@@ -61,6 +59,8 @@ class PopulateUserDataView(generics.CreateAPIView):
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    # Poner patch para cambiar language.
+    
 # Debug purpose
 logger = logging.getLogger(__name__)
 

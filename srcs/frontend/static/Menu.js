@@ -12,7 +12,7 @@ export class Menu {
         this.scene.background = new THREE.Color(0x424242);
         this.selectedIndex = 0; // Track selected button index
         this.buttons = [];
-        this.buttonConfigs = [ 
+        this.buttonConfigs = [
             { text: 'Play', state: this.state.states.PLAY },
             { text: 'Multiplayer', state: this.state.states.WAITING_ROOM },
             { text: 'Tournament', state: this.state.states.WAITING_ROOM },
