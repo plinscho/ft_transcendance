@@ -10,6 +10,7 @@ tournament_counter = 0
 num_players = 4
 waiting_tournaments = {} #Ejemplo: { "tournament_1": [player1, player2, ...] }
 tournament_brackets = {} #Ejemplo: { "tournament_1": { "quarterfinals": [...], "semifinals":[...], "final": [...]} }
+#waiting_room = {}  #Ejemplo: { "semifinals": [player1], "final": [player2] }
 lock = asyncio.Lock()
 
 class TournamentConsumer(AsyncWebsocketConsumer):
@@ -48,9 +49,30 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
+        num_waiting = len(waiting_tournaments[self.room_name])
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                "type": "waiting_for_opponents",
+                "message": f"{num_waiting}/{num_players}"
+            }
+        )
+
         # Si el torneo está lleno, empezar el torneo
         if len(waiting_tournaments[self.room_name]) == num_players:
             await self.start_tournament()
+
+
+    # La función que maneja el tipo de mensaje 'waiting_for_opponent'
+    async def waiting_for_opponents(self, event):
+        message = event['message']
+        # Aquí puedes enviar el mensaje recibido al cliente
+        await self.send(text_data=json.dumps({
+            'type': 'WAITING_FOR_OPPONENTS',
+            'message': message
+        }))
+
 
     #Genera el bracket y asigna los primeros partidos
     async def start_tournament(self):
@@ -132,31 +154,54 @@ class TournamentConsumer(AsyncWebsocketConsumer):
     # Actualiza el bracket y avanza a la siguiente ronda
     async def process_match_result(self, winner):
         logger.debug(f"Processing match result: {winner} wins")
-        for round_name in ["quarterfinals", "semifinals", "final"]:
-            # Buscamos el partido en que participó el ganador y lo elimina
-            matches = tournament_brackets[self.room_name][round_name]
-            for match in matches:
-                if winner in match:
-                    matches.remove(match)
-                    # Determina la siguiente ronda
-                    if round_name == "quarterfinals":
-                        next_round = "semifinals"
-                    elif round_name == "semifinals":
-                        next_round = "final"
-                    else:
-                        tournament_brackets[self.room_name]["winner"] = winner
-                        await self.announce_winner(winner)
+
+        async with lock:
+            for round_name in ["quarterfinals", "semifinals", "final"]:
+                # Buscamos el partido en que participó el ganador y lo elimina
+                matches = tournament_brackets[self.room_name][round_name]
+                for match in matches:
+                    if winner in match:
+                        matches.remove(match)
+                        next_round = None
+                        # Determina la siguiente ronda
+                        if round_name == "quarterfinals":
+                            next_round = "semifinals"
+                        elif round_name == "semifinals":
+                            next_round = "final"
+                        else:
+                            tournament_brackets[self.room_name]["winner"] = winner
+                            await self.announce_winner(winner)
+                            return
+
+                        tournament_brackets[self.room_name][next_round].append([winner])
+
+                        if len(tournament_brackets[self.room_name][next_round][-1]) == 2:
+                            logger.debug(f"Advancing {winner} to {next_round}")
+                            await self.start_next_round(next_round)
+                        else:
+                            logger.debug(f"Advancing {winner} to the waiting room")
+                            await self.channel_layer.send(
+                                f"user_{winner}",  # Nombre del canal del usuario
+                                {
+                                    "type": "waiting_for_opponent",
+                                    "player": winner,
+                                    "round": next_round
+                                }
+                            )
                         return
+    
+    # Notifica al jugador que tiene que esperar a su oponente
+    async def waiting_for_opponent(self, event):
+        player = event["player"]
+        round_name = event["round"]
 
-                    if next_round == "semifinals":
-                        tournament_brackets[self.room_name]["semifinals"].append([winner])
-                    elif next_round == "final":
-                        tournament_brackets[self.room_name]["final"].append([winner])
-                    
-                    logger.debug(f"Advancing {winner} to {next_round}")
-
-                    await self.start_next_round(next_round)
-                    return
+        logger.debug(f"Player {player} is waiting for an opponent in {round_name}")
+        
+        await self.send(text_data=json.dumps({
+            "type": "waiting_for_opponent",
+            "player": player,
+            "round": round_name
+        }))
 
     # Anuncia al ganador del torneo
     async def announce_winner(self, winner):
@@ -179,6 +224,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         global tournament_counter
+        global num_players
         async with lock:
             if self.room_name in waiting_tournaments:
                 # Eliminamos el jugador de la sala
@@ -193,7 +239,15 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     if not waiting_tournaments:
                         tournament_counter = 0
                         logger.debug("No more tournaments, resetting counter")
-
+                else:
+                    num_waiting = len(waiting_tournaments[self.room_name])
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            "type": "waiting_for_opponents",
+                            "message": f"{num_waiting}/{num_players}"
+                        }
+                    )
 
         await self.channel_layer.group_discard(
             self.room_group_name,
