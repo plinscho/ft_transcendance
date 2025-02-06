@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { logout } from './auth.js';
-
+import { lang } from './Languages.js'; // Importa el diccionario de idiomas
 
 export class Menu {
     constructor(state, camera) {
@@ -13,11 +13,11 @@ export class Menu {
         this.selectedIndex = 0; // Track selected button index
         this.buttons = [];
         this.buttonConfigs = [
-            { text: 'Play', state: this.state.states.PLAY },
-            { text: 'Multiplayer', state: this.state.states.WAITING_ROOM },
-            { text: 'Tournament', state: this.state.states.WAITING_ROOM },
-            { text: 'Languages', action: () => console.log("Languages menu not implemented") },
-            { text: 'Logout', action: () => logout() }
+            { text: lang.menu.play, state: this.state.states.PLAY },
+            { text: lang.menu.multiplayer, state: this.state.states.WAITING_ROOM },
+            { text: lang.menu.tournament, state: this.state.states.WAITING_ROOM },
+            { text: lang.menu.languages, action: () => console.log("Languages menu not implemented") },
+            { text: lang.menu.logout, action: () => logout() }
         ];
 
         this.colors = [
@@ -62,7 +62,7 @@ export class Menu {
                 () => {
                     if (this.active) {
                         if (state && this.state.changeState) {
-                            if (text === 'Tournament') {
+                            if (text === lang.menu.tournament) {
                                 this.setTournamentMode();
                                 console.log("Tournament mode enabled");
                             }

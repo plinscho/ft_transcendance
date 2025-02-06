@@ -13,16 +13,15 @@
           display: none;
         }
     </style>
-        <script type="importmap">
-            {
-              "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
-              }
-            }
-          </script>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
+          }
+        }
+    </script>
     <script type="module" src="/static/index.js" defer></script>
-
 </head>
 <body>
     <main>
@@ -30,23 +29,61 @@
         <div id="view-loading" class="container mt-4 center view"></div>
 
         <!-- ERROR VIEW -->
-        <div id="view-failure" class="container mt-4 center view invisible"></div>
+        <div id="view-failure" class="container mt-4 center view invisible">
+            <p id="errorTitle"></p>
+            <p id="errorMessage"></p>
+            <a id="errorLogin" href="#"></a>
+        </div>
 
         <!-- AUTH VIEW -->
         <div id="view-needs-login" class="container mt-4 center view invisible">
             <!-- LOGIN FORM -->
-            <form id="loginForm"></form>
+            <form id="loginForm">
+                <h2 id="loginTitle"></h2>
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="loginEmail" id="loginEmailLabel"></label>
+                    <input type="email" id="loginEmail" class="form-control" required />
+                </div>
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="loginPassword" id="loginPasswordLabel"></label>
+                    <input type="password" id="loginPassword" class="form-control" required />
+                </div>
+                <button type="button" id="loginButton" class="btn btn-primary btn-block mb-4"></button>
+                <p id="registerPrompt"></p> <a href="#" id="registerLink"></a>
+            </form>
 
             <!-- 2FA FORM -->
-            <form id="2fa" class="invisible"></form>
+            <form id="2fa" class="invisible">
+                <h2 id="twoFactorTitle"></h2>
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="2faCode" id="twoFactorCodeLabel"></label>
+                    <input type="text" id="2faCode" class="form-control" required />
+                </div>
+                <button class="btn btn-primary btn-block mb-4" type="submit" id="twoFactorVerifyButton"></button>
+            </form>
 
             <!-- REGISTER FORM -->
-            <form id="registerForm" class="invisible"></form>
+            <form id="registerForm" class="invisible">
+                <h2 id="registerTitle"></h2>
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="registerUsername" id="registerUsernameLabel"></label>
+                    <input type="text" id="registerUsername" class="form-control" />
+                </div>
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="registerEmail" id="registerEmailLabel"></label>
+                    <input type="email" id="registerEmail" class="form-control" />
+                </div>
+                <div class="form-outline mb-4">
+                    <label class="form-label" for="registerPassword" id="registerPasswordLabel"></label>
+                    <input type="password" id="registerPassword" class="form-control" />
+                </div>
+                <button type="button" id="registerButton" class="btn btn-primary btn-block mb-4"></button>
+                <p id="loginPrompt"></p> <a href="#" id="loginLink"></a>
+            </form>
         </div>
 
         <!-- PONG -->
-        <div id="view-ready" class="view invisible">
-        </div>
+        <div id="view-ready" class="view invisible"></div>
     </main>
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
