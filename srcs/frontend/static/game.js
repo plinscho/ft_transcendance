@@ -50,7 +50,7 @@ export class Game {
                     this.scenes[sceneName] = new Menu(this, this.camera);
                     break;
                 case this.states.PLAY:
-                    this.scenes[sceneName] = new Pong(this);
+                    this.scenes[sceneName] = new Pong(this, false);
                     break;
                 case this.states.WAITING_ROOM:
                     this.scenes[sceneName] = new WaitingRoom(this);
@@ -124,7 +124,8 @@ export class Game {
         const currentScene = this.scenes[this.currentState]?.getScene();
         if (currentScene) {
             if (this.currentState === this.states.PLAY) {
-                this.scenes[this.states.PLAY].updateCamera();
+                //this.scenes[this.states.PLAY].updateCamera();
+                this.scenes[this.states.PLAY].update();
             }
             this.renderer.render(currentScene, this.camera);
         }
