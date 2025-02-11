@@ -22,20 +22,29 @@ export class Pong {
         this.paddleDepth = 10;
         this.ballRadius = 7;
 
-        //paddle
+        // paddle
         this.paddle1DirY = 0;
         this.paddle2DirY = 0;
         this.paddleSpeed = 5;
 
-        //scores
+        // ball
+        this.ballDirY = -1;
+        this.ballDirX = -1;
+        this.ballSpeed = 1;
+
+        // scores
+        this.scoreP1Text = null;
+        this.scoreP2Text = null;
         this.score1 = 0;
         this.score2 = 0;
+
+        this.bounceTime = 0;
 
         this.createBackground();
         this.createScene();
 
         this.playerControl();
-        this.playerPaddleMovement();
+        this.createScoreboard();
 
         this.player1 = new PlayerController(this.paddle1, false, this.state.network);
         this.player2 = new PlayerController(this.paddle2, this.multiplayer, this.state.network);
@@ -162,45 +171,6 @@ export class Pong {
         this.paddle2.receiveShadow = true;
         this.scene.add(this.paddle2);
 
-
-        // Scoreboard
-        const scoreOffsetX = -30;
-        const scoreOffsetY = -30;
-
-        // Player 1 Score (Bottom Left)
-        const positionP1 = {
-            x: -this.fieldWidth / 2 + scoreOffsetX,
-            y: -this.fieldHeight / 2 + scoreOffsetY,
-            z: 50  // Move forward
-        };
-
-        const scoreP1 = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
-        scoreP1.createText((textMesh) => {
-            console.log("Score P1 Created:", textMesh.position);
-            textMesh.rotation.x = -0.03 * Math.PI / 180;
-            textMesh.rotation.y = -60 * Math.PI / 180;
-            textMesh.rotation.z = -90 * Math.PI / 180;
-            this.scene.add(textMesh);
-
-        });
-
-        // Player 2 Score (Top Right)
-        const positionP2 = {
-            x: this.fieldWidth / 2 - scoreOffsetX,
-            y: this.fieldHeight / 2 - scoreOffsetY + 100,
-            z: 50
-        };
-
-        const scoreP2 = new Text3D(this.score2.toString(), positionP2, 0xffffff, 50, 1);
-        scoreP2.createText((textMesh) => {
-            console.log("Score P2 Created:", textMesh.position);
-            textMesh.rotation.x = -0.03 * Math.PI / 180;
-            textMesh.rotation.y = -60 * Math.PI / 180;
-            textMesh.rotation.z = -90 * Math.PI / 180;
-            this.scene.add(textMesh);
-        });
-
-
         // Lights
 
         // 🔹 Ambient Light (Soft global illumination)
@@ -235,6 +205,53 @@ export class Pong {
         this.scene.add(spotLight);
         this.scene.add(spotLight.target);
     }
+    
+    createScoreboard() {
+        const scoreOffsetX = -30;
+        const scoreOffsetY = -30;
+    
+        // Player 1 Score (Bottom Left)
+        const positionP1 = {
+            x: -this.fieldWidth / 2 + scoreOffsetX,
+            y: -this.fieldHeight / 2 + scoreOffsetY,
+            z: 50
+        };
+    
+        this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
+        this.scoreP1Text.createText((textMesh) => {
+            this.scoreP1Mesh = textMesh;
+            this.scoreP1Mesh.rotation.x = -0.01 * Math.PI / 180;
+            this.scoreP1Mesh.rotation.y = -60 * Math.PI / 180;
+            this.scoreP1Mesh.rotation.z = -90 * Math.PI / 180;
+            this.scene.add(this.scoreP1Mesh);
+        });
+    
+        // Player 2 Score (Top Right)
+        const positionP2 = {
+            x: this.fieldWidth / 2 - scoreOffsetX,
+            y: this.fieldHeight / 2 - scoreOffsetY + 100,
+            z: 50
+        };
+    
+        this.scoreP2Text = new Text3D(this.score2.toString(), positionP2, 0xffffff, 30, 1);
+        this.scoreP2Text.createText((textMesh) => {
+            this.scoreP2Mesh = textMesh;
+            this.scoreP2Mesh.rotation.x = -0.01 * Math.PI / 180;
+            this.scoreP2Mesh.rotation.y = -60 * Math.PI / 180;
+            this.scoreP2Mesh.rotation.z = -90 * Math.PI / 180;
+            this.scene.add(this.scoreP2Mesh);
+        });
+    }
+    
+    updateScoreboard() {
+        if (this.scoreP1Text && this.scoreP1Mesh) {
+            this.scoreP1Text.updateText(this.score1.toString());
+        }
+        if (this.scoreP2Text && this.scoreP2Mesh) {
+            this.scoreP2Text.updateText(this.score2.toString());
+        }
+    }
+    
 
     playerControl() {
         this.activeKeys = {};
@@ -253,7 +270,6 @@ export class Pong {
     playerPaddleMovement() {
         if (!this.paddle1) return;  // Ensure paddle exists
 
-
         if (this.activeKeys['a']) {
             if (this.paddle1.position.y < this.fieldWidth * 0.25) {
                 this.paddle1DirY = this.paddleSpeed * 0.5;
@@ -269,8 +285,7 @@ export class Pong {
                 this.paddle1DirY = 0;
                 this.paddle1.scale.y += (2 - this.paddle1.scale.y) * 0.15;
             }
-        } else 
-        {
+        } else {
             this.paddle1DirY = 0; //stop the paddle
         }
 
@@ -280,11 +295,163 @@ export class Pong {
         this.paddle1.position.y += this.paddle1DirY;
     }
 
+    ballPhysics() {
+        // if ball goes off the 'left' side (Player's side)
+        if (this.ball.position.x <= -this.fieldWidth / 2) {
+            // CPU scores
+            this.score2++;
+            // update scoreboard HTML
+            // reset ball to center
+            this.resetBall(2);
+            this.matchScoreCheck();	
+        }
+
+        // if ball goes off the 'right' side (CPU's side)
+        if (this.ball.position.x >= this.fieldWidth / 2) {
+            // Player scores
+            this.score1++;
+
+
+            // reset ball to center
+            this.resetBall(1);
+            //matchScoreCheck();	
+        }
+
+        // if ball goes off the top side (side of table)
+        if (this.ball.position.y <= -this.fieldHeight / 2) {
+            this.ballDirY = -this.ballDirY;
+        }
+        // if ball goes off the bottom side (side of table)
+        if (this.ball.position.y >= this.fieldHeight / 2) {
+            this.ballDirY = -this.ballDirY;
+        }
+
+        // update ball position over time
+        this.ball.position.x += this.ballDirX * this.ballSpeed;
+        this.ball.position.y += this.ballDirY * this.ballSpeed;
+
+        // limit ball's y-speed to 2x the x-speed
+        // this is so the ball doesn't speed from left to right super fast
+        // keeps game playable for humans
+        if (this.ballDirY > this.ballSpeed * 2) {
+            this.ballDirY = this.ballSpeed * 2;
+        }
+        else if (this.ballDirY < -this.ballSpeed * 2) {
+            this.ballDirY = -this.ballSpeed * 2;
+        }
+    }
+
+    resetBall(loser) {
+        // position the ball in the center of the table
+        this.ball.position.x = 0;
+        this.ball.position.y = 0;
+
+        // if player lost the last point, we send the ball to opponent
+        if (loser == 1) {
+            this.ballDirX = -1;
+        }
+        // else if opponent lost, we send ball to player
+        else {
+            this.ballDirX = 1;
+        }
+
+        // set the ball to move +ve in y plane (towards left from the camera)
+        this.ballDirY = 1;
+    }
+
+    paddlePhysics() {
+        // PLAYER PADDLE LOGIC
+
+        // if ball is aligned with paddle1 on x plane
+        // remember the position is the CENTER of the object
+        // we only check between the front and the middle of the paddle (one-way collision)
+        if (this.ball.position.x <= this.paddle1.position.x + this.paddleWidth
+            && this.ball.position.x >= this.paddle1.position.x) {
+            // and if ball is aligned with paddle1 on y plane
+            if (this.ball.position.y <= this.paddle1.position.y + this.paddleHeight / 2
+                && this.ball.position.y >= this.paddle1.position.y - this.paddleHeight / 2) {
+                // and if ball is travelling towards player (-ve direction)
+                if (this.ballDirX < 0) {
+                    // stretch the paddle to indicate a hit
+                    this.paddle1.scale.y = 1.1;
+                    // switch direction of ball travel to create bounce
+                    this.ballDirX = -this.ballDirX;
+                    // we impact ball angle when hitting it
+                    // this is not realistic physics, just spices up the gameplay
+                    // allows you to 'slice' the ball to beat the opponent
+                    this.ballDirY -= this.paddle1DirY * 0.7;
+                }
+            }
+        }
+
+        // OPPONENT PADDLE LOGIC	
+
+        // if ball is aligned with paddle2 on x plane
+        // remember the position is the CENTER of the object
+        // we only check between the front and the middle of the paddle (one-way collision)
+        if (this.ball.position.x <= this.paddle2.position.x + this.paddleWidth
+            && this.ball.position.x >= this.paddle2.position.x) {
+            // and if ball is aligned with paddle2 on y plane
+            if (this.ball.position.y <= this.paddle2.position.y + this.paddleHeight / 2
+                && this.ball.position.y >= this.paddle2.position.y - this.paddleHeight / 2) {
+                // and if ball is travelling towards opponent (+ve direction)
+                if (this.ballDirX > 0) {
+                    // stretch the paddle to indicate a hit
+                    this.paddle2.scale.y = 1.1;
+                    // switch direction of ball travel to create bounce
+                    this.ballDirX = -this.ballDirX;
+                    // we impact ball angle when hitting it
+                    // this is not realistic physics, just spices up the gameplay
+                    // allows you to 'slice' the ball to beat the opponent
+                    this.ballDirY -= this.paddle2DirY * 0.7;
+                }
+            }
+        }
+    }
+
+    matchScoreCheck()
+    {
+        // if player has 7 points
+        if (this.score1 >= this.maxScore)
+        {
+            // stop the ball
+            this.ballSpeed = 0;
+            // write to the banner
+            document.getElementById("scores").innerHTML = "Player wins!";		
+            document.getElementById("winnerBoard").innerHTML = "Refresh to play again";
+            // make paddle bounce up and down
+            this.bounceTime++;
+            this.paddle1.position.z = Math.sin(bounceTime * 0.1) * 10;
+            // enlarge and squish paddle to emulate joy
+            this.paddle1.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
+            this.paddle1.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
+        }
+        // else if opponent has 7 points
+        else if (this.score2 >= this.maxScore)
+        {
+            // stop the ball
+            this.ballSpeed = 0;
+            // write to the banner
+            document.getElementById("scores").innerHTML = "CPU wins!";
+            document.getElementById("winnerBoard").innerHTML = "Refresh to play again";
+            // make paddle bounce up and down
+            this.bounceTime++;
+            this.paddle2.position.z = Math.sin(bounceTime * 0.1) * 10;
+            // enlarge and squish paddle to emulate joy
+            this.paddle2.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
+            this.paddle2.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
+        }
+    }
+
     update() {
         if (!this.paddle1 || !this.paddle2 || !this.ball) return;
 
         this.playerPaddleMovement();
+        this.ballPhysics();
+        this.paddlePhysics();
         this.updateCamera();
+        this.updateScoreboard();
+        
     }
 
 
