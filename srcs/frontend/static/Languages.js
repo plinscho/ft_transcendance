@@ -1,191 +1,74 @@
-const languages = {
-  en: {
-    loading: "Loading...",
-    error: {
-      title: "Failed to load!",
-      message: "An unexpected error occurred. Please try again later.",
-      back: "BACK TO LOGIN"
-    },
-    login: {
-      title: "Login",
-      email: "Email address",
-      password: "Password",
-      submit: "Sign in",
-      registerPrompt: "Not a member?",
-      registerLink: "Register"
-    },
-    twoFactor: {
-      title: "2FA",
-      code: "2FA Code",
-      verify: "Verify"
-    },
-    register: {
-      title: "Register",
-      username: "Username",
-      email: "Email address",
-      password: "Password",
-      submit: "Register",
-      loginPrompt: "Already have an account?",
-      loginLink: "Login"
-    },
-    menu: {
-      play: "Play",
-      multiplayer: "Multiplayer",
-      tournament: "Tournament",
-      languages: "Languages",
-      logout: "Logout"
+import { state } from './state.js';
+import { languages } from './languagedata.js';
+
+// Función para actualizar los textos de la UI
+export const updateUITexts = () => {
+    try {
+        const currentLanguage = state.data.language || 'en';
+        const texts = languages[currentLanguage];
+
+        if (!texts) {
+            console.error(`Language ${currentLanguage} not found`);
+            return;
+        }
+
+        // Login form
+        const elements = {
+            loginTitle: document.getElementById('loginTitle'),
+            loginEmailLabel: document.getElementById('loginEmailLabel'),
+            loginPasswordLabel: document.getElementById('loginPasswordLabel'),
+            loginButton: document.getElementById('loginButton'),
+            registerPrompt: document.getElementById('registerPrompt'),
+            registerLink: document.getElementById('registerLink'),
+
+            // Register form
+            registerTitle: document.getElementById('registerTitle'),
+            registerUsernameLabel: document.getElementById('registerUsernameLabel'),
+            registerEmailLabel: document.getElementById('registerEmailLabel'),
+            registerPasswordLabel: document.getElementById('registerPasswordLabel'),
+            registerButton: document.getElementById('registerButton'),
+            loginPrompt: document.getElementById('loginPrompt'),
+            loginLink: document.getElementById('loginLink'),
+
+            // 2FA form
+            twoFactorTitle: document.getElementById('twoFactorTitle'),
+            twoFactorCodeLabel: document.getElementById('twoFactorCodeLabel'),
+            twoFactorVerifyButton: document.getElementById('twoFactorVerifyButton'),
+
+            // Error view
+            errorTitle: document.getElementById('errorTitle'),
+            errorMessage: document.getElementById('errorMessage'),
+            errorLogin: document.getElementById('errorLogin')
+        };
+
+        // Actualizar textos solo si el elemento existe
+        if (elements.loginTitle) elements.loginTitle.textContent = texts.login.title;
+        if (elements.loginEmailLabel) elements.loginEmailLabel.textContent = texts.login.email;
+        if (elements.loginPasswordLabel) elements.loginPasswordLabel.textContent = texts.login.password;
+        if (elements.loginButton) elements.loginButton.textContent = texts.login.submit;
+        if (elements.registerPrompt) elements.registerPrompt.textContent = texts.login.registerPrompt;
+        if (elements.registerLink) elements.registerLink.textContent = texts.login.registerLink;
+
+        if (elements.registerTitle) elements.registerTitle.textContent = texts.register.title;
+        if (elements.registerUsernameLabel) elements.registerUsernameLabel.textContent = texts.register.username;
+        if (elements.registerEmailLabel) elements.registerEmailLabel.textContent = texts.register.email;
+        if (elements.registerPasswordLabel) elements.registerPasswordLabel.textContent = texts.register.password;
+        if (elements.registerButton) elements.registerButton.textContent = texts.register.submit;
+        if (elements.loginPrompt) elements.loginPrompt.textContent = texts.register.loginPrompt;
+        if (elements.loginLink) elements.loginLink.textContent = texts.register.loginLink;
+
+        if (elements.twoFactorTitle) elements.twoFactorTitle.textContent = texts.twoFactor.title;
+        if (elements.twoFactorCodeLabel) elements.twoFactorCodeLabel.textContent = texts.twoFactor.code;
+        if (elements.twoFactorVerifyButton) elements.twoFactorVerifyButton.textContent = texts.twoFactor.verify;
+
+        if (elements.errorTitle) elements.errorTitle.textContent = texts.error.title;
+        if (elements.errorMessage) elements.errorMessage.textContent = texts.error.message;
+        if (elements.errorLogin) elements.errorLogin.textContent = texts.error.back;
+
+    } catch (error) {
+        console.error('Error updating UI texts:', error);
     }
-  },
-  es: {
-    loading: "Cargando...",
-    error: {
-      title: "¡Error al cargar!",
-      message: "Ocurrio un error inesperado. Por favor, inténtelo de nuevo mas tarde.",
-      back: "VOLVER AL INICIO"
-    },
-    login: {
-      title: "Iniciar sesion",
-      email: "Correo electronico",
-      password: "Contraseña",
-      submit: "Iniciar sesion",
-      registerPrompt: "¿No eres miembro?",
-      registerLink: "Registrarse"
-    },
-    twoFactor: {
-      title: "2FA",
-      code: "Código 2FA",
-      verify: "Verificar"
-    },
-    register: {
-      title: "Registrarse",
-      username: "Nombre de usuario",
-      email: "Correo electrónico",
-      password: "Contraseña",
-      submit: "Registrarse",
-      loginPrompt: "¿Ya tienes una cuenta?",
-      loginLink: "Iniciar sesion"
-    },
-    menu: {
-      play: "Jugar",
-      multiplayer: "Multijugador",
-      tournament: "Torneo",
-      languages: "Idiomas",
-      logout: "Cerrar sesion"
-    }
-  },
-  it: {
-    loading: "Caricamento...",
-    error: {
-      title: "Caricamento fallito!",
-      message: "Si è verificato un errore imprevisto. Per favore riprova più tardi.",
-      back: "TORNA AL LOGIN"
-    },
-    login: {
-      title: "Accedi",
-      email: "Indirizzo email",
-      password: "Password",
-      submit: "Accedi",
-      registerPrompt: "Non sei un membro?",
-      registerLink: "Registrati"
-    },
-    twoFactor: {
-      title: "2FA",
-      code: "Codice 2FA",
-      verify: "Verifica"
-    },
-    register: {
-      title: "Registrati",
-      username: "Nome utente",
-      email: "Indirizzo email",
-      password: "Password",
-      submit: "Registrati",
-      loginPrompt: "Hai già un account?",
-      loginLink: "Accedi"
-    },
-    menu: {
-      play: "Giocare",
-      multiplayer: "Multigiocatore",
-      tournament: "Torneo",
-      languages: "Lingue",
-      logout: "Disconnettersi"
-    }
-  },
-  fr: {
-    loading: "Chargement...",
-    error: {
-      title: "Échec du chargement!",
-      message: "Une erreur inattendue s'est produite. Veuillez réessayer plus tard.",
-      back: "RETOUR À LA CONNEXION"
-    },
-    login: {
-      title: "Connexion",
-      email: "Adresse e-mail",
-      password: "Mot de passe",
-      submit: "Se connecter",
-      registerPrompt: "Pas encore membre?",
-      registerLink: "S'inscrire"
-    },
-    twoFactor: {
-      title: "2FA",
-      code: "Code 2FA",
-      verify: "Vérifier"
-    },
-    register: {
-      title: "S'inscrire",
-      username: "Nom d'utilisateur",
-      email: "Adresse e-mail",
-      password: "Mot de passe",
-      submit: "S'inscrire",
-      loginPrompt: "Vous avez déjà un compte?",
-      loginLink: "Se connecter"
-    },
-    menu: {
-      play: "Jouer",
-      multiplayer: "Multijoueur",
-      tournament: "Tournoi",
-      languages: "Langues",
-      logout: "Se déconnecter"
-    }
-  }
 };
 
-import { state } from "./state.js";
-
-// Selecciona el diccionario de idiomas adecuado
-const lang = languages[state.data.language];
-
-document.addEventListener('DOMContentLoaded', () => {
-  console.log("DOM fully loaded and parsed");
-
-  // Loading view
-  document.getElementById('view-loading').textContent = lang.loading;
-
-  // Error view
-  document.getElementById('errorTitle').textContent = lang.error.title;
-  document.getElementById('errorMessage').textContent = lang.error.message;
-  document.getElementById('errorLogin').textContent = lang.error.back;
-
-  // Login form
-  document.getElementById('loginTitle').textContent = lang.login.title;
-  document.getElementById('loginEmailLabel').textContent = lang.login.email;
-  document.getElementById('loginPasswordLabel').textContent = lang.login.password;
-  document.getElementById('loginButton').textContent = lang.login.submit;
-  document.getElementById('registerPrompt').textContent = lang.login.registerPrompt;
-  document.getElementById('registerLink').textContent = lang.login.registerLink;
-
-  // 2FA form
-  document.getElementById('twoFactorTitle').textContent = lang.twoFactor.title;
-  document.getElementById('twoFactorCodeLabel').textContent = lang.twoFactor.code;
-  document.getElementById('twoFactorVerifyButton').textContent = lang.twoFactor.verify;
-
-  // Register form
-  document.getElementById('registerTitle').textContent = lang.register.title;
-  document.getElementById('registerUsernameLabel').textContent = lang.register.username;
-  document.getElementById('registerEmailLabel').textContent = lang.register.email;
-  document.getElementById('registerPasswordLabel').textContent = lang.register.password;
-  document.getElementById('registerButton').textContent = lang.register.submit;
-  document.getElementById('loginPrompt').textContent = lang.register.loginPrompt;
-  document.getElementById('loginLink').textContent = lang.register.loginLink;
-});
-
-export { lang };
+// Exportar el diccionario de idiomas
+export const lang = languages[state.data.language || 'en'];

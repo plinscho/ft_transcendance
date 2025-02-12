@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Menu } from './Menu.js';
 import { Pong } from './Pong.js';
 import { WaitingRoom } from './WaitingRoom.js';
+import { LanguageMenu } from './LanguageMenu.js';
 
 export class Game {
     constructor() {
@@ -21,7 +22,7 @@ export class Game {
             WAITING_ROOM: 'waiting_room',
             MULTIPLAYER: 'multiplayer',
             TOURNAMENTS: 'tournament',
-            LANGUAGES: 'languages',
+            LANGUAGE_MENU: 'languages',
         };
         this.currentState = this.states.MENU;
         this.previousScene = null;
@@ -49,6 +50,7 @@ export class Game {
             switch (sceneName) {
                 case this.states.MENU:
                     this.scenes[sceneName] = new Menu(this, this.camera);
+                    break;  // Añade este break
                 case this.states.PLAY:
                     this.scenes[sceneName] = new Pong(this, false);
                     break;
@@ -62,8 +64,8 @@ export class Game {
                     this.scenes[sceneName] = new Pong(this);
                     break;
                 case this.states.LANGUAGES:
-                    this.scenes[sceneName] = new Pong(this);
-                    break;
+                    this.scenes[sceneName] = new LanguageMenu(this); // Nueva línea
+                    break;        
                 default:
                     console.error(`Scene only exists in your head: ${sceneName}`);
                     return;

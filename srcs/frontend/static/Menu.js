@@ -16,7 +16,7 @@ export class Menu {
             { text: lang.menu.play, state: this.state.states.PLAY },
             { text: lang.menu.multiplayer, state: this.state.states.WAITING_ROOM },
             { text: lang.menu.tournament, state: this.state.states.WAITING_ROOM },
-            { text: lang.menu.languages, action: () => console.log("Languages menu not implemented") },
+            { text: lang.menu.languages, state: this.state.states.LANGUAGE_MENU },
             { text: lang.menu.logout, action: () => logout() }
         ];
 

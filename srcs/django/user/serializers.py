@@ -11,17 +11,20 @@ class TwoFactorAuthSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     two_factor_auth = TwoFactorAuthSerializer(read_only=True)
+    language = serializers.CharField(default='es')  # Añadimos valor por defecto
 
     class Meta:
         model = get_user_model()
-        fields = ['email', 'password', 'username', 'two_factor_auth']
-        extra_kwargs = {'password': {'write_only': True}} # evita que el GET nos revele la contraseña
+        fields = ['email', 'password', 'username', 'language', 'two_factor_auth']
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
+        # Usamos .get() para manejar el caso en que language no está presente
         return get_user_model().objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
-            username=validated_data['username']
+            username=validated_data['username'],
+            language=validated_data.get('language', 'es')
         )
     
     def update(self, instance, validated_data):
@@ -39,4 +42,3 @@ class AuthTokenSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         data.update({'username': self.user.username})
         return data
-    

@@ -33,10 +33,12 @@ class CreateUserView(generics.CreateAPIView):
         response_data = {
             'email': user.email,
             'username': user.username,
+            'language': user.language,
             'token': access_token
         }
 
         return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 # Recibimos un auth token y yo devuelvo un 200 si el token coincide o un error si no coincide
 class VerifyUserView(generics.CreateAPIView):
@@ -50,17 +52,15 @@ class VerifyUserView(generics.CreateAPIView):
         except:
             return Response({"error":"Invalid Token"}, status=status.HTTP_401_UNAUTHORIZED)
 
+
 class PopulateUserDataView(generics.CreateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        user = request.user # Check que el AuthToken sea match con el de user
+        user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # Poner patch para cambiar language.
-    
 # Debug purpose
 logger = logging.getLogger(__name__)
 
@@ -168,3 +168,39 @@ class Verify2FACodeView(generics.GenericAPIView):
         except TwoFactorAuth.DoesNotExist:
             return Response({"error": "Two-factor authentication not set up"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class UpdateUserLanguageView(generics.UpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]  # Añadir esto para JWT
+
+    def get_object(self):
+        return self.request.user
+
+    def patch(self, request, *args, **kwargs):
+        user = self.get_object()
+        language = request.data.get('language')
+
+        # Validar que el idioma esté en las opciones permitidas
+        if language not in dict(User.LANGUAGE_CHOICES):
+            return Response(
+                {"error": "Invalid language choice"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Actualizar solo el campo de idioma
+        serializer = self.get_serializer(
+            user,
+            data={'language': language},
+            partial=True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'email': user.email,
+                'username': user.username,
+                'language': user.language
+            }, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

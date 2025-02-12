@@ -1,5 +1,7 @@
 import { state, View } from './state.js';
 import { startGame } from './game.js';
+import { updateUITexts } from './Languages.js';
+
 
 const D = document;
 
@@ -27,13 +29,17 @@ let $$viewNodes = [
 ];
 
 // DOM updates
-export const  updateView = () => {
-	let $nextView = $$viewNodes[currentView()];
-	if ($nextView === $currentView) return;
-	$currentView.classList.add('invisible');
-	$nextView.classList.remove('invisible');
-	$currentView = $nextView;
+export const updateView = () => {
+    let $nextView = $$viewNodes[currentView()];
+    if ($nextView === $currentView) return;
+    $currentView.classList.add('invisible');
+    $nextView.classList.remove('invisible');
+    $currentView = $nextView;
+    
+    // Actualizar los textos cuando cambie la vista
+    updateUITexts();
 };
+
 
 export const  updateInitialView = () => {
     console.log(state);
