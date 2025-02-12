@@ -8,15 +8,13 @@ export class Pong {
         this.state = state;
         this.camera = this.createCamera();
         this.multiplayer = multiplayer;
-        //player2 inputs(online or offline)
-
 
         //fog
         //this.scene.fog = new THREE.Fog(0x000000, 10, 1000);
 
         // Field and Paddle properties
         this.fieldWidth = 400;
-        this.fieldHeight = 200;
+        this.fieldHeight = 300;
         this.paddleWidth = 10;
         this.paddleHeight = 50;
         this.paddleDepth = 10;
@@ -30,24 +28,44 @@ export class Pong {
         // ball
         this.ballDirY = -1;
         this.ballDirX = -1;
-        this.ballSpeed = 1;
+        this.ballSpeed = 2;
 
         // scores
         this.scoreP1Text = null;
         this.scoreP2Text = null;
         this.score1 = 0;
         this.score2 = 0;
+        this.maxScore = 5;
 
         this.bounceTime = 0;
 
         this.createBackground();
         this.createScene();
 
-        this.playerControl();
         this.createScoreboard();
 
-        this.player1 = new PlayerController(this.paddle1, false, this.state.network);
-        this.player2 = new PlayerController(this.paddle2, this.multiplayer, this.state.network);
+        //player initialization
+
+        this.player1 = new PlayerController(
+            this.paddle1,
+            true,          // isPlayerOne
+            false,         // isMultiplayer
+            this.fieldHeight,
+            3,             // Paddle Speed
+            this.ball,     // Ball reference
+            null           // No network manager for local player
+        );
+        
+        this.player2 = new PlayerController(
+            this.paddle2,
+            false,         // isPlayerOne (this is Player 2)
+            this.multiplayer, // Multiplayer status
+            this.fieldHeight,
+            3,             // Paddle Speed
+            this.ball,     // Ball reference
+            this.state.network // Pass network manager if multiplayer
+        );
+        
 
     }
 
@@ -58,7 +76,6 @@ export class Pong {
         return camera;
     }
 
-    //TODO: CHANGE CAMERA TO FOLLOW THE BALL INSTEAD OF PADDLE
     updateCamera() {
         if (!this.camera || !this.paddle1 || !this.ball) return;
 
@@ -251,49 +268,6 @@ export class Pong {
             this.scoreP2Text.updateText(this.score2.toString());
         }
     }
-    
-
-    playerControl() {
-        this.activeKeys = {};
-
-        window.addEventListener('keydown', (e) => {
-            this.activeKeys[e.key.toLowerCase()] = true;
-            console.log(this.activeKeys);
-        });
-
-        window.addEventListener('keyup', (e) => {
-            this.activeKeys[e.key.toLowerCase()] = false;
-            console.log(this.activeKeys);
-        });
-    }
-
-    playerPaddleMovement() {
-        if (!this.paddle1) return;  // Ensure paddle exists
-
-        if (this.activeKeys['a']) {
-            if (this.paddle1.position.y < this.fieldWidth * 0.25) {
-                this.paddle1DirY = this.paddleSpeed * 0.5;
-            } else {
-                this.paddle1DirY = 0;
-                this.paddle1.scale.y += (2 - this.paddle1.scale.y) * 0.15;
-            }
-        }
-        else if (this.activeKeys['d']) {
-            if (this.paddle1.position.y > -this.fieldWidth * 0.25) {
-                this.paddle1DirY = -this.paddleSpeed * 0.5;
-            } else {
-                this.paddle1DirY = 0;
-                this.paddle1.scale.y += (2 - this.paddle1.scale.y) * 0.15;
-            }
-        } else {
-            this.paddle1DirY = 0; //stop the paddle
-        }
-
-        // Reset scale for smooth animation
-        this.paddle1.scale.y += (1 - this.paddle1.scale.y) * 0.2;
-        this.paddle1.scale.z += (1 - this.paddle1.scale.z) * 0.2;
-        this.paddle1.position.y += this.paddle1DirY;
-    }
 
     ballPhysics() {
         // if ball goes off the 'left' side (Player's side)
@@ -314,7 +288,7 @@ export class Pong {
 
             // reset ball to center
             this.resetBall(1);
-            //matchScoreCheck();	
+            this.matchScoreCheck();	
         }
 
         // if ball goes off the top side (side of table)
@@ -409,51 +383,69 @@ export class Pong {
         }
     }
 
-    matchScoreCheck()
-    {
-        // if player has 7 points
-        if (this.score1 >= this.maxScore)
-        {
-            // stop the ball
-            this.ballSpeed = 0;
-            // write to the banner
-            document.getElementById("scores").innerHTML = "Player wins!";		
-            document.getElementById("winnerBoard").innerHTML = "Refresh to play again";
-            // make paddle bounce up and down
-            this.bounceTime++;
-            this.paddle1.position.z = Math.sin(bounceTime * 0.1) * 10;
-            // enlarge and squish paddle to emulate joy
-            this.paddle1.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
-            this.paddle1.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
+    createWinnerBanner(text) {
+        const winnerText = new Text3D(text, { x: 0, y: 0, z: 100 }, 0xffffff, 40, 1);
+        
+        winnerText.createText((textMesh) => {
+            this.winnerText = textMesh;
+            this.winnerText.rotation.x = -0.01 * Math.PI / 180;
+            this.winnerText.rotation.y = -60 * Math.PI / 180;
+            this.winnerText.rotation.z = -90 * Math.PI / 180;
+            this.scene.add(this.winnerText);
+    
+            setTimeout(() => {
+                this.scene.remove(this.winnerText);
+                this.backToMenu();
+            }, 8000);
+        });
+    }
+
+    backToMenu() {
+
+        if (this.multiplayer) {
+            this.network.sendData({ type: "QUIT" });
+            this.network.disconnect();
+            this.active = false;
+            window.removeEventListener('keydown', this.boundEscapeHandler);
         }
-        // else if opponent has 7 points
-        else if (this.score2 >= this.maxScore)
-        {
-            // stop the ball
-            this.ballSpeed = 0;
-            // write to the banner
-            document.getElementById("scores").innerHTML = "CPU wins!";
-            document.getElementById("winnerBoard").innerHTML = "Refresh to play again";
-            // make paddle bounce up and down
+        delete this.player1;
+        delete this.player2;
+        this.state.loadScene(this.state.states.MENU);
+    }
+
+    matchScoreCheck() {
+        if (this.score1 >= this.maxScore) {
+            this.ballSpeed = 0; // Stop ball movement
+            this.createWinnerBanner("Player 1 Wins!");
+            // Player 1 celebration effect
             this.bounceTime++;
-            this.paddle2.position.z = Math.sin(bounceTime * 0.1) * 10;
-            // enlarge and squish paddle to emulate joy
-            this.paddle2.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
-            this.paddle2.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
+            this.player1.playerMesh.position.z = Math.sin(this.bounceTime * 0.1) * 10;
+            this.player1.playerMesh.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
+            this.player1.playerMesh.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
+        } 
+        else if (this.score2 >= this.maxScore) {
+            this.ballSpeed = 0; // Stop ball movement
+            this.createWinnerBanner("Player 2 Wins!");
+    
+            // Player 2 celebration effect
+            this.bounceTime++;
+            this.player2.playerMesh.position.z = Math.sin(this.bounceTime * 0.1) * 10;
+            this.player2.playerMesh.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
+            this.player2.playerMesh.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
         }
     }
 
     update() {
         if (!this.paddle1 || !this.paddle2 || !this.ball) return;
+        this.player1.update();
+        this.player2.update();
 
-        this.playerPaddleMovement();
         this.ballPhysics();
         this.paddlePhysics();
         this.updateCamera();
         this.updateScoreboard();
         
     }
-
 
     getScene() {
         return this.scene;
