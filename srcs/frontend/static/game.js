@@ -2,9 +2,12 @@ import * as THREE from 'three';
 import { Menu } from './Menu.js';
 import { Pong } from './Pong.js';
 import { WaitingRoom } from './WaitingRoom.js';
+import { NetworkManager } from './NetworkManager.js';
+import { state } from './state.js';
 
 export class Game {
-    constructor() {
+    constructor(apiState) {
+        this.apiState = apiState;
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.shadowMap.enabled = true;
@@ -14,7 +17,7 @@ export class Game {
 
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.z = 5;
-
+        this.network = new NetworkManager();
         this.states = {
             MENU: 'menu',
             PLAY: 'play',
@@ -53,10 +56,10 @@ export class Game {
                     this.scenes[sceneName] = new Pong(this, false);
                     break;
                 case this.states.WAITING_ROOM:
-                    this.scenes[sceneName] = new WaitingRoom(this);
+                    this.scenes[sceneName] = new WaitingRoom(this, this.network);
                     break;
                 case this.states.MULTIPLAYER:
-                    this.scenes[sceneName] = new Pong(this, true);
+                    this.scenes[sceneName] = new Pong(this, true, this.network);
                     break;
                 case this.states.TOURNAMENTS:
                     this.scenes[sceneName] = new Pong(this);
@@ -123,9 +126,9 @@ export class Game {
     gameLoop() {
         const currentScene = this.scenes[this.currentState]?.getScene();
         if (currentScene) {
-            if (this.currentState === this.states.PLAY) {
+            if (this.currentState === this.states.PLAY || this.currentState === this.states.MULTIPLAYER) {
                 //this.scenes[this.states.PLAY].updateCamera();
-                this.scenes[this.states.PLAY].update();
+                this.scenes[this.currentState].update();
             }
             this.renderer.render(currentScene, this.camera);
         }
@@ -134,4 +137,4 @@ export class Game {
     
 }
 
-export const startGame = () => new Game();
+export const startGame = () => new Game(state);

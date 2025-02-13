@@ -3,10 +3,10 @@ import { Text3D } from './Text3D.js';
 import { NetworkManager } from './NetworkManager.js';
 
 export class WaitingRoom {
-    constructor(state) {
+    constructor(state, network) {
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
-        this.network = new NetworkManager();
+        this.network = network;
         this.isWaiting = true;
         this.active = true;
         this.state = state;

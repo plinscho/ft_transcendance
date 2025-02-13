@@ -3,12 +3,12 @@ import { Text3D } from './Text3D.js';
 import { PlayerController } from './PlayerController.js';
 
 export class Pong {
-    constructor(state, multiplayer) {
+    constructor(state, multiplayer, networkManager) {
         this.scene = new THREE.Scene();
         this.state = state;
         this.camera = this.createCamera();
         this.multiplayer = multiplayer;
-
+        this.networkManager = networkManager;
         //fog
         //this.scene.fog = new THREE.Fog(0x000000, 10, 1000);
 
@@ -28,7 +28,7 @@ export class Pong {
         // ball
         this.ballDirY = -1;
         this.ballDirX = -1;
-        this.ballSpeed = 2;
+        this.ballSpeed = 4;
 
         // scores
         this.scoreP1Text = null;
@@ -47,23 +47,29 @@ export class Pong {
         //player initialization
 
         this.player1 = new PlayerController(
+            this.state,
             this.paddle1,
-            true,          // isPlayerOne
-            false,         // isMultiplayer
+            true,               // isPlayerOne
+            false,              // isMultiplayer
             this.fieldHeight,
-            3,             // Paddle Speed
-            this.ball,     // Ball reference
-            null           // No network manager for local player
+            5,                  // Paddle Speed
+            this.ball,          // Ball reference
+            this.networkManager, // Pass network manager if multiplayer
+            this.ballDirX,      // Ball direction on X axis
+            this.ballDirY       // ^^ on Y axis
         );
         
         this.player2 = new PlayerController(
+            this.state,
             this.paddle2,
-            false,         // isPlayerOne (this is Player 2)
-            this.multiplayer, // Multiplayer status
+            false,              // isPlayerOne (this is Player 2)
+            this.multiplayer,   // Multiplayer status
             this.fieldHeight,
-            3,             // Paddle Speed
-            this.ball,     // Ball reference
-            this.state.network // Pass network manager if multiplayer
+            5,                  // Paddle Speed
+            this.ball,          // Ball reference
+            this.networkManager, // Pass network manager if multiplayer
+            this.ballDirX,      // Ball direction on X axis
+            this.ballDirY       // ^^ on Y axis
         );
         
 

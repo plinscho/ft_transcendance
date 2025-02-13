@@ -114,7 +114,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             return
         
 
-        message_type = data["type"]
+        message_type = data.get("type")
 
         if message_type == "message" and data.get("message") == "PING":
             await self.channel_layer.group_send(
@@ -129,20 +129,18 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         # Si el mensaje es un movimiento del jugador
         if message_type == "MOVE":
-            if "direction" not in data:
-                logger.error("MOVE message missing 'direction' field")
-                return
-            direction = data["direction"]
-            logger.debug(f"Received move command: {direction}")
-            # Enviamos el movimiento a la sala (pong frontend)
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'player_move',
-                    'player': self.channel_name,# Identificamos qué jugador mueve
-                    'direction': direction #Up or Down
-                }
-            )
+            async with lock:
+                players = waiting_rooms.get(self.room_name, [])
+                if len(players) == 2:
+                    opponent = players[0] if players[1] == self.channel_name else players[1]
+                    # Enviar el mensaje completo al oponente
+                    await self.channel_layer.send(
+                        opponent,
+                        {
+                            "type": "player_move",
+                            "data": data  # Reenviamos exactamente lo que recibimos
+                        }
+                    )
             return
         
         if message_type == 'QUIT':
@@ -154,13 +152,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         
     # Metodo para enviar direccion de movimiento a los jugadores
     async def player_move(self, event):
-        if "direction" in event:
-            await self.send(text_data=json.dumps({
-                'type': 'MOVE',
-                'direction': event['direction']
-            }))
-        else:
-            logger.error("player_move event missing 'direction' field")
+        await self.send(text_data=json.dumps(event["data"]))  # Envía el mensaje JSON al otro jugador
 
     # Metodo para enviar mensaje de que empieza el juego
     async def start_game(self, event):
