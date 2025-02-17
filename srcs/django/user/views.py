@@ -177,30 +177,32 @@ class UpdateUserLanguageView(generics.UpdateAPIView):
     def get_object(self):
         return self.request.user
 
-    def patch(self, request, *args, **kwargs):
-        user = self.get_object()
-        language = request.data.get('language')
+def patch(self, request, *args, **kwargs):
+    user = self.get_object()
+    language = request.data.get('language')
+    print(f"Updating language for user {user.username} to {language}")
 
-        # Validar que el idioma esté en las opciones permitidas
-        if language not in dict(User.LANGUAGE_CHOICES):
-            return Response(
-                {"error": "Invalid language choice"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Actualizar solo el campo de idioma
-        serializer = self.get_serializer(
-            user,
-            data={'language': language},
-            partial=True
+    if language not in dict(User.LANGUAGE_CHOICES):
+        print(f"Invalid language choice: {language}")
+        return Response(
+            {"error": "Invalid language choice"},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'email': user.email,
-                'username': user.username,
-                'language': user.language
-            }, status=status.HTTP_200_OK)
+    serializer = self.get_serializer(
+        user,
+        data={'language': language},
+        partial=True
+    )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if serializer.is_valid():
+        serializer.save()
+        print(f"Language updated successfully to {user.language}")
+        return Response({
+            'email': user.email,
+            'username': user.username,
+            'language': user.language
+        }, status=status.HTTP_200_OK)
+
+    print(f"Serializer errors: {serializer.errors}")
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

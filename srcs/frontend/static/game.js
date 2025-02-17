@@ -6,39 +6,35 @@ import { LanguageMenu } from './LanguageMenu.js';
 
 export class Game {
     constructor() {
-        // Configurar renderizador
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
-        // Cámara por defecto
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.z = 5;
 
-        // Estados del juego
         this.states = {
             MENU: 'menu',
             PLAY: 'play',
             WAITING_ROOM: 'waiting_room',
             MULTIPLAYER: 'multiplayer',
             TOURNAMENTS: 'tournament',
-            LANGUAGE_MENU: 'languages',
+            LANGUAGE_MENU: 'language_menu'
         };
+
         this.currentState = this.states.MENU;
         this.previousScene = null;
 
-        // Escenas
         this.scenes = {
             menu: new Menu(this, this.camera),
             play: null,
             waiting_room: null,
             multiplayer: null,
             tournament: null,
-            languages: null,
+            language_menu: null
         };
 
         this.updateCamera();
-
         window.addEventListener('resize', this.resize.bind(this));
         this.gameLoop();
     }
@@ -50,7 +46,7 @@ export class Game {
             switch (sceneName) {
                 case this.states.MENU:
                     this.scenes[sceneName] = new Menu(this, this.camera);
-                    break;  // Añade este break
+                    break;
                 case this.states.PLAY:
                     this.scenes[sceneName] = new Pong(this, false);
                     break;
@@ -63,11 +59,11 @@ export class Game {
                 case this.states.TOURNAMENTS:
                     this.scenes[sceneName] = new Pong(this);
                     break;
-                case this.states.LANGUAGES:
-                    this.scenes[sceneName] = new LanguageMenu(this); // Nueva línea
-                    break;        
+                case this.states.LANGUAGE_MENU:
+                    this.scenes[sceneName] = new LanguageMenu(this);
+                    break;
                 default:
-                    console.error(`Scene only exists in your head: ${sceneName}`);
+                    console.error(`Scene not found: ${sceneName}`);
                     return;
             }
         }
@@ -75,7 +71,6 @@ export class Game {
         this.changeState(sceneName);
     }
 
-    // **Unload the previous scene**
     unloadScene(sceneName) {
         if (this.scenes[sceneName] === this.scenes.menu) return;
         if (!this.scenes[sceneName]) return;
@@ -84,7 +79,6 @@ export class Game {
 
         const scene = this.scenes[sceneName];
         
-        // Remove all objects from the scene
         scene.getScene().children.forEach((child) => {
             if (child.geometry) child.geometry.dispose();
             if (child.material) {
@@ -101,16 +95,16 @@ export class Game {
     }
 
     changeState(newState) {
-        if (this.currentState === this.states.MENU && this.scenes.menu) {
-            this.scenes.menu.setActive(false); // Hide menu when leaving
+        if (this.scenes[this.currentState]) {
+            this.scenes[this.currentState].setActive(false);
         }
-    
+
         this.currentState = newState;
-    
-        if (newState === this.states.MENU && this.scenes.menu) {
-            this.scenes.menu.setActive(true); // Show menu when returning
+
+        if (this.scenes[newState]) {
+            this.scenes[newState].setActive(true);
         }
-    
+
         this.updateCamera();
     }
 

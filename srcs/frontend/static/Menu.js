@@ -19,7 +19,7 @@ export class Menu {
             { text: lang.menu.languages, state: this.state.states.LANGUAGE_MENU },
             { text: lang.menu.logout, action: () => logout() }
         ];
-
+    
         this.colors = [
             0xffacfc,
             0xf148fb, 
@@ -209,6 +209,16 @@ export class Menu {
         });
     }
 
+    updateTexts() {
+        this.buttonConfigs = [
+            { text: lang.menu.play, state: this.state.states.PLAY },
+            { text: lang.menu.multiplayer, state: this.state.states.WAITING_ROOM },
+            { text: lang.menu.tournament, state: this.state.states.WAITING_ROOM },
+            { text: lang.menu.languages, state: this.state.states.LANGUAGE_MENU },
+            { text: lang.menu.logout, action: () => logout() }
+        ];
+        this.createMenuScene(); // Recreate the menu with new texts
+    }
 
     getScene() {
         return this.scene;

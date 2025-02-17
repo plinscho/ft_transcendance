@@ -12,6 +12,9 @@ export const updateUITexts = () => {
             return;
         }
 
+        // Update lang export
+        Object.assign(lang, texts);
+
         // Login form
         const elements = {
             loginTitle: document.getElementById('loginTitle'),

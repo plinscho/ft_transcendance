@@ -11,7 +11,7 @@ class TwoFactorAuthSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     two_factor_auth = TwoFactorAuthSerializer(read_only=True)
-    language = serializers.CharField(default='es')  # Añadimos valor por defecto
+    language = serializers.CharField(default='en')  # Añadimos valor por defecto
 
     class Meta:
         model = get_user_model()
