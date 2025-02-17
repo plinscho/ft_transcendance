@@ -3,6 +3,7 @@ import { Text3D } from './Text3D.js';
 import { updateLanguage } from './api.js';
 import { updateUITexts } from './Languages.js';
 import { state } from './state.js';
+import { loadData } from './api.js';
 
 export class LanguageMenu {
     constructor(game) {
@@ -230,23 +231,37 @@ export class LanguageMenu {
             }
         }
     }
+
     async handleLanguageChange(langCode) {
         try {
+            // 1. Actualizar el idioma en el backend
             const response = await updateLanguage(langCode);
             if (response && response.language) {
+                // 2. Actualizar el estado local
                 state.data.language = langCode;
+                
+                // 3. Cargar los nuevos datos y esperar a que terminen
+                await loadData();
+                
+                // 4. Esperar a que se actualicen los textos de la UI
                 await updateUITexts();
-                this.game.loadScene(this.game.states.MENU);
-                // Force menu recreation
+                
+                // 5. Esperar un momento para asegurar que todo está listo
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // 6. Recargar el menú principal
                 if (this.game.scenes.menu) {
-                    this.game.scenes.menu.createMenuScene(); 
+                    this.game.scenes.menu.handleLanguageChange();
                 }
+                
+                // 7. Finalmente, cambiar la escena
+                this.game.loadScene(this.game.states.MENU);
             }
         } catch (error) {
             console.error('Error changing language:', error);
         }
     }
-
+    
     getScene() {
         return this.scene;
     }

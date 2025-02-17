@@ -61,7 +61,6 @@ export const loadData = async () => {
 
 export const updateLanguage = async (language) => {
   try {
-      console.log('Updating language to:', language);
       const response = await fetch(URL + '/api/user/update-language/', {
           method: 'PATCH',
           headers: {
@@ -71,20 +70,19 @@ export const updateLanguage = async (language) => {
           body: JSON.stringify({ language })
       });
 
-      console.log('Language update response:', response);
-
       if (response.ok) {
           const data = await response.json();
-          console.log('Language update successful:', data);
           state.data.language = data.language;
+          
+          // Disparar un evento personalizado para notificar el cambio de idioma
+          window.dispatchEvent(new Event('languageChanged'));
+          
           return data;
       } else {
-          const errorData = await response.json();
-          console.error('Language update failed:', errorData);
           throw new Error('Failed to update language');
       }
   } catch (error) {
-      console.error('Error updating language:', error);
+      console.error('Error:', error);
       throw error;
   }
 };

@@ -5,6 +5,7 @@ import { languages } from './languagedata.js';
 export const updateUITexts = () => {
     try {
         const currentLanguage = state.data.language || 'en';
+        console.log("Updating UI texts to language:", currentLanguage);
         const texts = languages[currentLanguage];
 
         if (!texts) {
@@ -14,6 +15,8 @@ export const updateUITexts = () => {
 
         // Update lang export
         Object.assign(lang, texts);
+        
+        console.log("Updated lang object:", lang);
 
         // Login form
         const elements = {
