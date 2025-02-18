@@ -9,4 +9,5 @@ urlpatterns = [
     path('data/', views.PopulateUserDataView.as_view(), name='data'), # GET Recibimos el auth token y devolvemos username, mail, lo que sea.
     path('2fa/', views.Verify2FACodeView.as_view(), name='2fa'), # POST Para verificar el código de 2FA
     path('generate-2fa/', views.Generate2FACodeView.as_view()),
+    path('update-language/', views.UpdateUserLanguageView.as_view(), name='update-language'),  # Nueva ruta para actualizar el language
 ]
