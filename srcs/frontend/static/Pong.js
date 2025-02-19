@@ -1,67 +1,504 @@
 import * as THREE from 'three';
+import { Text3D } from './Text3D.js';
+import { PlayerController } from './PlayerController.js';
 
 export class Pong {
-    constructor(state) {
+    constructor(state, multiplayer, networkManager) {
         this.scene = new THREE.Scene();
         this.state = state;
-        this.camera = this.createCamera();  // Create a dedicated camera
+        this.camera = this.createCamera();
+        this.multiplayer = multiplayer;
+        this.networkManager = networkManager;
+        //fog
+        //this.scene.fog = new THREE.Fog(0x000000, 10, 1000);
 
-        this.createPongField();
+        // Field and Paddle properties
+        this.fieldWidth = 400;
+        this.fieldHeight = 300;
+        this.paddleWidth = 10;
+        this.paddleHeight = 50;
+        this.paddleDepth = 10;
+        this.ballRadius = 7;
+
+        // paddle
+        this.paddle1DirY = 0;
+        this.paddle2DirY = 0;
+        this.paddleSpeed = 5;
+
+        // ball
+        this.ballDirY = -1;
+        this.ballDirX = -1;
+        this.ballSpeed = 2;
+
+        // scores
+        this.scoreP1Text = null;
+        this.scoreP2Text = null;
+        this.score1 = 0;
+        this.score2 = 0;
+        this.maxScore = 5;
+        this.bounceTime = 0;
+
+        // Game Start Countdown
+        this.starting = false;  // Whether the countdown is active
+        this.start = false;     // Whether the game has officially started
+        this.countdownText = null; // Holds reference to countdown `Text3D`
+        this.countdownMesh = null; // Stores the countdown mesh
+
+        this.createBackground();
+        this.createScene();
+
+        this.createScoreboard();
+
+
+        //player initialization
+        this.player1 = new PlayerController(
+            this.state,
+            this.paddle1,
+            true,               // isPlayerOne
+            false,              // isMultiplayer
+            this.fieldHeight,
+            5,                  // Paddle Speed
+            this.ball,          // Ball reference
+            this.networkManager, // Pass network manager if multiplayer
+            this.ballDirX,      // Ball direction on X axis
+            this.ballDirY       // ^^ on Y axis
+        );
+
+        this.player2 = new PlayerController(
+            this.state,
+            this.paddle2,
+            false,              // isPlayerOne (this is Player 2)
+            this.multiplayer,   // Multiplayer status
+            this.fieldHeight,
+            5,                  // Paddle Speed
+            this.ball,          // Ball reference
+            this.networkManager, // Pass network manager if multiplayer
+            this.ballDirX,      // Ball direction on X axis
+            this.ballDirY       // ^^ on Y axis
+        );
+
+
     }
 
     createCamera() {
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 6, 6);
-        camera.lookAt(new THREE.Vector3(0, 3, 3)); 
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
+        camera.position.set(0, 1000, 400); // Start behind Paddle1
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
         return camera;
     }
 
-    createPongField() {
-        const fieldLength = 8;
-        const fieldWidth = 4;
-        const borderThickness = 0.2;
-        const borderHeight = 0.2;
+    updateCamera() {
+        if (!this.camera || !this.paddle1 || !this.ball) return;
 
-        // Field surface
-        const fieldGeometry = new THREE.PlaneGeometry(fieldLength, fieldWidth);
-        const fieldMaterial = new THREE.MeshBasicMaterial({ color: 0x424242, side: THREE.DoubleSide });
-        const field = new THREE.Mesh(fieldGeometry, fieldMaterial);
-        field.rotation.x = -Math.PI / 2;
-        field.position.y = -0.05;  // Lower field slightly to prevent z-fighting
-        this.scene.add(field);
+        // Move camera behind Paddle1
+        this.camera.position.x = this.paddle1.position.x - 200;
+        this.camera.position.y += (this.paddle1.position.y - this.camera.position.y) * 0.05;
+        this.camera.position.z = this.paddle1.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle1.position.x);
 
-        // Center line
-        const centerLineGeometry = new THREE.PlaneGeometry(0.1, fieldWidth);
-        const centerLineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-        const centerLine = new THREE.Mesh(centerLineGeometry, centerLineMaterial);
-        centerLine.position.y = 0.01;
-        centerLine.rotation.x = -Math.PI / 2;
-        this.scene.add(centerLine);
-
-        // Border materials
-        const cyanMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-        const magentaMaterial = new THREE.MeshBasicMaterial({ color: 0xff00ff });
-
-        // Left border
-        const leftBorder = new THREE.Mesh(new THREE.BoxGeometry(borderThickness, borderHeight, fieldWidth), cyanMaterial);
-        leftBorder.position.set(-fieldLength / 2 - borderThickness / 2, borderHeight / 2, 0);
-        this.scene.add(leftBorder);
-
-        // Right border
-        const rightBorder = leftBorder.clone();
-        rightBorder.position.set(fieldLength / 2 + borderThickness / 2, borderHeight / 2, 0);
-        this.scene.add(rightBorder);
-
-        // Top border
-        const topBorder = new THREE.Mesh(new THREE.BoxGeometry(fieldLength, borderThickness, borderHeight), magentaMaterial);
-        topBorder.position.set(0, borderHeight / 2, fieldWidth / 2 + borderThickness / 2);
-        this.scene.add(topBorder);
-
-        // Bottom border
-        const bottomBorder = topBorder.clone();
-        bottomBorder.position.set(0, borderHeight / 2, -fieldWidth / 2 - borderThickness / 2);
-        this.scene.add(bottomBorder);
+        // Look at the ball instead of manual rotations
+        this.camera.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
+        this.camera.rotation.y = -60 * Math.PI / 180;
+        this.camera.rotation.z = -90 * Math.PI / 180;
     }
+
+    createBackground() {
+        const bgGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
+
+        const bgMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                uColor1: { value: new THREE.Color(0x440088) },
+                uColor2: { value: new THREE.Color(0x440066) },
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 uColor1;
+                uniform vec3 uColor2;
+                varying vec2 vUv;
+                void main() {
+                    float dist = distance(vUv, vec2(0.5));
+                    vec3 color = mix(uColor2, uColor1, smoothstep(0.1, 0.7, dist));
+                    gl_FragColor = vec4(color, 1.0);
+                }
+            `,
+            depthWrite: false,
+            depthTest: false
+        });
+
+        this.backgroundMesh = new THREE.Mesh(bgGeometry, bgMaterial);
+        this.backgroundMesh.renderOrder = -1;
+
+        const bgCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        this.backgroundCamera = bgCamera;
+
+        this.scene.add(this.backgroundMesh);
+    }
+
+    createScene() {
+        const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x45FFCA });
+        const tableMaterial = new THREE.MeshLambertMaterial({ color: 0x440066 });
+        const paddleMaterial = new THREE.MeshLambertMaterial({ color: 0x1B32C0 });
+        const ballMaterial = new THREE.MeshLambertMaterial({ color: 0xD43001 });
+
+        // Enable shadow casting
+        planeMaterial.roughness = 0.5;
+        tableMaterial.roughness = 0.4;
+        paddleMaterial.roughness = 0.2;
+        ballMaterial.roughness = 0.3;
+
+        // Playing surface (Field)
+        const plane = new THREE.Mesh(
+            new THREE.PlaneGeometry(this.fieldWidth * 0.95, this.fieldHeight),
+            planeMaterial
+        );
+
+        plane.receiveShadow = true;
+        this.scene.add(plane);
+
+        // Table border (for visibility)
+        const table = new THREE.Mesh(
+            new THREE.BoxGeometry(this.fieldWidth * 1.15, this.fieldHeight * 1.13, 20),
+            tableMaterial
+        );
+        table.position.x = 20;
+        table.position.z = -15; // Slightly lower than the playing surface
+        table.receiveShadow = true;
+        this.scene.add(table);
+
+        // Ball
+        this.ball = new THREE.Mesh(
+            new THREE.SphereGeometry(this.ballRadius, 16, 16),
+            ballMaterial
+        );
+        this.ball.position.set(0, 0, this.ballRadius);
+        this.ball.castShadow = true;
+        this.ball.receiveShadow = true;
+        this.scene.add(this.ball);
+
+        // Paddles
+        this.paddle1 = new THREE.Mesh(
+            new THREE.BoxGeometry(this.paddleWidth, this.paddleHeight, this.paddleDepth),
+            paddleMaterial
+        );
+        this.paddle1.position.set(-this.fieldWidth / 2 + this.paddleWidth, 0, this.paddleDepth);
+        this.paddle1.castShadow = true;
+        this.paddle1.receiveShadow = true;
+        this.scene.add(this.paddle1);
+
+        this.paddle2 = new THREE.Mesh(
+            new THREE.BoxGeometry(this.paddleWidth, this.paddleHeight, this.paddleDepth),
+            paddleMaterial
+        );
+        this.paddle2.position.set(this.fieldWidth / 2 - this.paddleWidth, 0, this.paddleDepth);
+        this.paddle2.castShadow = true;
+        this.paddle2.receiveShadow = true;
+        this.scene.add(this.paddle2);
+
+        // Lights
+
+        // 🔹 Ambient Light (Soft global illumination)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        this.scene.add(ambientLight);
+
+        // 🔹 Move Point Light Closer
+        const pointLight = new THREE.PointLight(0xffffff, 20, 1500, 0.1);
+        pointLight.position.set(10, 10, 1000); // Closer to objects
+
+        pointLight.castShadow = true;
+        pointLight.shadow.mapSize.width = 2048;
+        pointLight.shadow.mapSize.height = 2048;
+
+        this.scene.add(pointLight);
+
+        // 🔹 Point Light Helper (Visualize Position)
+        const pointLightHelper = new THREE.PointLightHelper(pointLight, 1);
+        this.scene.add(pointLightHelper);
+
+        // 🔹 Spot Light (Strong Shadow Direction)
+        const spotLight = new THREE.SpotLight(0xffffff, 30);
+        spotLight.position.set(0, 0, 0);
+        spotLight.angle = Math.PI / 6;
+        spotLight.penumbra = 0.5;
+        spotLight.decay = 1;
+        spotLight.distance = 1000;
+        spotLight.castShadow = true;
+        spotLight.shadow.mapSize.width = 2048;
+        spotLight.shadow.mapSize.height = 2048;
+        spotLight.target.position.set(0, 0, 0);
+        this.scene.add(spotLight);
+        this.scene.add(spotLight.target);
+    }
+
+    createScoreboard() {
+        const scoreOffsetX = -30;
+        const scoreOffsetY = -30;
+
+        // Player 1 Score (Bottom Left)
+        const positionP1 = {
+            x: -this.fieldWidth / 2 + scoreOffsetX,
+            y: -this.fieldHeight / 2 + scoreOffsetY,
+            z: 50
+        };
+
+        this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
+        this.scoreP1Text.createText((textMesh) => {
+            this.scoreP1Mesh = textMesh;
+            this.scoreP1Mesh.rotation.x = -0.01 * Math.PI / 180;
+            this.scoreP1Mesh.rotation.y = -60 * Math.PI / 180;
+            this.scoreP1Mesh.rotation.z = -90 * Math.PI / 180;
+            this.scene.add(this.scoreP1Mesh);
+        });
+
+        // Player 2 Score (Top Right)
+        const positionP2 = {
+            x: this.fieldWidth / 2 - scoreOffsetX,
+            y: this.fieldHeight / 2 - scoreOffsetY + 100,
+            z: 50
+        };
+
+        this.scoreP2Text = new Text3D(this.score2.toString(), positionP2, 0xffffff, 30, 1);
+        this.scoreP2Text.createText((textMesh) => {
+            this.scoreP2Mesh = textMesh;
+            this.scoreP2Mesh.rotation.x = -0.01 * Math.PI / 180;
+            this.scoreP2Mesh.rotation.y = -60 * Math.PI / 180;
+            this.scoreP2Mesh.rotation.z = -90 * Math.PI / 180;
+            this.scene.add(this.scoreP2Mesh);
+        });
+    }
+
+    updateScoreboard() {
+        if (this.scoreP1Text && this.scoreP1Mesh) {
+            this.scoreP1Text.updateText(this.score1.toString());
+        }
+        if (this.scoreP2Text && this.scoreP2Mesh) {
+            this.scoreP2Text.updateText(this.score2.toString());
+        }
+    }
+
+    ballPhysics() {
+        // if ball goes off the 'left' side (Player's side)
+        if (this.ball.position.x <= -this.fieldWidth / 2) {
+            // CPU scores
+            this.score2++;
+            // update scoreboard HTML
+            // reset ball to center
+            this.resetBall(2);
+            this.matchScoreCheck();
+        }
+
+        // if ball goes off the 'right' side (CPU's side)
+        if (this.ball.position.x >= this.fieldWidth / 2) {
+            // Player scores
+            this.score1++;
+
+
+            // reset ball to center
+            this.resetBall(1);
+            this.matchScoreCheck();
+        }
+
+        // if ball goes off the top side (side of table)
+        if (this.ball.position.y <= -this.fieldHeight / 2) {
+            this.ballDirY = -this.ballDirY;
+        }
+        // if ball goes off the bottom side (side of table)
+        if (this.ball.position.y >= this.fieldHeight / 2) {
+            this.ballDirY = -this.ballDirY;
+        }
+
+        // update ball position over time
+        this.ball.position.x += this.ballDirX * this.ballSpeed;
+        this.ball.position.y += this.ballDirY * this.ballSpeed;
+
+        // limit ball's y-speed to 2x the x-speed
+        // this is so the ball doesn't speed from left to right super fast
+        // keeps game playable for humans
+        if (this.ballDirY > this.ballSpeed * 2) {
+            this.ballDirY = this.ballSpeed * 2;
+        }
+        else if (this.ballDirY < -this.ballSpeed * 2) {
+            this.ballDirY = -this.ballSpeed * 2;
+        }
+    }
+
+    resetBall(loser) {
+        // position the ball in the center of the table
+        this.ball.position.x = 0;
+        this.ball.position.y = 0;
+
+        // if player lost the last point, we send the ball to opponent
+        if (loser == 1) {
+            this.ballDirX = -1;
+        }
+        // else if opponent lost, we send ball to player
+        else {
+            this.ballDirX = 1;
+        }
+
+        // set the ball to move +ve in y plane (towards left from the camera)
+        this.ballDirY = 1;
+    }
+
+    paddlePhysics() {
+        // PLAYER PADDLE LOGIC
+
+        // if ball is aligned with paddle1 on x plane
+        // remember the position is the CENTER of the object
+        // we only check between the front and the middle of the paddle (one-way collision)
+        if (this.ball.position.x <= this.paddle1.position.x + this.paddleWidth
+            && this.ball.position.x >= this.paddle1.position.x) {
+            // and if ball is aligned with paddle1 on y plane
+            if (this.ball.position.y <= this.paddle1.position.y + this.paddleHeight / 2
+                && this.ball.position.y >= this.paddle1.position.y - this.paddleHeight / 2) {
+                // and if ball is travelling towards player (-ve direction)
+                if (this.ballDirX < 0) {
+                    // stretch the paddle to indicate a hit
+                    this.paddle1.scale.y = 1.1;
+                    // switch direction of ball travel to create bounce
+                    this.ballDirX = -this.ballDirX;
+                    // we impact ball angle when hitting it
+                    // this is not realistic physics, just spices up the gameplay
+                    // allows you to 'slice' the ball to beat the opponent
+                    this.ballDirY -= this.paddle1DirY * 0.7;
+                }
+            }
+        }
+
+        // OPPONENT PADDLE LOGIC	
+
+        // if ball is aligned with paddle2 on x plane
+        // remember the position is the CENTER of the object
+        // we only check between the front and the middle of the paddle (one-way collision)
+        if (this.ball.position.x <= this.paddle2.position.x + this.paddleWidth
+            && this.ball.position.x >= this.paddle2.position.x) {
+            // and if ball is aligned with paddle2 on y plane
+            if (this.ball.position.y <= this.paddle2.position.y + this.paddleHeight / 2
+                && this.ball.position.y >= this.paddle2.position.y - this.paddleHeight / 2) {
+                // and if ball is travelling towards opponent (+ve direction)
+                if (this.ballDirX > 0) {
+                    // stretch the paddle to indicate a hit
+                    this.paddle2.scale.y = 1.1;
+                    // switch direction of ball travel to create bounce
+                    this.ballDirX = -this.ballDirX;
+                    // we impact ball angle when hitting it
+                    // this is not realistic physics, just spices up the gameplay
+                    // allows you to 'slice' the ball to beat the opponent
+                    this.ballDirY -= this.paddle2DirY * 0.7;
+                }
+            }
+        }
+    }
+
+    createWinnerBanner(text) {
+        const winnerText = new Text3D(text, { x: 0, y: 0, z: 50 }, 0xffffff, 40, 1);
+
+        winnerText.createText((textMesh) => {
+            this.winnerText = textMesh;
+            this.winnerText.rotation.x = -0.01 * Math.PI / 180;
+            this.winnerText.rotation.y = -60 * Math.PI / 180;
+            this.winnerText.rotation.z = -90 * Math.PI / 180;
+            this.scene.add(this.winnerText);
+
+            setTimeout(() => {
+                this.scene.remove(this.winnerText);
+                this.backToMenu();
+            }, 8000);
+        });
+    }
+
+    backToMenu() {
+
+        if (this.multiplayer) {
+            this.network.sendData({ type: "QUIT" });
+            this.network.disconnect();
+            this.active = false;
+            window.removeEventListener('keydown', this.boundEscapeHandler);
+        }
+        delete this.player1;
+        delete this.player2;
+        this.state.loadScene(this.state.states.MENU);
+    }
+
+    matchScoreCheck() {
+        if (this.score1 >= this.maxScore) {
+            this.ballSpeed = 0; // Stop ball movement
+            this.createWinnerBanner("Player 1 Wins!");
+            // Player 1 celebration effect
+            this.bounceTime++;
+            this.player1.playerMesh.position.z = Math.sin(this.bounceTime * 0.1) * 10;
+            this.player1.playerMesh.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
+            this.player1.playerMesh.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
+        }
+        else if (this.score2 >= this.maxScore) {
+            this.ballSpeed = 0; // Stop ball movement
+            this.createWinnerBanner("Player 2 Wins!");
+
+            // Player 2 celebration effect
+            this.bounceTime++;
+            this.player2.playerMesh.position.z = Math.sin(this.bounceTime * 0.1) * 10;
+            this.player2.playerMesh.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
+            this.player2.playerMesh.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
+        }
+    }
+
+    gameStart() {
+        if (this.starting) return false; // Prevent multiple calls
+        this.starting = true;
+    
+        let countdown = 5;
+        this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 0, z: 50 }, 0xffffff, 50, 1);
+    
+        this.countdownText.createText((textMesh) => {
+            this.countdownMesh = textMesh;
+    
+            // Rotate the countdown text to face the camera
+            this.countdownMesh.rotation.x = -0.01 * Math.PI / 180;
+            this.countdownMesh.rotation.y = -60 * Math.PI / 180;
+            this.countdownMesh.rotation.z = -90 * Math.PI / 180;
+    
+            this.scene.add(this.countdownMesh);
+    
+            const interval = setInterval(() => {
+                countdown--;
+    
+                if (countdown >= 0) {
+                    this.countdownText.updateText(countdown.toString());
+                }
+    
+                if (countdown < 0) {
+                    clearInterval(interval);
+                    this.scene.remove(this.countdownMesh);
+                    this.start = true; // Start the game
+                }
+            }, 1000);
+        });
+    
+        return false;
+    }
+    
+
+    update() {
+        if (!this.paddle1 || !this.paddle2 || !this.ball) return;
+
+        this.updateCamera();
+        if (!this.start) {
+            this.start = this.gameStart();
+            return;
+        }
+
+        this.player1.update();
+        this.player2.update();
+        this.ballPhysics();
+        this.paddlePhysics();
+        this.updateScoreboard();
+    }
+
+
 
     getScene() {
         return this.scene;

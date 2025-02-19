@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ['email', 'password', 'username', 'language', 'two_factor_auth']
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {'password': {'write_only': True}} # evita que el GET nos revele la contraseña
 
     def create(self, validated_data):
         # Usamos .get() para manejar el caso en que language no está presente

@@ -11,6 +11,7 @@ export class Text3D {
         this.depth = depth;
         this.onClick = onClick;
         this.mesh = null;
+        this.font = null;  // Store font reference for updates
     }
 
     createText(callback) {
@@ -19,7 +20,8 @@ export class Text3D {
         loader.load(
             '/static/fonts/helvetiker_regular.typeface.json',
             (font) => {
-                const geometry = new TextGeometry(this.text, {
+                this.font = font; // Save font for future updates
+                this.geometry = new TextGeometry(this.text, {
                     font: font,
                     size: this.size,
                     depth: this.depth,
@@ -27,17 +29,29 @@ export class Text3D {
                 });
 
                 const material = new THREE.MeshBasicMaterial({ color: this.color });
-                this.mesh = new THREE.Mesh(geometry, material);
+                this.mesh = new THREE.Mesh(this.geometry, material);
                 this.mesh.position.set(this.position.x, this.position.y, this.position.z);
 
-                // Asignar función de clic a userData
                 this.mesh.userData.onClick = () => this.onClick();
 
-                // Ejecutar el callback con el objeto creado
                 callback(this.mesh);
             },
             undefined,
-            (error) => console.error('Error al cargar la fuente:', error)
+            (error) => console.error('Error loading font:', error)
         );
+    }
+
+    updateText(newText) {
+        if (!this.mesh || !this.font) return; // Ensure mesh is created
+
+        this.text = newText;  // Update stored text
+        this.mesh.geometry.dispose();  // Free previous geometry
+
+        this.mesh.geometry = new TextGeometry(newText, {
+            font: this.font,
+            size: this.size,
+            depth: this.depth,
+            curveSegments: 4,
+        });
     }
 }
