@@ -28,7 +28,7 @@ export class Pong {
         // ball
         this.ballDirY = -1;
         this.ballDirX = -1;
-        this.ballSpeed = 2;
+        this.ballSpeed = 4;
 
         // scores
         this.scoreP1Text = null;
@@ -36,21 +36,16 @@ export class Pong {
         this.score1 = 0;
         this.score2 = 0;
         this.maxScore = 5;
-        this.bounceTime = 0;
 
-        // Game Start Countdown
-        this.starting = false;  // Whether the countdown is active
-        this.start = false;     // Whether the game has officially started
-        this.countdownText = null; // Holds reference to countdown `Text3D`
-        this.countdownMesh = null; // Stores the countdown mesh
+        this.bounceTime = 0;
 
         this.createBackground();
         this.createScene();
 
         this.createScoreboard();
 
-
         //player initialization
+
         this.player1 = new PlayerController(
             this.state,
             this.paddle1,
@@ -63,7 +58,7 @@ export class Pong {
             this.ballDirX,      // Ball direction on X axis
             this.ballDirY       // ^^ on Y axis
         );
-
+        
         this.player2 = new PlayerController(
             this.state,
             this.paddle2,
@@ -76,7 +71,7 @@ export class Pong {
             this.ballDirX,      // Ball direction on X axis
             this.ballDirY       // ^^ on Y axis
         );
-
+        
 
     }
 
@@ -233,18 +228,18 @@ export class Pong {
         this.scene.add(spotLight);
         this.scene.add(spotLight.target);
     }
-
+    
     createScoreboard() {
         const scoreOffsetX = -30;
         const scoreOffsetY = -30;
-
+    
         // Player 1 Score (Bottom Left)
         const positionP1 = {
             x: -this.fieldWidth / 2 + scoreOffsetX,
             y: -this.fieldHeight / 2 + scoreOffsetY,
             z: 50
         };
-
+    
         this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
         this.scoreP1Text.createText((textMesh) => {
             this.scoreP1Mesh = textMesh;
@@ -253,14 +248,14 @@ export class Pong {
             this.scoreP1Mesh.rotation.z = -90 * Math.PI / 180;
             this.scene.add(this.scoreP1Mesh);
         });
-
+    
         // Player 2 Score (Top Right)
         const positionP2 = {
             x: this.fieldWidth / 2 - scoreOffsetX,
             y: this.fieldHeight / 2 - scoreOffsetY + 100,
             z: 50
         };
-
+    
         this.scoreP2Text = new Text3D(this.score2.toString(), positionP2, 0xffffff, 30, 1);
         this.scoreP2Text.createText((textMesh) => {
             this.scoreP2Mesh = textMesh;
@@ -270,7 +265,7 @@ export class Pong {
             this.scene.add(this.scoreP2Mesh);
         });
     }
-
+    
     updateScoreboard() {
         if (this.scoreP1Text && this.scoreP1Mesh) {
             this.scoreP1Text.updateText(this.score1.toString());
@@ -288,7 +283,7 @@ export class Pong {
             // update scoreboard HTML
             // reset ball to center
             this.resetBall(2);
-            this.matchScoreCheck();
+            this.matchScoreCheck();	
         }
 
         // if ball goes off the 'right' side (CPU's side)
@@ -299,7 +294,7 @@ export class Pong {
 
             // reset ball to center
             this.resetBall(1);
-            this.matchScoreCheck();
+            this.matchScoreCheck();	
         }
 
         // if ball goes off the top side (side of table)
@@ -395,15 +390,15 @@ export class Pong {
     }
 
     createWinnerBanner(text) {
-        const winnerText = new Text3D(text, { x: 0, y: 0, z: 50 }, 0xffffff, 40, 1);
-
+        const winnerText = new Text3D(text, { x: 0, y: 0, z: 100 }, 0xffffff, 40, 1);
+        
         winnerText.createText((textMesh) => {
             this.winnerText = textMesh;
             this.winnerText.rotation.x = -0.01 * Math.PI / 180;
             this.winnerText.rotation.y = -60 * Math.PI / 180;
             this.winnerText.rotation.z = -90 * Math.PI / 180;
             this.scene.add(this.winnerText);
-
+    
             setTimeout(() => {
                 this.scene.remove(this.winnerText);
                 this.backToMenu();
@@ -433,11 +428,11 @@ export class Pong {
             this.player1.playerMesh.position.z = Math.sin(this.bounceTime * 0.1) * 10;
             this.player1.playerMesh.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
             this.player1.playerMesh.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
-        }
+        } 
         else if (this.score2 >= this.maxScore) {
             this.ballSpeed = 0; // Stop ball movement
             this.createWinnerBanner("Player 2 Wins!");
-
+    
             // Player 2 celebration effect
             this.bounceTime++;
             this.player2.playerMesh.position.z = Math.sin(this.bounceTime * 0.1) * 10;
@@ -446,59 +441,17 @@ export class Pong {
         }
     }
 
-    gameStart() {
-        if (this.starting) return false; // Prevent multiple calls
-        this.starting = true;
-    
-        let countdown = 5;
-        this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 0, z: 50 }, 0xffffff, 50, 1);
-    
-        this.countdownText.createText((textMesh) => {
-            this.countdownMesh = textMesh;
-    
-            // Rotate the countdown text to face the camera
-            this.countdownMesh.rotation.x = -0.01 * Math.PI / 180;
-            this.countdownMesh.rotation.y = -60 * Math.PI / 180;
-            this.countdownMesh.rotation.z = -90 * Math.PI / 180;
-    
-            this.scene.add(this.countdownMesh);
-    
-            const interval = setInterval(() => {
-                countdown--;
-    
-                if (countdown >= 0) {
-                    this.countdownText.updateText(countdown.toString());
-                }
-    
-                if (countdown < 0) {
-                    clearInterval(interval);
-                    this.scene.remove(this.countdownMesh);
-                    this.start = true; // Start the game
-                }
-            }, 1000);
-        });
-    
-        return false;
-    }
-    
-
     update() {
         if (!this.paddle1 || !this.paddle2 || !this.ball) return;
-
-        this.updateCamera();
-        if (!this.start) {
-            this.start = this.gameStart();
-            return;
-        }
-
         this.player1.update();
         this.player2.update();
+
         this.ballPhysics();
         this.paddlePhysics();
+        this.updateCamera();
         this.updateScoreboard();
+        
     }
-
-
 
     getScene() {
         return this.scene;

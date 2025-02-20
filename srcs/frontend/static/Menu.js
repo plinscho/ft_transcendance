@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { logout } from './auth.js';
+import { lang } from './Languages.js';
 
 
 export class Menu {
@@ -35,6 +36,34 @@ export class Menu {
 
         // Add event listener for screen resize
         window.addEventListener('resize', this.updateMenuPositions.bind(this));
+        // Bind the handler and listen for language changes
+        this.handleLanguageChange = this.handleLanguageChange.bind(this);
+        window.addEventListener('languageChanged', this.handleLanguageChange);        
+    }
+
+    handleLanguageChange() {
+        // Clear current scene
+        this.clearScene();
+        // Recreate menu with new language
+        this.createMenuScene();
+        // Update positions if needed
+        this.updateMenuPositions();
+    }
+
+    clearScene() {
+        while(this.scene.children.length > 0) {
+            const child = this.scene.children[0];
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                if (Array.isArray(child.material)) {
+                    child.material.forEach(mat => mat.dispose());
+                } else {
+                    child.material.dispose();
+                }
+            }
+            this.scene.remove(child);
+        }
+        this.buttons = [];
     }
 
     setActive(isActive) {
@@ -46,59 +75,170 @@ export class Menu {
         this.state.isTournament = true;
     }
 
-    createMenuScene() {
-        this.buttons = []; // Clear previous buttons
+    // createMenuScene() {
+    //     this.buttons = []; // Clear previous buttons
     
-        this.buttonConfigs.forEach(({ text, state, action }, index) => {
+    //     this.buttonConfigs.forEach(({ text, state, action }, index) => {
+    //         const position = this.getScreenRelativePosition(index);
+    //         const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+    
+    //         const button = new Text3D(
+    //             text,
+    //             position,
+    //             index === this.selectedIndex ? randomColor : 0xffffff, // Highlight first button
+    //             0.4,
+    //             0,
+    //             () => {
+    //                 if (this.active) {
+    //                     if (state && this.state.changeState) {
+    //                         if (text === 'Tournament') {
+    //                             this.setTournamentMode();
+    //                             console.log("Tournament mode enabled");
+    //                         }
+    //                         this.state.loadScene(state);
+    //                         this.setActive(false); // Hide menu when switching
+    //                     } else if (action) {
+    //                         action();
+    //                     } else {
+    //                         console.error(`Error: No action for button ${text}`);
+    //                     }
+    //                 }
+    //             }
+    //         );
+    
+    //         button.createText((textMesh) => {
+    //             // Create a larger, invisible hitbox
+    //             const hitboxGeometry = new THREE.BoxGeometry(8, 0.5, 0); // Increase width/height
+    //             const hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Invisible hitbox
+    //             const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+                
+    //             hitbox.position.copy(textMesh.position); // Match text position
+    
+    //             // Create a group to keep the text + hitbox together
+    //             const buttonGroup = new THREE.Group();
+    //             buttonGroup.add(textMesh);
+    //             buttonGroup.add(hitbox);
+    //             buttonGroup.userData.onClick = button.onClick; // Assign click function
+    
+    //             this.scene.add(buttonGroup);
+    //             this.buttons.push({ group: buttonGroup, index }); // Store reference
+    //         });
+    //     });
+    // }
+
+
+    // Calculate button position based on screen size
+    
+    // createMenuScene() {
+    //     const buttonConfigs = [
+    //         { text: lang.menu.play, state: this.state.states.PLAY },
+    //         { text: lang.menu.multiplayer, state: this.state.states.WAITING_ROOM },
+    //         { text: lang.menu.tournament, state: this.state.states.WAITING_ROOM },
+    //         { text: lang.menu.languages, state: this.state.states.LANGUAGE_MENU },
+    //         { text: lang.menu.logout, action: () => logout() }
+    //     ];
+
+    //     buttonConfigs.forEach(({ text, state, action }, index) => {
+    //         const position = this.getScreenRelativePosition(index);
+    //         const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+    
+    //         const button = new Text3D(
+    //             text,
+    //             position,
+    //             index === this.selectedIndex ? randomColor : 0xffffff,
+    //             0.4,
+    //             0,
+    //             () => {
+    //                 if (this.active) {
+    //                     if (state && this.state.changeState) {
+    //                         if (text === lang.menu.tournament) {
+    //                             this.setTournamentMode();
+    //                         }
+    //                         this.state.loadScene(state);
+    //                         this.setActive(false);
+    //                     } else if (action) {
+    //                         action();
+    //                     }
+    //                 }
+    //             }
+    //         );
+    
+    //         button.createText((textMesh) => {
+    //             const hitboxGeometry = new THREE.BoxGeometry(8, 0.5, 0);
+    //             const hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false });
+    //             const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+    //             hitbox.position.copy(textMesh.position);
+    
+    //             const buttonGroup = new THREE.Group();
+    //             buttonGroup.add(textMesh);
+    //             buttonGroup.add(hitbox);
+    //             buttonGroup.userData.onClick = button.onClick;
+    
+    //             this.scene.add(buttonGroup);
+    //             this.buttons.push({ group: buttonGroup, index });
+    //         });
+    //     });
+    // }
+
+
+    createMenuScene() {
+        this.buttons = []; // Limpiar botones anteriores
+    
+        // Nueva estructura de configuración de botones
+        const buttonConfigs = [
+            { text: lang.menu.play, state: this.state.states.PLAY },
+            { text: lang.menu.multiplayer, state: this.state.states.WAITING_ROOM },
+            { text: lang.menu.tournament, state: this.state.states.WAITING_ROOM },
+            { text: lang.menu.languages, state: this.state.states.LANGUAGE_MENU },
+            { text: lang.menu.logout, action: () => logout() }
+        ];
+    
+        // Función para obtener la posición en pantalla (como en la versión antigua)
+        buttonConfigs.forEach(({ text, state, action }, index) => {
             const position = this.getScreenRelativePosition(index);
             const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
     
+            // Llamada a la creación del botón en 3D (como en la versión original)
             const button = new Text3D(
                 text,
                 position,
-                index === this.selectedIndex ? randomColor : 0xffffff, // Highlight first button
+                index === this.selectedIndex ? randomColor : 0xffffff, // Resaltar primer botón
                 0.4,
                 0,
                 () => {
                     if (this.active) {
                         if (state && this.state.changeState) {
-                            if (text === 'Tournament') {
+                            if (text === lang.menu.tournament) {
                                 this.setTournamentMode();
-                                console.log("Tournament mode enabled");
                             }
                             this.state.loadScene(state);
-                            this.setActive(false); // Hide menu when switching
+                            this.setActive(false); // Ocultar el menú al cambiar de escena
                         } else if (action) {
                             action();
-                        } else {
-                            console.error(`Error: No action for button ${text}`);
                         }
                     }
                 }
             );
     
+            // Crear el texto y agregar el hitbox de forma más grande, como en la versión original
             button.createText((textMesh) => {
-                // Create a larger, invisible hitbox
-                const hitboxGeometry = new THREE.BoxGeometry(8, 0.5, 0); // Increase width/height
-                const hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Invisible hitbox
+                const hitboxGeometry = new THREE.BoxGeometry(8, 0.5, 0); // Caja de colisión más grande
+                const hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Caja de colisión invisible
                 const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
-                
-                hitbox.position.copy(textMesh.position); // Match text position
+                hitbox.position.copy(textMesh.position);
     
-                // Create a group to keep the text + hitbox together
+                // Crear un grupo para mantener el texto y la caja de colisión juntos
                 const buttonGroup = new THREE.Group();
                 buttonGroup.add(textMesh);
                 buttonGroup.add(hitbox);
-                buttonGroup.userData.onClick = button.onClick; // Assign click function
+                buttonGroup.userData.onClick = button.onClick;
     
                 this.scene.add(buttonGroup);
-                this.buttons.push({ group: buttonGroup, index }); // Store reference
+                this.buttons.push({ group: buttonGroup, index });
             });
         });
     }
-
-
-    // Calculate button position based on screen size
+    
     getScreenRelativePosition(index) {
         const xOffset = -this.camera.aspect * 2.5; // Keeps menu aligned dynamically
         const yOffset = 1 - index * 0.7; // Space between buttons
@@ -207,6 +347,12 @@ export class Menu {
                 }
             }
         });
+    }
+
+    // Add dispose method to clean up
+    dispose() {
+        window.removeEventListener('languageChanged', this.handleLanguageChange);
+        this.clearScene();
     }
 
 

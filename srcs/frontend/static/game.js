@@ -4,6 +4,7 @@ import { Pong } from './Pong.js';
 import { WaitingRoom } from './WaitingRoom.js';
 import { NetworkManager } from './NetworkManager.js';
 import { state } from './state.js';
+import { LanguageMenu } from './LanguageMenu.js';
 
 export class Game {
     constructor(apiState) {
@@ -24,9 +25,10 @@ export class Game {
             WAITING_ROOM: 'waiting_room',
             MULTIPLAYER: 'multiplayer',
             TOURNAMENTS: 'tournament',
-            LANGUAGES: 'languages',
+            LANGUAGE_MENU: 'language_menu'
         };
         this.currentState = this.states.MENU;
+        this.previousScene = null;
 
         this.scenes = {
             menu: new Menu(this, this.camera),
@@ -34,7 +36,7 @@ export class Game {
             waiting_room: null,
             multiplayer: null,
             tournament: null,
-            languages: null,
+            language_menu: null
         };
 
         this.updateCamera();
@@ -64,8 +66,8 @@ export class Game {
                 case this.states.TOURNAMENTS:
                     this.scenes[sceneName] = new Pong(this);
                     break;
-                case this.states.LANGUAGES:
-                    this.scenes[sceneName] = new Pong(this);
+                case this.states.LANGUAGE_MENU:
+                    this.scenes[sceneName] = new LanguageMenu(this);
                     break;
                 default:
                     console.error(`Scene does not exist: ${sceneName}`);
