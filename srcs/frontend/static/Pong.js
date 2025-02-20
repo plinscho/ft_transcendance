@@ -114,18 +114,19 @@ export class Pong {
     updateCameraPlayer2() {
         if (!this.camera2 || !this.paddle2 || !this.ball) return;
     
-        // Cámara detrás de Paddle2
-        this.camera2.position.x = this.paddle2.position.x - 200;
+        // Posición de la cámara detrás de Paddle2 (invertida respecto a Player 1)
+        this.camera2.position.x = this.paddle2.position.x + 200;  // Invertimos la dirección
         this.camera2.position.y += (this.paddle2.position.y - this.camera2.position.y) * 0.05;
-        this.camera2.position.z = this.ball.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle2.position.x);
+        this.camera2.position.z = this.ball.position.z - 200 - 0.04 * (-this.ball.position.x + this.paddle2.position.x);
     
-        // Mirar la bola
-        this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI;
-        this.camera2.rotation.y = -60 * Math.PI * 180; // Puedes invertir o cambiar la orientación aquí
-        this.camera2.rotation.z = -90 * Math.PI / 180;; // Ajusta según la vista que necesites
-        //this.camera2.rotation.y = Math.PI;  // Invertimos la rotación en el eje y
-        //this.camera2.rotation.z = Math.PI / 2;
+        // Ajustar la orientación para que mire correctamente
+        this.camera2.lookAt(this.ball.position); // Centra la vista en la bola
+        this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
+        this.camera2.rotation.y = Math.PI - (60 * Math.PI / 180); // Rotamos la cámara 180° en Y
+        this.camera2.rotation.z = 90 * Math.PI / 180; // Ajuste en Z para mantener perspectiva similar
+    
     }
+    
 
     createBackground() {
         const bgGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
@@ -422,7 +423,7 @@ export class Pong {
     }
 
     createWinnerBanner(text) {
-        const winnerText = new Text3D(text, { x: 0, y: 0, z: 50 }, 0xffffff, 40, 1);
+        const winnerText = new Text3D(text, { x: 0, y: 150, z: 50 }, 0xffffff, 40, 1);
 
         winnerText.createText((textMesh) => {
             this.winnerText = textMesh;
@@ -434,7 +435,7 @@ export class Pong {
             setTimeout(() => {
                 this.scene.remove(this.winnerText);
                 this.backToMenu();
-            }, 8000);
+            }, 4000);
         });
     }
 
@@ -514,7 +515,7 @@ export class Pong {
         if (this.state.player1)
             this.updateCameraPlayer1();
         else if (this.state.player2)
-             this.updateCameraPlayer2();
+            this.updateCameraPlayer2();
         else
             this.updateCameraPlayer1();
         
