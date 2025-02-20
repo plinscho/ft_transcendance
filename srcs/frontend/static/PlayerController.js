@@ -42,7 +42,7 @@ export class PlayerController {
 
     localMovement() {
         if (!this.playerMesh) return;
-        console.log(this.playerMesh);
+
         if (this.activeKeys['a']) {
             this.directionY = 1;  
         } else if (this.activeKeys['d']) {
