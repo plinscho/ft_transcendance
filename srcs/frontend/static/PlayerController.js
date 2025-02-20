@@ -1,14 +1,13 @@
 import * as THREE from 'three';
 
 export class PlayerController {
-    constructor(gameState, playerMesh, isPlayerOne, isMultiplayer, fieldHeight, paddleSpeed, ball = null, networkManager = null, ballDirX, ballDirY) {
+    constructor(gameState, playerMesh, isMultiplayer, fieldHeight, paddleSpeed, ball = null, networkManager = null, ballDirX, ballDirY) {
         this.gameState = gameState;
         this.playerMesh = playerMesh;
         this.isMultiplayer = isMultiplayer;
         this.networkManager = networkManager;
         this.fieldHeight = fieldHeight;
         this.paddleSpeed = paddleSpeed;
-        this.isPlayerOne = isPlayerOne;
         this.ball = ball; // Pass the ball for AI tracking
         this.ballDirX = ballDirX;
         this.ballDirY = ballDirY;
@@ -20,15 +19,10 @@ export class PlayerController {
         this.acceleration = 0.4; 
         this.difficulty = 0.7; // AI difficulty (higher = better tracking)
 
-        //time controller
-        this.lastSendTime;
-        this.sendInterval = 0;
-
-        if (this.isPlayerOne) {
-            this.setupLocalControls();
-        } else {
+        if (!this.isMultiplayer) {
             this.setupAI();
-        }
+        } 
+        this.setupLocalControls();
     }
 
     setupLocalControls() {
@@ -42,19 +36,13 @@ export class PlayerController {
     }
 
     update() {
-        if (this.isMultiplayer) {
-            this.sendMovement();
-        } else if (this.isPlayerOne) {
-            this.localMovement();
-            this.sendMovement();
-        } else {
-            this.setupAI();
-        }
+        this.localMovement();
+        this.sendMovement();
     }
 
     localMovement() {
         if (!this.playerMesh) return;
-
+        console.log(this.playerMesh);
         if (this.activeKeys['a']) {
             this.directionY = 1;  
         } else if (this.activeKeys['d']) {
@@ -113,9 +101,6 @@ export class PlayerController {
 
     sendMovement() {
         if (!this.networkManager) return;
-
-        const currentTime = Date.now();
-    if (currentTime - this.lastSendTime >= this.sendInterval) {
             let data = {
                 type: "MOVE",
                 player: this.gameState.apiState.data.username,
@@ -128,10 +113,7 @@ export class PlayerController {
                 ballDirX: this.ballDirX,
                 ballDirY: this.ballDirY
             }
-                
             this.networkManager.sendData(data);
-        }
-        this.lastSendTime = currentTime;
     }
 
 }

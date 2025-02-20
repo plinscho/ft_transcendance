@@ -6,7 +6,8 @@ export class Pong {
     constructor(state, multiplayer, networkManager) {
         this.scene = new THREE.Scene();
         this.state = state;
-        this.camera = this.createCamera();
+        this.camera1 = this.createCamera1();
+        this.camera2 = this.createCamera2();
         this.multiplayer = multiplayer;
         this.networkManager = networkManager;
         //fog
@@ -54,8 +55,7 @@ export class Pong {
         this.player1 = new PlayerController(
             this.state,
             this.paddle1,
-            true,               // isPlayerOne
-            false,              // isMultiplayer
+            this.multiplayer,              // isMultiplayer
             this.fieldHeight,
             5,                  // Paddle Speed
             this.ball,          // Ball reference
@@ -67,7 +67,6 @@ export class Pong {
         this.player2 = new PlayerController(
             this.state,
             this.paddle2,
-            false,              // isPlayerOne (this is Player 2)
             this.multiplayer,   // Multiplayer status
             this.fieldHeight,
             5,                  // Paddle Speed
@@ -80,25 +79,52 @@ export class Pong {
 
     }
 
-    createCamera() {
-        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera.position.set(0, 1000, 400); // Start behind Paddle1
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
-        return camera;
+    createCamera1() {
+        //Camara player1
+        const camera1 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
+        camera1.position.set(0, 1000, 400); // Start behind Paddle1
+        camera1.lookAt(new THREE.Vector3(0, 0, 0));
+
+        return camera1;
     }
 
-    updateCamera() {
-        if (!this.camera || !this.paddle1 || !this.ball) return;
+    createCamera2() {
+        //Camara player2
+        const camera2 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
+        camera2.position.set(0, 1000, 400); // Posición detrás del paddle 2, en el lado opuesto
+        camera2.lookAt(new THREE.Vector3(0, 0, 0));
+
+        return camera2;
+    }
+
+    updateCameraPlayer1() {
+        if (!this.camera1 || !this.paddle1 || !this.ball) return;
 
         // Move camera behind Paddle1
-        this.camera.position.x = this.paddle1.position.x - 200;
-        this.camera.position.y += (this.paddle1.position.y - this.camera.position.y) * 0.05;
-        this.camera.position.z = this.paddle1.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle1.position.x);
+        this.camera1.position.x = this.paddle1.position.x - 200;
+        this.camera1.position.y += (this.paddle1.position.y - this.camera1.position.y) * 0.05;
+        this.camera1.position.z = this.ball.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle1.position.x);
 
         // Look at the ball instead of manual rotations
-        this.camera.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
-        this.camera.rotation.y = -60 * Math.PI / 180;
-        this.camera.rotation.z = -90 * Math.PI / 180;
+        this.camera1.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
+        this.camera1.rotation.y = -60 * Math.PI / 180;
+        this.camera1.rotation.z = -90 * Math.PI / 180;
+    }
+
+    updateCameraPlayer2() {
+        if (!this.camera2 || !this.paddle2 || !this.ball) return;
+    
+        // Cámara detrás de Paddle2
+        this.camera2.position.x = this.paddle2.position.x - 200;
+        this.camera2.position.y += (this.paddle2.position.y - this.camera2.position.y) * 0.05;
+        this.camera2.position.z = this.ball.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle2.position.x);
+    
+        // Mirar la bola
+        this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI;
+        this.camera2.rotation.y = -60 * Math.PI * 180; // Puedes invertir o cambiar la orientación aquí
+        this.camera2.rotation.z = -90 * Math.PI / 180;; // Ajusta según la vista que necesites
+        //this.camera2.rotation.y = Math.PI;  // Invertimos la rotación en el eje y
+        //this.camera2.rotation.z = Math.PI / 2;
     }
 
     createBackground() {
@@ -143,6 +169,7 @@ export class Pong {
         const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x45FFCA });
         const tableMaterial = new THREE.MeshLambertMaterial({ color: 0x440066 });
         const paddleMaterial = new THREE.MeshLambertMaterial({ color: 0x1B32C0 });
+        const paddle2Material = new THREE.MeshLambertMaterial({ color: 0x4C32C0 });
         const ballMaterial = new THREE.MeshLambertMaterial({ color: 0xD43001 });
 
         // Enable shadow casting
@@ -192,7 +219,7 @@ export class Pong {
 
         this.paddle2 = new THREE.Mesh(
             new THREE.BoxGeometry(this.paddleWidth, this.paddleHeight, this.paddleDepth),
-            paddleMaterial
+            paddle2Material
         );
         this.paddle2.position.set(this.fieldWidth / 2 - this.paddleWidth, 0, this.paddleDepth);
         this.paddle2.castShadow = true;
@@ -481,11 +508,16 @@ export class Pong {
         return false;
     }
     
-
     update() {
         if (!this.paddle1 || !this.paddle2 || !this.ball) return;
 
-        this.updateCamera();
+        if (this.state.player1)
+            this.updateCameraPlayer1();
+        else if (this.state.player2)
+             this.updateCameraPlayer2();
+        else
+            this.updateCameraPlayer1();
+        
         if (!this.start) {
             this.start = this.gameStart();
             return;
@@ -498,13 +530,16 @@ export class Pong {
         this.updateScoreboard();
     }
 
-
-
     getScene() {
         return this.scene;
     }
 
     getCamera() {
-        return this.camera;
+        if (this.state.player1)
+            return this.camera1;
+        if (this.state.player2)
+            return this.camera2;
+        else 
+            return this.camera1;
     }
 }

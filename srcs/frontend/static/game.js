@@ -19,6 +19,8 @@ export class Game {
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.z = 5;
         this.network = new NetworkManager();
+        this.player1 = false;
+        this.player2 = false;
         this.states = {
             MENU: 'menu',
             PLAY: 'play',
@@ -70,7 +72,7 @@ export class Game {
                     this.scenes[sceneName] = new LanguageMenu(this);
                     break;
                 default:
-                    console.error(`Scene does not exist: ${sceneName}`);
+                    console.error(`This scene only exists in your head: ${sceneName}`);
                     return;
             }
         }

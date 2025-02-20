@@ -51,6 +51,8 @@ export class WaitingRoom {
     }
 
     handleServerMessage(data) {
+        if (data.type === "PLAYER_ONE") this.state.player1 = true;
+        if (data.type === "PLAYER_TWO") this.state.player2 = true;
         if (data.type === "START_GAME") {
             console.log("Match found! Starting game...");
             this.isWaiting = false;

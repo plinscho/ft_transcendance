@@ -36,6 +36,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 if len(players) == 1:
                     self.room_name = room_id #Asignamos la id al nuevo jugador
                     players.append(self.channel_name) #Añadimos el nuevo jugador a la sala
+                    player_type = 'Player2'
                     break
         
             #Si no hay un jugador esperando (room_name = None), creamos una nueva sala:
@@ -43,6 +44,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 room_counter += 1
                 self.room_name = f"room_{room_counter}" #Creamos identificador de la sala
                 waiting_rooms[self.room_name] = [self.channel_name]
+                player_type = 'Player1'
 
         #Creamos el nombre del grupo de la sala. Ex: pong_room_1
         self.room_group_name = f"pong_{self.room_name}"
@@ -56,6 +58,21 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         #Aceptamos la conexión
         await self.accept()
+
+        if player_type == "Player1":
+            await self.channel_layer.send(
+                        self.channel_name,
+                        {
+                            "type": "player_1",
+                        }
+                    )
+        elif player_type == "Player2":
+            await self.channel_layer.send(
+                        self.channel_name,
+                        {
+                            "type": "player_2",
+                        }
+                    )
 
         logger.debug(f"WebSocket connected, joined {self.room_name}")
         await asyncio.sleep(0.1)
@@ -71,6 +88,13 @@ class PongConsumer(AsyncWebsocketConsumer):
         else:
             await self.send(text_data=json.dumps({"status": "waiting" , "room": self.room_name}))
 
+    # Metodo para decir que jugador somos
+    async def player_1(self, event):
+        await self.send(text_data=json.dumps({'type': 'PLAYER_ONE'}))
+
+    async def player_2(self, event):
+        await self.send(text_data=json.dumps({'type': 'PLAYER_TWO'}))
+    
     #El metodo se llama cuando un jugador se desconecta de la sala
     async def disconnect(self, close_code):
         logger.debug(f"Disconnecting from room: {self.room_name}")
