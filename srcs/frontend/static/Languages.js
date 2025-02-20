@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { languages } from './languagedata.js';
+import { languages } from './LanguageData.js';
 
 // Función para actualizar los textos de la UI
 export const updateUITexts = () => {
