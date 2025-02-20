@@ -14,10 +14,10 @@ export class PlayerController {
         this.ballDirY = ballDirY;
 
         this.activeKeys = {};
-        this.directionY = 0;
-        this.velocity = 0;
-        this.friction = 0.8;
-        this.acceleration = 0.4;
+        this.directionY = 0;  
+        this.velocity = 0;    
+        this.friction = 0.8;   
+        this.acceleration = 0.4; 
         this.difficulty = 0.7; // AI difficulty (higher = better tracking)
 
         //time controller
@@ -56,11 +56,11 @@ export class PlayerController {
         if (!this.playerMesh) return;
 
         if (this.activeKeys['a']) {
-            this.directionY = 1;
+            this.directionY = 1;  
         } else if (this.activeKeys['d']) {
-            this.directionY = -1;
+            this.directionY = -1; 
         } else {
-            this.directionY = 0;
+            this.directionY = 0; 
         }
 
         if (this.directionY !== 0) {
@@ -114,19 +114,24 @@ export class PlayerController {
     sendMovement() {
         if (!this.networkManager) return;
 
-        let data = {
-            type: "MOVE",
-            player: this.gameState.apiState.data.username,
-            x: this.playerMesh.position.x,
-            y: this.playerMesh.position.y,
-            z: this.playerMesh.position.z,
-            ballX: this.ball.position.x,
-            ballY: this.ball.position.y,
-            ballZ: this.ball.position.z,
-            ballDirX: this.ballDirX,
-            ballDirY: this.ballDirY
+        const currentTime = Date.now();
+    if (currentTime - this.lastSendTime >= this.sendInterval) {
+            let data = {
+                type: "MOVE",
+                player: this.gameState.apiState.data.username,
+                x: this.playerMesh.position.x,
+                y: this.playerMesh.position.y,
+                z: this.playerMesh.position.z,
+                ballX: this.ball.position.x,
+                ballY: this.ball.position.y,
+                ballZ: this.ball.position.z,
+                ballDirX: this.ballDirX,
+                ballDirY: this.ballDirY
+            }
+                
+            this.networkManager.sendData(data);
         }
-
-        this.networkManager.sendData(data);
+        this.lastSendTime = currentTime;
     }
+
 }

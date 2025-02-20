@@ -1,3 +1,4 @@
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -32,7 +33,6 @@ class CreateUserView(generics.CreateAPIView):
         response_data = {
             'email': user.email,
             'username': user.username,
-            'language': user.language,
             'token': access_token
         }
 
@@ -57,9 +57,10 @@ class PopulateUserDataView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        user = request.user
+        user = request.user # Check que el AuthToken sea match con el de user
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 # Debug purpose
 logger = logging.getLogger(__name__)
 
@@ -175,32 +176,32 @@ class UpdateUserLanguageView(generics.UpdateAPIView):
     def get_object(self):
         return self.request.user
 
-    def patch(self, request, *args, **kwargs):
-        user = self.get_object()
-        language = request.data.get('language')
-        print(f"Updating language for user {user.username} to {language}")
+def patch(self, request, *args, **kwargs):
+    user = self.get_object()
+    language = request.data.get('language')
+    print(f"Updating language for user {user.username} to {language}")
 
-        if language not in dict(User.LANGUAGE_CHOICES):
-            print(f"Invalid language choice: {language}")
-            return Response(
-                {"error": "Invalid language choice"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        serializer = self.get_serializer(
-            user,
-            data={'language': language},
-            partial=True
+    if language not in dict(User.LANGUAGE_CHOICES):
+        print(f"Invalid language choice: {language}")
+        return Response(
+            {"error": "Invalid language choice"},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
-        if serializer.is_valid():
-            serializer.save()
-            print(f"Language updated successfully to {user.language}")
-            return Response({
-                'email': user.email,
-                'username': user.username,
-                'language': user.language
-            }, status=status.HTTP_200_OK)
+    serializer = self.get_serializer(
+        user,
+        data={'language': language},
+        partial=True
+    )
 
-        print(f"Serializer errors: {serializer.errors}")
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if serializer.is_valid():
+        serializer.save()
+        print(f"Language updated successfully to {user.language}")
+        return Response({
+            'email': user.email,
+            'username': user.username,
+            'language': user.language
+        }, status=status.HTTP_200_OK)
+
+    print(f"Serializer errors: {serializer.errors}")
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

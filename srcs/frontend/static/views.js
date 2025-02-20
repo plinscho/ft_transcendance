@@ -2,7 +2,6 @@ import { state, View } from './state.js';
 import { startGame } from './game.js';
 import { updateUITexts } from './Languages.js';
 
-
 const D = document;
 
 // Determine the current view
@@ -30,13 +29,12 @@ let $$viewNodes = [
 
 // DOM updates
 export const updateView = () => {
+    console.log("Updating view with state:", state);
     let $nextView = $$viewNodes[currentView()];
     if ($nextView === $currentView) return;
     $currentView.classList.add('invisible');
     $nextView.classList.remove('invisible');
     $currentView = $nextView;
-    
-    // Actualizar los textos cuando cambie la vista
     updateUITexts();
 };
 

@@ -19,7 +19,6 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}} # evita que el GET nos revele la contraseña
 
     def create(self, validated_data):
-        # Usamos .get() para manejar el caso en que language no está presente
         return get_user_model().objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
@@ -42,3 +41,4 @@ class AuthTokenSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         data.update({'username': self.user.username})
         return data
+    

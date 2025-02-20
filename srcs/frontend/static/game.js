@@ -27,7 +27,6 @@ export class Game {
             TOURNAMENTS: 'tournament',
             LANGUAGE_MENU: 'language_menu'
         };
-
         this.currentState = this.states.MENU;
         this.previousScene = null;
 
@@ -105,16 +104,10 @@ export class Game {
     }
 
     changeState(newState) {
-        if (this.scenes[this.currentState]) {
-            this.scenes[this.currentState].setActive(false);
+        if (this.scenes.menu) {
+            this.scenes.menu.setActive(newState === this.states.MENU);
         }
-
         this.currentState = newState;
-
-        if (this.scenes[newState]) {
-            this.scenes[newState].setActive(true);
-        }
-
         this.updateCamera();
     }
 
@@ -136,12 +129,14 @@ export class Game {
         const currentScene = this.scenes[this.currentState]?.getScene();
         if (currentScene) {
             if (this.currentState === this.states.PLAY || this.currentState === this.states.MULTIPLAYER) {
+                //this.scenes[this.states.PLAY].updateCamera();
                 this.scenes[this.currentState].update();
             }
             this.renderer.render(currentScene, this.camera);
         }
         requestAnimationFrame(() => this.gameLoop());
     }
+    
 }
 
 export const startGame = () => new Game(state);
