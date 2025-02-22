@@ -13,7 +13,7 @@ export class PlayerController {
         this.ballDirY = ballDirY;
 
         this.activeKeys = {};
-        this.directionY = 0;  
+        this.directionZ = 0;  
         this.velocity = 0;    
         this.friction = 0.8;   
         this.acceleration = 0.4; 
@@ -44,15 +44,15 @@ export class PlayerController {
         if (!this.playerMesh) return;
 
         if (this.activeKeys['a']) {
-            this.directionY = 1;  
+            this.directionZ = 1;  
         } else if (this.activeKeys['d']) {
-            this.directionY = -1; 
+            this.directionZ = -1; 
         } else {
-            this.directionY = 0; 
+            this.directionZ = 0; 
         }
 
-        if (this.directionY !== 0) {
-            this.velocity += this.directionY * this.acceleration;
+        if (this.directionZ !== 0) {
+            this.velocity += this.directionZ * this.acceleration;
         } else {
             this.velocity *= this.friction;
         }
@@ -61,17 +61,17 @@ export class PlayerController {
             this.velocity = this.paddleSpeed * Math.sign(this.velocity);
         }
 
-        const newY = this.playerMesh.position.y + this.velocity;
+        const newZ = this.playerMesh.position.z + this.velocity;
 
-        if (newY < this.fieldHeight * 0.45 && newY > -this.fieldHeight * 0.45) {
-            this.playerMesh.position.y = newY;
+        if (newZ < this.fieldHeight * 0.45 && newZ > -this.fieldHeight * 0.45) {
+            this.playerMesh.position.z = newZ;
         } else {
             this.velocity = 0;
-            this.playerMesh.scale.y += (2 - this.playerMesh.scale.y) * 0.15;
         }
 
-        this.playerMesh.scale.y += (1 - this.playerMesh.scale.y) * 0.2;
+        // Smooth scaling effect
         this.playerMesh.scale.z += (1 - this.playerMesh.scale.z) * 0.2;
+        this.playerMesh.scale.x += (1 - this.playerMesh.scale.x) * 0.2;
     }
 
     setupAI() {
