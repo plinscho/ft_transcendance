@@ -401,8 +401,8 @@ export class Pong {
         if (this.ball.position.x <= this.paddle1.position.x + this.paddle_x
             && this.ball.position.x >= this.paddle1.position.x) {
             // and if ball is aligned with paddle1 on y plane
-            if (this.ball.position.y <= this.paddle1.position.y + this.paddle_y / 2
-                && this.ball.position.y >= this.paddle1.position.y - this.paddle_y / 2) {
+            if (this.ball.position.z <= this.paddle1.position.z + this.paddle_z / 2
+                && this.ball.position.z >= this.paddle1.position.z - this.paddle_z / 2) {
                 // and if ball is travelling towards player (-ve direction)
                 if (this.ballDirX < 0) {
                     // stretch the paddle to indicate a hit
@@ -425,8 +425,8 @@ export class Pong {
         if (this.ball.position.x <= this.paddle2.position.x + this.paddle_x
             && this.ball.position.x >= this.paddle2.position.x) {
             // and if ball is aligned with paddle2 on y plane
-            if (this.ball.position.y <= this.paddle2.position.y + this.paddle_y / 2
-                && this.ball.position.y >= this.paddle2.position.y - this.paddle_y / 2) {
+            if (this.ball.position.z <= this.paddle2.position.z + this.paddle_z / 2
+                && this.ball.position.z >= this.paddle2.position.z - this.paddle_z / 2) {
                 // and if ball is travelling towards opponent (+ve direction)
                 if (this.ballDirX > 0) {
                     // stretch the paddle to indicate a hit
