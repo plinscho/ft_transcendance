@@ -95,7 +95,7 @@ export class Pong {
     createCamera1() {
         //Camara player1
         const camera1 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera1.position.set(-300, 500, -300); // Start behind Paddle1
+        camera1.position.set(0, 500, 500); // Start behind Paddle1
         camera1.lookAt(new THREE.Vector3(0, 0, 0));
 
         return camera1;
@@ -180,7 +180,7 @@ export class Pong {
     }
 
     createScene() {
-        const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x45FFCA });
+        const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x00ffff });
         const tableMaterial = new THREE.MeshLambertMaterial({ color: 0x440066 });
         const paddleMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
         const paddle2Material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
@@ -188,7 +188,7 @@ export class Pong {
 
 
         // Add helpers
-        const gridHelper = new THREE.GridHelper( 200, 1 );
+        const gridHelper = new THREE.GridHelper( 600, 100 );
         const axesHelper = new THREE.AxesHelper( 300 );
         this.scene.add( gridHelper );
         this.scene.add( axesHelper );
@@ -200,16 +200,15 @@ export class Pong {
         ballMaterial.roughness = 0.3;
 
         // Playing surface (Field)
-        // const plane = new THREE.Mesh(
-        //     new THREE.PlaneGeometry(this.field_x * 0.95, this.field_z),
-        //     planeMaterial
-        // );
-        // plane.receiveShadow = true;
-        // this.scene.add(plane);
+        const surface = new THREE.Mesh(
+            new THREE.BoxGeometry(this.field_x + 50, this.field_y - 10, this.field_z + 50),
+            planeMaterial
+        );
+        this.scene.add(surface);
 
         // Table border (for visibility)
         const table = new THREE.Mesh(
-            new THREE.BoxGeometry(this.field_x , this.field_y, this.field_z),
+            new THREE.BoxGeometry(this.field_x , this.field_y , this.field_z),
             tableMaterial
         );
         //table.position.x = 20;
@@ -284,38 +283,32 @@ export class Pong {
     }
 
     createScoreboard() {
-        const scoreOffsetX = -30;
-        const scoreOffsetY = -30;
+        const scoreOffsetX = 30;
+        const scoreOffsetZ = 100;
 
         // Player 1 Score (Bottom Left)
         const positionP1 = {
             x: -this.field_x / 2 + scoreOffsetX,
-            y: -this.field_x / 2 + scoreOffsetY,
-            z: 50
+            y: 50,
+            z: this.field_x / 2 - scoreOffsetZ,
         };
 
         this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
         this.scoreP1Text.createText((textMesh) => {
             this.scoreP1Mesh = textMesh;
-            this.scoreP1Mesh.rotation.x = -0.01 * Math.PI / 180;
-            this.scoreP1Mesh.rotation.y = -60 * Math.PI / 180;
-            this.scoreP1Mesh.rotation.z = -90 * Math.PI / 180;
             this.scene.add(this.scoreP1Mesh);
         });
 
         // Player 2 Score (Top Right)
         const positionP2 = {
             x: this.field_x / 2 - scoreOffsetX,
-            y: this.field_x / 2 - scoreOffsetY + 100,
-            z: 50
+            y: 50,
+            z: this.field_x / 2 - scoreOffsetZ,
         };
 
         this.scoreP2Text = new Text3D(this.score2.toString(), positionP2, 0xffffff, 30, 1);
         this.scoreP2Text.createText((textMesh) => {
             this.scoreP2Mesh = textMesh;
-            this.scoreP2Mesh.rotation.x = -0.01 * Math.PI / 180;
-            this.scoreP2Mesh.rotation.y = -60 * Math.PI / 180;
-            this.scoreP2Mesh.rotation.z = -90 * Math.PI / 180;
             this.scene.add(this.scoreP2Mesh);
         });
     }
@@ -505,9 +498,9 @@ export class Pong {
             this.countdownMesh = textMesh;
     
             // Rotate the countdown text to face the camera
-            this.countdownMesh.rotation.x = -0.01 * Math.PI / 180;
-            this.countdownMesh.rotation.y = -60 * Math.PI / 180;
-            this.countdownMesh.rotation.z = -90 * Math.PI / 180;
+            // this.countdownMesh.rotation.x = -0.01 * Math.PI / 180;
+            // this.countdownMesh.rotation.y = -60 * Math.PI / 180;
+            // this.countdownMesh.rotation.z = -90 * Math.PI / 180;
     
             this.scene.add(this.countdownMesh);
     
