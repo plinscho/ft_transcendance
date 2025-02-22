@@ -86,7 +86,7 @@ export class Pong {
     }
     createLocalCoopCamera() {
         const cameraLocalCoop = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        cameraLocalCoop.position.set(0, 1000, 400); // Start behind Paddle1
+        cameraLocalCoop.position.set(0, 250, 350); // Start behind Paddle1
         cameraLocalCoop.lookAt(new THREE.Vector3(0, 0, 0));
 
         return cameraLocalCoop;
@@ -95,7 +95,7 @@ export class Pong {
     createCamera1() {
         //Camara player1
         const camera1 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera1.position.set(0, 500, 500); // Start behind Paddle1
+        camera1.position.set(400, 200, 0); // Start behind Paddle1
         camera1.lookAt(new THREE.Vector3(0, 0, 0));
 
         return camera1;
@@ -189,7 +189,7 @@ export class Pong {
 
         // Add helpers
         const gridHelper = new THREE.GridHelper( 600, 100 );
-        const axesHelper = new THREE.AxesHelper( 300 );
+        const axesHelper = new THREE.AxesHelper( 350 );
         this.scene.add( gridHelper );
         this.scene.add( axesHelper );
 
