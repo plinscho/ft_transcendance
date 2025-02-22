@@ -104,7 +104,7 @@ export class Pong {
     createCamera2() {
         //Camara player2
         const camera2 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera2.position.set(0, 1000, 0); // Posición detrás del paddle 2, en el lado opuesto
+        camera2.position.set(-400, 200, 0); // Posición detrás del paddle 2, en el lado opuesto
         camera2.lookAt(new THREE.Vector3(0, 0, 0));
 
         return camera2;
@@ -128,16 +128,17 @@ export class Pong {
     updateCameraPlayer2() {
         if (!this.camera2 || !this.paddle2 || !this.ball) return;
     
+        this.camera1.lookAt(0, 0, 0);
         // Posición de la cámara detrás de Paddle2 (invertida respecto a Player 1)
-        this.camera2.position.x = this.paddle2.position.x + 200;  // Invertimos la dirección
-        this.camera2.position.y += (this.paddle2.position.y - this.camera2.position.y) * 0.05;
-        this.camera2.position.z = this.paddle2.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle2.position.x);
+        // this.camera2.position.x = this.paddle2.position.x + 200;  // Invertimos la dirección
+        // this.camera2.position.y += (this.paddle2.position.y - this.camera2.position.y) * 0.05;
+        // this.camera2.position.z = this.paddle2.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle2.position.x);
     
         // Ajustar la orientación para que mire correctamente
 
-        this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
-        this.camera2.rotation.y = 60 * Math.PI / 180; // Rotamos la cámara 180° en Y
-        this.camera2.rotation.z = 90 * Math.PI / 180; // Ajuste en Z para mantener perspectiva similar
+        // this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
+        // this.camera2.rotation.y = 60 * Math.PI / 180; // Rotamos la cámara 180° en Y
+        // this.camera2.rotation.z = 90 * Math.PI / 180; // Ajuste en Z para mantener perspectiva similar
     }
     
 
