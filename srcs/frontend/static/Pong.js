@@ -406,13 +406,13 @@ export class Pong {
                 // and if ball is travelling towards player (-ve direction)
                 if (this.ballDirX < 0) {
                     // stretch the paddle to indicate a hit
-                    this.paddle1.scale.y = 1.1;
+                    this.paddle1.scale.z = 1.1;
                     // switch direction of ball travel to create bounce
                     this.ballDirX = -this.ballDirX;
                     // we impact ball angle when hitting it
                     // this is not realistic physics, just spices up the gameplay
                     // allows you to 'slice' the ball to beat the opponent
-                    this.ballDirZ -= this.paddle1DirY * 0.7;
+                    this.ballDirZ -= this.paddle1DirZ * 0.7;
                 }
             }
         }
@@ -436,7 +436,7 @@ export class Pong {
                     // we impact ball angle when hitting it
                     // this is not realistic physics, just spices up the gameplay
                     // allows you to 'slice' the ball to beat the opponent
-                    this.ballDirZ -= this.paddle2DirY * 0.7;
+                    this.ballDirZ -= this.paddle2DirZ * 0.7;
                 }
             }
         }
