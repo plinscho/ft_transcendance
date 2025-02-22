@@ -3,13 +3,16 @@ import { Text3D } from './Text3D.js';
 import { PlayerController } from './PlayerController.js';
 
 export class Pong {
-    constructor(state, multiplayer, networkManager) {
+    constructor(state, multiplayer, networkManager, localcoop) {
         this.scene = new THREE.Scene();
         this.state = state;
         this.camera1 = this.createCamera1();
         this.camera2 = this.createCamera2();
+        this.localcoopCamera = this.createLocalCoopCamera();
+
         this.multiplayer = multiplayer;
         this.networkManager = networkManager;
+        this.localcoop = localcoop;
         //fog
         //this.scene.fog = new THREE.Fog(0x000000, 10, 1000);
 
@@ -78,6 +81,13 @@ export class Pong {
 
 
     }
+    createLocalCoopCamera() {
+        const cameraLocalCoop = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
+        cameraLocalCoop.position.set(0, 1000, 400); // Start behind Paddle1
+        cameraLocalCoop.lookAt(new THREE.Vector3(0, 0, 0));
+
+        return cameraLocalCoop;
+    }
 
     createCamera1() {
         //Camara player1
@@ -91,7 +101,7 @@ export class Pong {
     createCamera2() {
         //Camara player2
         const camera2 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera2.position.set(0, 1000, 400); // Posición detrás del paddle 2, en el lado opuesto
+        camera2.position.set(0, -1000, 400); // Posición detrás del paddle 2, en el lado opuesto
         camera2.lookAt(new THREE.Vector3(0, 0, 0));
 
         return camera2;
@@ -122,7 +132,7 @@ export class Pong {
         // Ajustar la orientación para que mire correctamente
         this.camera2.lookAt(this.ball.position); // Centra la vista en la bola
         this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
-        this.camera2.rotation.y = Math.PI - (60 * Math.PI / 180); // Rotamos la cámara 180° en Y
+        this.camera2.rotation.y = (120 * Math.PI / 180); // Rotamos la cámara 180° en Y
         this.camera2.rotation.z = 90 * Math.PI / 180; // Ajuste en Z para mantener perspectiva similar
     
     }

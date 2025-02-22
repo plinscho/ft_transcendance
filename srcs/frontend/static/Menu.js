@@ -15,6 +15,7 @@ export class Menu {
         this.buttons = [];
         this.buttonConfigs = [ 
             { text: 'Play', state: this.state.states.PLAY },
+            { text: 'Local Coop', state: this.state.states.LOCALCOOP },
             { text: 'Multiplayer', state: this.state.states.WAITING_ROOM },
             { text: 'Tournament', state: this.state.states.WAITING_ROOM },
             { text: 'Languages', action: () => console.log("Languages menu not implemented") },
@@ -69,6 +70,10 @@ export class Menu {
     setActive(isActive) {
         this.active = isActive;
         this.scene.visible = isActive;
+    }
+
+    setLocalCoopMode() {
+        this.state.localCoop = true;
     }
 
     setTournamentMode() {
@@ -187,6 +192,7 @@ export class Menu {
         // Nueva estructura de configuración de botones
         const buttonConfigs = [
             { text: lang.menu.play, state: this.state.states.PLAY },
+            { text: lang.menu.localcoop, state: this.state.states.LOCALCOOP },
             { text: lang.menu.multiplayer, state: this.state.states.WAITING_ROOM },
             { text: lang.menu.tournament, state: this.state.states.WAITING_ROOM },
             { text: lang.menu.languages, state: this.state.states.LANGUAGE_MENU },
@@ -210,6 +216,9 @@ export class Menu {
                         if (state && this.state.changeState) {
                             if (text === lang.menu.tournament) {
                                 this.setTournamentMode();
+                            }
+                            if (text === lang.menu.localcoop) {
+                                this.setLocalCoopMode();
                             }
                             this.state.loadScene(state);
                             this.setActive(false); // Ocultar el menú al cambiar de escena

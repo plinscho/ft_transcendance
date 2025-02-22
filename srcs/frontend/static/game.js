@@ -21,9 +21,11 @@ export class Game {
         this.network = new NetworkManager();
         this.player1 = false;
         this.player2 = false;
+        this.localcoop = false;
         this.states = {
             MENU: 'menu',
             PLAY: 'play',
+            LOCALCOOP: 'localcoop',
             WAITING_ROOM: 'waiting_room',
             MULTIPLAYER: 'multiplayer',
             TOURNAMENTS: 'tournament',
@@ -35,6 +37,7 @@ export class Game {
         this.scenes = {
             menu: new Menu(this, this.camera),
             play: null,
+            localcoop: null,
             waiting_room: null,
             multiplayer: null,
             tournament: null,
@@ -57,16 +60,19 @@ export class Game {
                     this.scenes[sceneName] = new Menu(this, this.camera);
                     break;
                 case this.states.PLAY:
-                    this.scenes[sceneName] = new Pong(this, false);
+                    this.scenes[sceneName] = new Pong(this, false, this.network, this.localcoop);
                     break;
+                case this.states.LOCALCOOP:
+                        this.scenes[sceneName] = new Pong(this, false, this.network, this.localcoop);
+                        break;
                 case this.states.WAITING_ROOM:
                     this.scenes[sceneName] = new WaitingRoom(this, this.network);
                     break;
                 case this.states.MULTIPLAYER:
-                    this.scenes[sceneName] = new Pong(this, true, this.network);
+                    this.scenes[sceneName] = new Pong(this, true, this.network, this.localcoop);
                     break;
                 case this.states.TOURNAMENTS:
-                    this.scenes[sceneName] = new Pong(this);
+                    this.scenes[sceneName] = new Pong(this, true, this.network, this.localcoop);
                     break;
                 case this.states.LANGUAGE_MENU:
                     this.scenes[sceneName] = new LanguageMenu(this);
@@ -130,8 +136,7 @@ export class Game {
     gameLoop() {
         const currentScene = this.scenes[this.currentState]?.getScene();
         if (currentScene) {
-            if (this.currentState === this.states.PLAY || this.currentState === this.states.MULTIPLAYER) {
-                //this.scenes[this.states.PLAY].updateCamera();
+            if (this.currentState === this.states.PLAY || this.currentState === this.states.MULTIPLAYER || this.currentState === this.states.LOCALCOOP) {
                 this.scenes[this.currentState].update();
             }
             this.renderer.render(currentScene, this.camera);
