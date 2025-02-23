@@ -49,6 +49,10 @@ export class Game {
         this.gameLoop();
     }
 
+    getSceneName() {
+        return this.currentState;
+    }
+
     loadScene(sceneName) {
         if (this.currentState === sceneName) return;
 
@@ -63,7 +67,7 @@ export class Game {
                     this.scenes[sceneName] = new Pong(this, false, this.network, this.localcoop);
                     break;
                 case this.states.LOCALCOOP:
-                        this.scenes[sceneName] = new Pong(this, false, this.network, this.localcoop);
+                        this.scenes[sceneName] = new Pong(this, false, this.network, true);
                         break;
                 case this.states.WAITING_ROOM:
                     this.scenes[sceneName] = new WaitingRoom(this, this.network);

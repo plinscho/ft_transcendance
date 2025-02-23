@@ -86,7 +86,7 @@ export class Pong {
     }
     createLocalCoopCamera() {
         const cameraLocalCoop = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        cameraLocalCoop.position.set(0, 250, 350); // Start behind Paddle1
+        cameraLocalCoop.position.set(0, 350, 0); 
         cameraLocalCoop.lookAt(new THREE.Vector3(0, 0, 0));
 
         return cameraLocalCoop;
@@ -109,6 +109,7 @@ export class Pong {
 
         return camera2;
     }
+
 
     updateCameraPlayer1() {
         if (!this.camera1 || !this.paddle1 || !this.ball) return;
@@ -141,6 +142,20 @@ export class Pong {
         // this.camera2.rotation.z = 90 * Math.PI / 180; // Ajuste en Z para mantener perspectiva similar
     }
     
+    updateLocalCoopCamera() {
+        if (!this.cameraLocalCoop || !this.ball) return;
+        this.camera1.lookAt(0, 0, 0);
+        // Posición de la cámara detrás de Paddle2 (invertida respecto a Player 1)
+        // this.camera2.position.x = this.paddle2.position.x + 200;  // Invertimos la dirección
+        // this.camera2.position.y += (this.paddle2.position.y - this.camera2.position.y) * 0.05;
+        // this.camera2.position.z = this.paddle2.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle2.position.x);
+    
+        // Ajustar la orientación para que mire correctamente
+
+        // this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
+        // this.camera2.rotation.y = 60 * Math.PI / 180; // Rotamos la cámara 180° en Y
+        // this.camera2.rotation.z = 90 * Math.PI / 180; // Ajuste en Z para mantener perspectiva similar
+    }
 
     createBackground() {
         const bgGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
@@ -526,12 +541,16 @@ export class Pong {
     update() {
         if (!this.paddle1 || !this.paddle2 || !this.ball) return;
 
+        console.log(this.state.currentState); 
+        if (this.state.currentState === this.state.states.LOCALCOOP)
+            this.updateLocalCoopCamera();
         if (this.state.player1)
             this.updateCameraPlayer1();
         else if (this.state.player2)
             this.updateCameraPlayer2();
         else
             this.updateCameraPlayer1();
+
         
         if (!this.start) {
             this.start = this.gameStart();
@@ -550,6 +569,9 @@ export class Pong {
     }
 
     getCamera() {
+        if (this.state.currentState === this.state.states.LOCALCOOP)
+            return this.localcoopCamera
+
         if (this.state.player1)
             return this.camera1;
         if (this.state.player2)
