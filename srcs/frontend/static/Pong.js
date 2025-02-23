@@ -18,7 +18,7 @@ export class Pong {
 
         // Field and Paddle properties
         this.field_x = 400;
-        this.field_y = 10;
+        this.field_y = 0;
         this.field_z = 300
 
         this.paddle_x = 10;
@@ -189,10 +189,10 @@ export class Pong {
 
 
         // Add helpers
-        const gridHelper = new THREE.GridHelper( 600, 100 );
-        const axesHelper = new THREE.AxesHelper( 350 );
-        this.scene.add( gridHelper );
-        this.scene.add( axesHelper );
+        //const gridHelper = new THREE.GridHelper( 600, 100 );
+        //const axesHelper = new THREE.AxesHelper( 350 );
+        //this.scene.add( gridHelper );
+        //this.scene.add( axesHelper );
 
         // Enable shadow casting
         planeMaterial.roughness = 0.5;
@@ -256,7 +256,7 @@ export class Pong {
 
         // 🔹 Move Point Light Closer
         const pointLight = new THREE.PointLight(0xffffff, 20, 1500, 0.1);
-        pointLight.position.set(10, 10, 1000); // Closer to objects
+        pointLight.position.set(0, 100, 0); // Closer to objects
 
         pointLight.castShadow = true;
         pointLight.shadow.mapSize.width = 2048;
@@ -271,7 +271,7 @@ export class Pong {
         // 🔹 Spot Light (Strong Shadow Direction)
         const spotLight = new THREE.SpotLight(0xffffff, 30);
         spotLight.position.set(0, 0, 0);
-        spotLight.angle = Math.PI / 6;
+        spotLight.angle = Math.PI / 4;
         spotLight.penumbra = 0.5;
         spotLight.decay = 1;
         spotLight.distance = 1000;
@@ -285,7 +285,7 @@ export class Pong {
 
     createScoreboard() {
         const scoreOffsetX = 30;
-        const scoreOffsetZ = 100;
+        const scoreOffsetZ = 0;
 
         // Player 1 Score (Bottom Left)
         const positionP1 = {
@@ -297,6 +297,7 @@ export class Pong {
         this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
         this.scoreP1Text.createText((textMesh) => {
             this.scoreP1Mesh = textMesh;
+            this.scoreP1Mesh.rotation.y = 90 * Math.PI / 180;
             this.scene.add(this.scoreP1Mesh);
         });
 
@@ -304,12 +305,13 @@ export class Pong {
         const positionP2 = {
             x: this.field_x / 2 - scoreOffsetX,
             y: 50,
-            z: this.field_x / 2 - scoreOffsetZ,
+            z: -this.field_x / 2 - scoreOffsetZ,
         };
 
         this.scoreP2Text = new Text3D(this.score2.toString(), positionP2, 0xffffff, 30, 1);
         this.scoreP2Text.createText((textMesh) => {
             this.scoreP2Mesh = textMesh;
+            this.scoreP2Mesh.rotation.y = 90 * Math.PI / 180;
             this.scene.add(this.scoreP2Mesh);
         });
     }
@@ -437,19 +439,17 @@ export class Pong {
     }
 
     createWinnerBanner(text) {
-        const winnerText = new Text3D(text, { x: 0, y: 150, z: 50 }, 0xffffff, 40, 1);
+        const winnerText = new Text3D(text, { x: 0, y: 50, z: 180 }, 0xffffff, 40, 1);
 
         winnerText.createText((textMesh) => {
             this.winnerText = textMesh;
-            this.winnerText.rotation.x = -0.01 * Math.PI / 180;
-            this.winnerText.rotation.y = -60 * Math.PI / 180;
-            this.winnerText.rotation.z = -90 * Math.PI / 180;
+            this.winnerText.rotation.y = 90 * Math.PI / 180;
             this.scene.add(this.winnerText);
 
             setTimeout(() => {
                 this.scene.remove(this.winnerText);
                 this.backToMenu();
-            }, 4000);
+            }, 3000);
         });
     }
 
@@ -493,15 +493,15 @@ export class Pong {
         this.starting = true;
     
         let countdown = 5;
-        this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 0, z: 50 }, 0xffffff, 50, 1);
+        this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 50, z: 6 }, 0xffffff, 50, 1);
     
         this.countdownText.createText((textMesh) => {
             this.countdownMesh = textMesh;
     
             // Rotate the countdown text to face the camera
-            // this.countdownMesh.rotation.x = -0.01 * Math.PI / 180;
-            // this.countdownMesh.rotation.y = -60 * Math.PI / 180;
-            // this.countdownMesh.rotation.z = -90 * Math.PI / 180;
+             //this.countdownMesh.rotation.x = -0.01 * Math.PI / 180;
+            this.countdownMesh.rotation.y = 90 * Math.PI / 180;
+             //this.countdownMesh.rotation.z = -90 * Math.PI / 180;
     
             this.scene.add(this.countdownMesh);
     
