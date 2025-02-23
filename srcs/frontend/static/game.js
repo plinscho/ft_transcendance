@@ -137,10 +137,14 @@ export class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    // TODO: Add 30 fps limit
     gameLoop() {
         const currentScene = this.scenes[this.currentState]?.getScene();
         if (currentScene) {
-            if (this.currentState === this.states.PLAY || this.currentState === this.states.MULTIPLAYER || this.currentState === this.states.LOCALCOOP) {
+            if (this.currentState === this.states.PLAY || 
+                this.currentState === this.states.MULTIPLAYER || 
+                this.currentState === this.states.LOCALCOOP) 
+            {
                 this.scenes[this.currentState].update();
             }
             this.renderer.render(currentScene, this.camera);

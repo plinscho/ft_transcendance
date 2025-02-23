@@ -60,14 +60,7 @@ export class Pong {
         //player initialization
         this.player1 = new PlayerController(
             this.state,
-            this.paddle1,
-            this.multiplayer,              // isMultiplayer
-            this.field_x,
-            5,                  // Paddle Speed
-            this.ball,          // Ball reference
-            this.networkManager, // Pass network manager if multiplayer
-            this.ballDirX,      // Ball direction on X axis
-            this.ballDirZ       // ^^ on Z axis
+            this
         );
 
         this.player2 = new PlayerController(
@@ -198,8 +191,8 @@ export class Pong {
     createScene() {
         const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x00ffff });
         const tableMaterial = new THREE.MeshLambertMaterial({ color: 0x440066 });
-        const paddleMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
-        const paddle2Material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+        const paddleMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
+        const paddle2Material = new THREE.MeshLambertMaterial({ color: 0xffffff });
         const ballMaterial = new THREE.MeshLambertMaterial({ color: 0xD43001 });
 
 
@@ -583,6 +576,7 @@ export class Pong {
         return false;
     }
     
+    // Podemos controlar inputs?
     update() {
         if (!this.paddle1 || !this.paddle2 || !this.ball) return;
 

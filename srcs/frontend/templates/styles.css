@@ -1,4 +1,12 @@
 /* General styles */
+html, main {
+    background-color: #424242;
+}
+
+p, label, h1, h2, h3, h4, h5, h6 {
+    color: #fff !important;
+}
+
 .invisible {
     display: none;
 }
@@ -17,7 +25,7 @@
     width: 100%;
     max-width: 400px;
     padding: 2rem;
-    background-color: #f8f9fa;
+    background-color: #424242;
     border-radius: 0.5rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 }
@@ -61,7 +69,7 @@
     border: 1px solid #268aee;
     font-family: 'Arial', sans-serif;
     color: #333;
-    background-color: #fff;
+    background-color: #5e5d5d;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 

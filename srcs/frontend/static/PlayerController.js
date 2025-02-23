@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export class PlayerController {
-    constructor(gameState, playerMesh, isMultiplayer, fieldHeight, paddleSpeed, ball = null, networkManager = null, ballDirX, ballDirY) {
+    constructor(gameState, pongState) {
         this.gameState = gameState;
         this.playerMesh = playerMesh;
         this.isMultiplayer = isMultiplayer;
@@ -13,15 +13,15 @@ export class PlayerController {
         this.ballDirY = ballDirY;
 
         this.activeKeys = {};
-        this.directionZ = 0;  
-        this.velocity = 0;    
-        this.friction = 0.8;   
-        this.acceleration = 0.4; 
+        this.directionZ = 0;
+        this.velocity = 0;
+        this.friction = 0.8;
+        this.acceleration = 0.4;
         this.difficulty = 0.7; // AI difficulty (higher = better tracking)
 
         if (!this.isMultiplayer) {
             this.setupAI();
-        } 
+        }
         this.setupLocalControls();
     }
 
@@ -35,20 +35,57 @@ export class PlayerController {
         });
     }
 
+    // update() {
+    //     if (this.isMultiplayer) {
+    //         this.receiveMovement();
+    //         if (this.gameState.player1) {
+    //             this.localMovement();
+    //             this.sendMovement();  // Send player movement only if Player 1
+    //         }
+    //     } else {
+    //         if (this.gameState.player1) {
+    //             this.localMovement();
+    //         } else {
+    //             this.setupAI();
+    //         }
+    //     }
+    // }
+
+
     update() {
-        this.localMovement();
-        this.sendMovement();
+        // Only multiplayer
+        if (this.isMultiplayer) {
+            this.receiveMovement();
+            if (this.gameState.player1) {
+                this.localMovement();
+                this.sendMovement();  // Send player movement only if Player 1
+            }
+        }
+        // Only 2 player COOP
+        if (this.gameState.curretState === this.gameState.states.LOCALCOOP) {
+        }
+
+        // IA
+        if (this.gameState.curretState === this.gameState.states.PLAY) {
+            if (this.gameState.player1) {
+                this.localMovement();
+            } else {
+                this.setupAI();
+            }
+        }
     }
+
+
 
     localMovement() {
         if (!this.playerMesh) return;
 
         if (this.activeKeys['a']) {
-            this.directionZ = 1;  
+            this.directionZ = 1;
         } else if (this.activeKeys['d']) {
-            this.directionZ = -1; 
+            this.directionZ = -1;
         } else {
-            this.directionZ = 0; 
+            this.directionZ = 0;
         }
 
         if (this.directionZ !== 0) {
@@ -101,19 +138,33 @@ export class PlayerController {
 
     sendMovement() {
         if (!this.networkManager) return;
-            let data = {
-                type: "MOVE",
-                player: this.gameState.apiState.data.username,
-                x: this.playerMesh.position.x,
-                y: this.playerMesh.position.y,
-                z: this.playerMesh.position.z,
-                ballX: this.ball.position.x,
-                ballY: this.ball.position.y,
-                ballZ: this.ball.position.z,
-                ballDirX: this.ballDirX,
-                ballDirY: this.ballDirY
-            }
-            this.networkManager.sendData(data);
+        let data = {
+            type: "MOVE",
+            player: this.gameState.apiState.data.username,
+            x: this.playerMesh.position.x,
+            y: this.playerMesh.position.y,
+            z: this.playerMesh.position.z,
+            ballX: this.ball.position.x,
+            ballY: this.ball.position.y,
+            ballZ: this.ball.position.z,
+            ballDirX: this.ballDirX,
+            ballDirY: this.ballDirY
+        }
+        this.networkManager.sendData(data);
     }
 
+    receiveMovement() {
+        if (!this.networkManager) return;
+
+        this.networkManager.onMessage((data) => {
+            if (data.type === "MOVE") {
+                this.playerMesh.position.set(data.x, data.y, data.z);
+                if (this.ball) {
+                    //this.ball.position.set(data.ballX, data.ballY, data.ballZ);
+                    this.ballDirX = data.ballDirX;
+                    this.ballDirY = data.ballDirY;
+                }
+            }
+        });
+    }
 }
