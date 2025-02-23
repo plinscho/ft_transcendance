@@ -312,7 +312,11 @@ export class Pong {
         this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
         this.scoreP1Text.createText((textMesh) => {
             this.scoreP1Mesh = textMesh;
-            this.scoreP1Mesh.rotation.y = 90 * Math.PI / 180;
+            if (this.state.player2) {
+                this.scoreP1Mesh.rotation.y = -90 * Math.PI / 180;
+            } else {
+                this.scoreP1Mesh.rotation.y = 90 * Math.PI / 180;
+            }
             this.scene.add(this.scoreP1Mesh);
         });
 
@@ -326,7 +330,11 @@ export class Pong {
         this.scoreP2Text = new Text3D(this.score2.toString(), positionP2, 0xffffff, 30, 1);
         this.scoreP2Text.createText((textMesh) => {
             this.scoreP2Mesh = textMesh;
-            this.scoreP2Mesh.rotation.y = 90 * Math.PI / 180;
+            if (this.state.player2) {
+                this.scoreP2Mesh.rotation.y = -90 * Math.PI / 180;
+            } else {
+                this.scoreP2Mesh.rotation.y = 90 * Math.PI / 180;
+            }
             this.scene.add(this.scoreP2Mesh);
         });
     }
@@ -458,7 +466,12 @@ export class Pong {
 
         winnerText.createText((textMesh) => {
             this.winnerText = textMesh;
-            this.winnerText.rotation.y = 90 * Math.PI / 180;
+            if (this.state.player2) {
+                this.winnerText.rotation.y = -90 * Math.PI / 180;
+                this.winnerText.position.z = -180;
+            } else {
+                this.winnerText.rotation.y = 90 * Math.PI / 180;
+            }
             this.scene.add(this.winnerText);
 
             setTimeout(() => {
@@ -513,11 +526,11 @@ export class Pong {
         this.countdownText.createText((textMesh) => {
             this.countdownMesh = textMesh;
     
-            // Rotate the countdown text to face the camera
-             //this.countdownMesh.rotation.x = -0.01 * Math.PI / 180;
-            this.countdownMesh.rotation.y = 90 * Math.PI / 180;
-             //this.countdownMesh.rotation.z = -90 * Math.PI / 180;
-    
+            if (this.state.player2) {
+                this.countdownMesh.rotation.y = -90 * Math.PI / 180;
+            } else {
+                this.countdownMesh.rotation.y = 90 * Math.PI / 180;
+            }
             this.scene.add(this.countdownMesh);
     
             const interval = setInterval(() => {
