@@ -236,7 +236,7 @@ export class Pong {
             new THREE.SphereGeometry(this.ballRadius, 16, 16),
             ballMaterial
         );
-        this.ball.position.set(0, 0, this.ballRadius);
+        this.ball.position.set(0, this.field_y + 5, this.ballRadius);
         this.ball.castShadow = true;
         this.ball.receiveShadow = true;
         this.scene.add(this.ball);
@@ -397,6 +397,7 @@ export class Pong {
         // position the ball in the center of the table
         this.ball.position.x = 0;
         this.ball.position.z = 0;
+        this.ballSpeed = 2;
 
         // if player lost the last point, we send the ball to opponent
         if (loser == 1) {
@@ -425,13 +426,27 @@ export class Pong {
                 // and if ball is travelling towards player (-ve direction)
                 if (this.ballDirX < 0) {
                     // stretch the paddle to indicate a hit
-                    this.paddle1.scale.z = 1.1;
+                    this.paddle1.scale.z = 1.3;
                     // switch direction of ball travel to create bounce
-                    this.ballDirX = -this.ballDirX;
+                        //this.ballDirX = -this.ballDirX;
                     // we impact ball angle when hitting it
                     // this is not realistic physics, just spices up the gameplay
                     // allows you to 'slice' the ball to beat the opponent
-                    this.ballDirZ -= this.paddle1DirZ * 0.7;
+                        //this.ballDirZ -= this.paddle1DirZ * 0.7;
+                    
+                    let impact = (this.ball.position.z - this.paddle1.position.z) / (this.paddle_z / 2);
+                    this.ballDirZ = impact * 1.5; // Ajustamos la inclinación del rebote
+
+                    // Transferimos parte del movimiento de la pala a la pelota
+                    this.ballDirZ += this.paddle1DirZ * 0.2;
+                    if (Math.abs(this.ballDirZ) < 0.2) {
+                        this.ballDirZ = 0.2 * Math.sign(this.ballDirZ);
+                    }
+
+                    // Invertimos dirección en X (rebote) y Aumentamos velocidad si la pala estaba en movimiento
+                    this.ballDirX = -this.ballDirX * 1.05;
+                    let newSpeed = this.ballSpeed + Math.abs(this.paddle1DirZ) * 0.2;
+                    this.ballSpeed = Math.max(this.ballSpeed, newSpeed) * 1.02;
                 }
             }
         }
@@ -449,13 +464,30 @@ export class Pong {
                 // and if ball is travelling towards opponent (+ve direction)
                 if (this.ballDirX > 0) {
                     // stretch the paddle to indicate a hit
-                    this.paddle2.scale.y = 1.1;
+                    this.paddle2.scale.z = 1.3;
                     // switch direction of ball travel to create bounce
-                    this.ballDirX = -this.ballDirX;
+                        //this.ballDirX = -this.ballDirX;
                     // we impact ball angle when hitting it
                     // this is not realistic physics, just spices up the gameplay
                     // allows you to 'slice' the ball to beat the opponent
-                    this.ballDirZ -= this.paddle2DirZ * 0.7;
+                        //this.ballDirZ -= this.paddle2DirZ * 0.7;
+
+                    // Calculamos la desviación en función del punto de impacto
+                    let impact = (this.ball.position.z - this.paddle2.position.z) / (this.paddle_z / 2);
+                    this.ballDirZ = impact * 1.5;
+
+                    // Transferimos parte del movimiento de la pala a la pelota
+                    this.ballDirZ += this.paddle2DirZ * 0.5;
+                    if (Math.abs(this.ballDirZ) < 0.2) {
+                        this.ballDirZ = 0.2 * Math.sign(this.ballDirZ);
+                    }
+
+                    // Invertimos dirección en X (rebote)
+                    this.ballDirX = -this.ballDirX * 1.05;
+
+                    // Aumentamos velocidad si la pala estaba en movimiento
+                    let newSpeed = this.ballSpeed + Math.abs(this.paddle2DirZ) * 0.2;
+                    this.ballSpeed = Math.max(this.ballSpeed, newSpeed) * 1.02;
                 }
             }
         }
