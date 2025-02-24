@@ -6,6 +6,8 @@ export class PlayerController {
         // These are refences to both for future management (controls, etc.)
         this.paddle1 = pongState.paddle1;
         this.paddle2 = pongState.paddle2;
+
+        this.deltaTime = gameState.deltaTime;
         // This is pongState.paddle1 or pongState.paddle2
         this.playerMesh = playerMesh;
 

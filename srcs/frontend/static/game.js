@@ -13,10 +13,9 @@ export class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
+        
         // for game loop
-        this.initTime = 0; 
-        this.lastUpdate = 0;
+        this.deltaTime = 0;
         this.fps = 30;
 
         document.body.appendChild(this.renderer.domElement);
@@ -154,11 +153,12 @@ export class Game {
     // TODO: Add 30 fps limit
     gameLoop() {
         requestAnimationFrame(() => this.gameLoop()); // Always request the next frame
-
-        const timeNow = this.timeMs();
-        const timeUpdate = 1000 / this.fps;  // Desired update interval
-
-        if (timeNow - this.lastUpdate < timeUpdate) return;
+    
+        const timeNow = Date.now();
+        this.deltaTime = (timeNow - this.lastUpdate) / 1000; // Convert to seconds
+        const timeUpdate = 1 / this.fps; // Frame duration in seconds
+    
+        if (this.deltaTime < timeUpdate) return;
         this.lastUpdate = timeNow;
     
         const currentScene = this.scenes[this.currentState]?.getScene();
