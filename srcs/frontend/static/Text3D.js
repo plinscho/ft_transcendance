@@ -11,21 +11,21 @@ export class Text3D {
         this.depth = depth;
         this.onClick = onClick;
         this.mesh = null;
-        this.font = null;  // Store font reference for updates
+        this.font = null;
     }
 
     createText(callback) {
         const loader = new FontLoader();
         
         loader.load(
-            '/static/fonts/helvetiker_regular.typeface.json',
+            'https://threejs.org/examples/fonts/droid/droid_sans_regular.typeface.json',
             (font) => {
-                this.font = font; // Save font for future updates
+                this.font = font;
                 this.geometry = new TextGeometry(this.text, {
                     font: font,
                     size: this.size,
                     depth: this.depth,
-                    curveSegments: 4,
+                    curveSegments: 12, 
                 });
 
                 const material = new THREE.MeshBasicMaterial({ color: this.color });
@@ -42,16 +42,30 @@ export class Text3D {
     }
 
     updateText(newText) {
-        if (!this.mesh || !this.font) return; // Ensure mesh is created
+        if (!this.mesh || !this.font) return;
 
-        this.text = newText;  // Update stored text
-        this.mesh.geometry.dispose();  // Free previous geometry
+        if (this.geometry) {
+            this.geometry.dispose();
+        }
 
-        this.mesh.geometry = new TextGeometry(newText, {
+        this.text = newText;
+        this.geometry = new TextGeometry(newText, {
             font: this.font,
             size: this.size,
             depth: this.depth,
-            curveSegments: 4,
+            curveSegments: 12,
         });
+
+        // Actualizamos la geometría
+        this.mesh.geometry = this.geometry;
+    }
+
+    dispose() {
+        if (this.geometry) {
+            this.geometry.dispose();
+        }
+        if (this.mesh && this.mesh.material) {
+            this.mesh.material.dispose();
+        }
     }
 }
