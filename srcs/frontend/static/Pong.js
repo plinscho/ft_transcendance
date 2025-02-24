@@ -76,7 +76,7 @@ export class Pong {
     }
     createLocalCoopCamera() {
         const cameraLocalCoop = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        cameraLocalCoop.position.set(0, 350, 0); 
+        cameraLocalCoop.position.set(0, 550, 0); 
         cameraLocalCoop.lookAt(new THREE.Vector3(0, 0, 0));
 
         return cameraLocalCoop;
@@ -302,10 +302,20 @@ export class Pong {
         this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
         this.scoreP1Text.createText((textMesh) => {
             this.scoreP1Mesh = textMesh;
-            if (this.state.player2) {
-                this.scoreP1Mesh.rotation.y = -90 * Math.PI / 180;
-            } else {
-                this.scoreP1Mesh.rotation.y = 90 * Math.PI / 180;
+            if (this.state.currentState !== this.state.states.LOCALCOOP) { 
+                if (this.state.player2) {
+                    this.scoreP1Mesh.rotation.y = -90 * Math.PI / 180;
+                } else {
+                    this.scoreP1Mesh.rotation.y = 90 * Math.PI / 180;
+                }
+                
+            } 
+            else { 
+            // COOP VIEW FROM ABOVE
+                this.scoreP1Mesh.position.y = 5;
+                this.scoreP1Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
+                this.scoreP1Mesh.rotation.x = -90 * Math.PI / 180;
+
             }
             this.scene.add(this.scoreP1Mesh);
         });
@@ -320,10 +330,17 @@ export class Pong {
         this.scoreP2Text = new Text3D(this.score2.toString(), positionP2, 0xffffff, 30, 1);
         this.scoreP2Text.createText((textMesh) => {
             this.scoreP2Mesh = textMesh;
-            if (this.state.player2) {
-                this.scoreP2Mesh.rotation.y = -90 * Math.PI / 180;
+            if (this.state.currentState !== this.state.states.LOCALCOOP) {
+                if (this.state.player2) {
+                    this.scoreP2Mesh.rotation.y = -90 * Math.PI / 180;
+                } else {
+                    this.scoreP2Mesh.rotation.y = 90 * Math.PI / 180;
+                }
             } else {
-                this.scoreP2Mesh.rotation.y = 90 * Math.PI / 180;
+            // COOP VIEW FROM ABOVE
+                this.scoreP2Mesh.position.y = 5;
+                this.scoreP2Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
+                this.scoreP2Mesh.rotation.x = -90 * Math.PI / 180;
             }
             this.scene.add(this.scoreP2Mesh);
         });
@@ -576,7 +593,6 @@ export class Pong {
     update() {
         if (!this.paddle1 || !this.paddle2 || !this.ball) return;
 
-        console.log(this.state.currentState); 
         if (this.state.currentState === this.state.states.LOCALCOOP)
             this.updateLocalCoopCamera();
         if (this.state.player1)
