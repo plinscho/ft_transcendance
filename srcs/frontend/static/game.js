@@ -14,6 +14,11 @@ export class Game {
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+        // for game loop
+        this.initTime = 0; 
+        this.lastUpdate = 0;
+        this.fps = 30;
+
         document.body.appendChild(this.renderer.domElement);
 
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -137,19 +142,34 @@ export class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    
+
+    timeMs() {
+        if (this.initTime === 0) {
+            this.initTime = Date.now();
+        }
+        return (Date.now() - this.initTime);
+    }
+
     // TODO: Add 30 fps limit
     gameLoop() {
+        requestAnimationFrame(() => this.gameLoop()); // Always request the next frame
+
+        const timeNow = this.timeMs();
+        const timeUpdate = 1000 / this.fps;  // Desired update interval
+
+        if (timeNow - this.lastUpdate < timeUpdate) return;
+        this.lastUpdate = timeNow;
+    
         const currentScene = this.scenes[this.currentState]?.getScene();
         if (currentScene) {
             if (this.currentState === this.states.PLAY || 
                 this.currentState === this.states.MULTIPLAYER || 
-                this.currentState === this.states.LOCALCOOP) 
-            {
+                this.currentState === this.states.LOCALCOOP) {
                 this.scenes[this.currentState].update();
             }
             this.renderer.render(currentScene, this.camera);
         }
-        requestAnimationFrame(() => this.gameLoop());
     }
     
 }
