@@ -35,7 +35,7 @@ export class Pong {
         // ball
         this.ballDirZ = -1;
         this.ballDirX = -1;
-        this.ballSpeed = 2;
+        this.ballSpeed = 10;
 
         // scores
         this.scoreP1Text = null;
@@ -338,6 +338,7 @@ export class Pong {
                 }
             } else {
             // COOP VIEW FROM ABOVE
+                this.scoreP2Mesh.position.x -= 25;
                 this.scoreP2Mesh.position.y = 5;
                 this.scoreP2Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
                 this.scoreP2Mesh.rotation.x = -90 * Math.PI / 180;
@@ -505,11 +506,18 @@ export class Pong {
 
         winnerText.createText((textMesh) => {
             this.winnerText = textMesh;
-            if (this.state.player2) {
-                this.winnerText.rotation.y = -90 * Math.PI / 180;
-                this.winnerText.position.z = -180;
+            if (this.state.currentState !== this.state.states.LOCALCOOP) {
+                if (this.state.player2) {
+                    this.winnerText.rotation.y = -90 * Math.PI / 180;
+                } else {
+                    this.winnerText.rotation.y = 90 * Math.PI / 180;
+                }
             } else {
-                this.winnerText.rotation.y = 90 * Math.PI / 180;
+            // COOP VIEW FROM ABOVE
+                this.winnerText.position.y = 5;
+                this.winnerText.position.z = 0;
+                this.winnerText.position.x = -180;
+                this.winnerText.rotation.x = -90 * Math.PI / 180;
             }
             this.scene.add(this.winnerText);
 
