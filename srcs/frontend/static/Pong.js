@@ -10,6 +10,7 @@ export class Pong {
         this.camera2 = this.createCamera2();
         this.localcoopCamera = this.createLocalCoopCamera();
 
+        this.deltaTime = state.deltaTime;
         this.multiplayer = multiplayer;
         this.networkManager = networkManager;
         this.localcoop = localcoop;
@@ -30,12 +31,12 @@ export class Pong {
         // paddle
         this.paddle1DirZ = 0;
         this.paddle2DirZ = 0;
-        this.paddleSpeed = 5;
+        this.paddleSpeed = 200;
 
         // ball
         this.ballDirZ = -1;
         this.ballDirX = -1;
-        this.ballSpeed = 10;
+        this.ballSpeed = 300;
 
         // scores
         this.scoreP1Text = null;
@@ -74,9 +75,10 @@ export class Pong {
 
 
     }
+
     createLocalCoopCamera() {
         const cameraLocalCoop = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        cameraLocalCoop.position.set(0, 550, 0); 
+        cameraLocalCoop.position.set(0, 550, 0);
         cameraLocalCoop.lookAt(new THREE.Vector3(0, 0, 0));
 
         return cameraLocalCoop;
@@ -118,20 +120,20 @@ export class Pong {
 
     updateCameraPlayer2() {
         if (!this.camera2 || !this.paddle2 || !this.ball) return;
-    
+
         this.camera1.lookAt(0, 0, 0);
         // Posición de la cámara detrás de Paddle2 (invertida respecto a Player 1)
         // this.camera2.position.x = this.paddle2.position.x + 200;  // Invertimos la dirección
         // this.camera2.position.y += (this.paddle2.position.y - this.camera2.position.y) * 0.05;
         // this.camera2.position.z = this.paddle2.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle2.position.x);
-    
+
         // Ajustar la orientación para que mire correctamente
 
         // this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
         // this.camera2.rotation.y = 60 * Math.PI / 180; // Rotamos la cámara 180° en Y
         // this.camera2.rotation.z = 90 * Math.PI / 180; // Ajuste en Z para mantener perspectiva similar
     }
-    
+
     updateLocalCoopCamera() {
         if (!this.cameraLocalCoop || !this.ball) return;
         this.camera1.lookAt(0, 0, 0);
@@ -139,7 +141,7 @@ export class Pong {
         // this.camera2.position.x = this.paddle2.position.x + 200;  // Invertimos la dirección
         // this.camera2.position.y += (this.paddle2.position.y - this.camera2.position.y) * 0.05;
         // this.camera2.position.z = this.paddle2.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle2.position.x);
-    
+
         // Ajustar la orientación para que mire correctamente
 
         // this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
@@ -214,7 +216,7 @@ export class Pong {
 
         // Table border (for visibility)
         const table = new THREE.Mesh(
-            new THREE.BoxGeometry(this.field_x , this.field_y , this.field_z),
+            new THREE.BoxGeometry(this.field_x, this.field_y, this.field_z),
             tableMaterial
         );
         //table.position.x = 20;
@@ -236,10 +238,10 @@ export class Pong {
             new THREE.BoxGeometry(this.paddle_x, this.paddle_y, this.paddle_z),
             paddleMaterial
         );
-        
+
         let offset = 10;
 
-        this.paddle1.position.set( (-this.field_x / 2 + offset ) , table.position.y + offset, table.position.z / 2);
+        this.paddle1.position.set((-this.field_x / 2 + offset), table.position.y + offset, table.position.z / 2);
         this.paddle1.castShadow = true;
         this.paddle1.receiveShadow = true;
         this.scene.add(this.paddle1);
@@ -248,7 +250,7 @@ export class Pong {
             new THREE.BoxGeometry(this.paddle_x, this.paddle_y, this.paddle_z),
             paddle2Material
         );
-        this.paddle2.position.set( (this.field_x / 2 - offset) , table.position.y + offset, table.position.z / 2);
+        this.paddle2.position.set((this.field_x / 2 - offset), table.position.y + offset, table.position.z / 2);
         this.paddle2.castShadow = true;
         this.paddle2.receiveShadow = true;
         this.scene.add(this.paddle2);
@@ -302,16 +304,16 @@ export class Pong {
         this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
         this.scoreP1Text.createText((textMesh) => {
             this.scoreP1Mesh = textMesh;
-            if (this.state.currentState !== this.state.states.LOCALCOOP) { 
+            if (this.state.currentState !== this.state.states.LOCALCOOP) {
                 if (this.state.player2) {
                     this.scoreP1Mesh.rotation.y = -90 * Math.PI / 180;
                 } else {
                     this.scoreP1Mesh.rotation.y = 90 * Math.PI / 180;
                 }
-                
-            } 
-            else { 
-            // COOP VIEW FROM ABOVE
+
+            }
+            else {
+                // COOP VIEW FROM ABOVE
                 this.scoreP1Mesh.position.y = 5;
                 this.scoreP1Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
                 this.scoreP1Mesh.rotation.x = -90 * Math.PI / 180;
@@ -337,7 +339,7 @@ export class Pong {
                     this.scoreP2Mesh.rotation.y = 90 * Math.PI / 180;
                 }
             } else {
-            // COOP VIEW FROM ABOVE
+                // COOP VIEW FROM ABOVE
                 this.scoreP2Mesh.position.x -= 25;
                 this.scoreP2Mesh.position.y = 5;
                 this.scoreP2Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
@@ -387,8 +389,8 @@ export class Pong {
         }
 
         // update ball position over time
-        this.ball.position.x += this.ballDirX * this.ballSpeed;
-        this.ball.position.z += this.ballDirZ * this.ballSpeed;
+        this.ball.position.x += this.ballDirX * this.ballSpeed * this.deltaTime;
+        this.ball.position.z += this.ballDirZ * this.ballSpeed * this.deltaTime;
 
         // limit ball's y-speed to 2x the x-speed
         // this is so the ball doesn't speed from left to right super fast
@@ -405,7 +407,6 @@ export class Pong {
         // position the ball in the center of the table
         this.ball.position.x = 0;
         this.ball.position.z = 0;
-        this.ballSpeed = 2;
 
         // if player lost the last point, we send the ball to opponent
         if (loser == 1) {
@@ -436,12 +437,12 @@ export class Pong {
                     // stretch the paddle to indicate a hit
                     this.paddle1.scale.z = 1.3;
                     // switch direction of ball travel to create bounce
-                        //this.ballDirX = -this.ballDirX;
+                    //this.ballDirX = -this.ballDirX;
                     // we impact ball angle when hitting it
                     // this is not realistic physics, just spices up the gameplay
                     // allows you to 'slice' the ball to beat the opponent
-                        //this.ballDirZ -= this.paddle1DirZ * 0.7;
-                    
+                    //this.ballDirZ -= this.paddle1DirZ * 0.7;
+
                     let impact = (this.ball.position.z - this.paddle1.position.z) / (this.paddle_z / 2);
                     this.ballDirZ = impact * 1.5; // Ajustamos la inclinación del rebote
 
@@ -474,11 +475,11 @@ export class Pong {
                     // stretch the paddle to indicate a hit
                     this.paddle2.scale.z = 1.3;
                     // switch direction of ball travel to create bounce
-                        //this.ballDirX = -this.ballDirX;
+                    //this.ballDirX = -this.ballDirX;
                     // we impact ball angle when hitting it
                     // this is not realistic physics, just spices up the gameplay
                     // allows you to 'slice' the ball to beat the opponent
-                        //this.ballDirZ -= this.paddle2DirZ * 0.7;
+                    //this.ballDirZ -= this.paddle2DirZ * 0.7;
 
                     // Calculamos la desviación en función del punto de impacto
                     let impact = (this.ball.position.z - this.paddle2.position.z) / (this.paddle_z / 2);
@@ -513,7 +514,7 @@ export class Pong {
                     this.winnerText.rotation.y = 90 * Math.PI / 180;
                 }
             } else {
-            // COOP VIEW FROM ABOVE
+                // COOP VIEW FROM ABOVE
                 this.winnerText.position.y = 5;
                 this.winnerText.position.z = 0;
                 this.winnerText.position.x = -180;
@@ -566,13 +567,13 @@ export class Pong {
     gameStart() {
         if (this.starting) return false; // Prevent multiple calls
         this.starting = true;
-    
+
         let countdown = 5;
         this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 50, z: 6 }, 0xffffff, 50, 1);
-    
+
         this.countdownText.createText((textMesh) => {
             this.countdownMesh = textMesh;
-    
+
             if (this.state.currentState !== this.state.states.LOCALCOOP) {
                 if (this.state.player2) {
                     this.countdownMesh.rotation.y = -90 * Math.PI / 180;
@@ -580,21 +581,21 @@ export class Pong {
                     this.countdownMesh.rotation.y = 90 * Math.PI / 180;
                 }
             } else {
-            // COOP VIEW FROM ABOVE
+                // COOP VIEW FROM ABOVE
                 this.countdownMesh.position.y = 1;
                 this.countdownMesh.position.z = -10;
                 this.countdownMesh.position.x = -20;
                 this.countdownMesh.rotation.x = -90 * Math.PI / 180;
             }
             this.scene.add(this.countdownMesh);
-    
+
             const interval = setInterval(() => {
                 countdown--;
-    
+
                 if (countdown >= 0) {
                     this.countdownText.updateText(countdown.toString());
                 }
-    
+
                 if (countdown < 0) {
                     clearInterval(interval);
                     this.scene.remove(this.countdownMesh);
@@ -602,10 +603,10 @@ export class Pong {
                 }
             }, 1000);
         });
-    
+
         return false;
     }
-    
+
     update() {
         if (!this.paddle1 || !this.paddle2 || !this.ball) return;
 
@@ -618,7 +619,7 @@ export class Pong {
         else
             this.updateCameraPlayer1();
 
-        
+
         if (!this.start) {
             this.start = this.gameStart();
             return;
@@ -642,7 +643,7 @@ export class Pong {
             return this.camera1;
         if (this.state.player2)
             return this.camera2;
-        else 
+        else
             return this.camera1;
     }
 }

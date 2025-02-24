@@ -13,6 +13,10 @@ export class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        
+        // for game loop
+        this.deltaTime = 0;
+        this.fps = 30;
 
         document.body.appendChild(this.renderer.domElement);
 
@@ -137,19 +141,35 @@ export class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    
+
+    timeMs() {
+        if (this.initTime === 0) {
+            this.initTime = Date.now();
+        }
+        return (Date.now() - this.initTime);
+    }
+
     // TODO: Add 30 fps limit
     gameLoop() {
+        requestAnimationFrame(() => this.gameLoop()); // Always request the next frame
+    
+        const timeNow = Date.now();
+        this.deltaTime = (timeNow - this.lastUpdate) / 1000; // Convert to seconds
+        const timeUpdate = 1 / this.fps; // Frame duration in seconds
+    
+        if (this.deltaTime < timeUpdate) return;
+        this.lastUpdate = timeNow;
+    
         const currentScene = this.scenes[this.currentState]?.getScene();
         if (currentScene) {
             if (this.currentState === this.states.PLAY || 
                 this.currentState === this.states.MULTIPLAYER || 
-                this.currentState === this.states.LOCALCOOP) 
-            {
+                this.currentState === this.states.LOCALCOOP) {
                 this.scenes[this.currentState].update();
             }
             this.renderer.render(currentScene, this.camera);
         }
-        requestAnimationFrame(() => this.gameLoop());
     }
     
 }
