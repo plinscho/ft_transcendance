@@ -37,11 +37,21 @@ export class PlayerController {
 
     setupLocalControls() {
         window.addEventListener('keydown', (e) => {
-            this.activeKeys[e.key.toLowerCase()] = true;
+            const key = e.key.toLowerCase();
+            if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                this.activeKeys[e.key] = true;
+            } else {
+                this.activeKeys[key] = true;
+            }
         });
-
+    
         window.addEventListener('keyup', (e) => {
-            this.activeKeys[e.key.toLowerCase()] = false;
+            const key = e.key.toLowerCase();
+            if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                this.activeKeys[e.key] = false;
+            } else {
+                this.activeKeys[key] = false;
+            }
         });
     }
 
@@ -57,7 +67,6 @@ export class PlayerController {
 
         // Only 2 player COOP
         if (this.gameState.currentState === this.gameState.states.LOCALCOOP) {
-            console.log("HOliwis");
             this.localMovement();
         }
 
@@ -115,17 +124,17 @@ export class PlayerController {
             // Separar player 1 del 2
             if (this.paddle1 === this.playerMesh) {
                 if (this.activeKeys['w']) {
-                    this.directionZ = 1;
-                } else if (this.activeKeys['s']) {
                     this.directionZ = -1;
+                } else if (this.activeKeys['s']) {
+                    this.directionZ = 1;
                 } else {
                     this.directionZ = 0;
                 }
             } else {
-                if (this.activeKeys['ArrowUp']) {
-                    this.directionZ = 1;
-                } else if (this.activeKeys['ArrowDown']) {
+                if (this.activeKeys["ArrowUp"]) {
                     this.directionZ = -1;
+                } else if (this.activeKeys["ArrowDown"]) {
+                    this.directionZ = 1;
                 } else {
                     this.directionZ = 0;
                 }
