@@ -52,6 +52,8 @@ export class Pong {
         this.countdownMesh = null; // Stores the countdown mesh
 
         this.createBackground();
+
+        // Creates paddles + ball
         this.createScene();
 
         this.createScoreboard();
@@ -60,19 +62,14 @@ export class Pong {
         //player initialization
         this.player1 = new PlayerController(
             this.state,
-            this
+            this,
+            this.paddle1,
         );
 
         this.player2 = new PlayerController(
             this.state,
+            this,
             this.paddle2,
-            this.multiplayer,   // Multiplayer status
-            this.field_x,
-            5,                  // Paddle Speed
-            this.ball,          // Ball reference
-            this.networkManager, // Pass network manager if multiplayer
-            this.ballDirX,      // Ball direction on X axis
-            this.ballDirZ       // ^^ on Z axis
         );
 
 
@@ -576,7 +573,6 @@ export class Pong {
         return false;
     }
     
-    // Podemos controlar inputs?
     update() {
         if (!this.paddle1 || !this.paddle2 || !this.ball) return;
 
@@ -610,7 +606,6 @@ export class Pong {
     getCamera() {
         if (this.state.currentState === this.state.states.LOCALCOOP)
             return this.localcoopCamera
-
         if (this.state.player1)
             return this.camera1;
         if (this.state.player2)

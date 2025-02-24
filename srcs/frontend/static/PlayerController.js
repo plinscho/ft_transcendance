@@ -1,16 +1,26 @@
 import * as THREE from 'three';
 
 export class PlayerController {
-    constructor(gameState, pongState) {
+    constructor(gameState, pongState, playerMesh) {
         this.gameState = gameState;
+        // These are refences to both for future management (controls, etc.)
+        this.paddle1 = pongState.paddle1;
+        this.paddle2 = pongState.paddle2;
+        // This is pongState.paddle1 or pongState.paddle2
         this.playerMesh = playerMesh;
-        this.isMultiplayer = isMultiplayer;
-        this.networkManager = networkManager;
-        this.fieldHeight = fieldHeight;
-        this.paddleSpeed = paddleSpeed;
-        this.ball = ball; // Pass the ball for AI tracking
-        this.ballDirX = ballDirX;
-        this.ballDirY = ballDirY;
+
+        this.isMultiplayer = pongState.multiplayer;
+        this.networkManager = pongState.networkManager;
+
+        this.field_x = pongState.field_x;
+        this.field_y = pongState.field_y;
+        this.field_z = pongState.field_z;
+
+        this.paddleSpeed = 5;
+        this.ball = pongState.ball; // Pass the ball for AI tracking
+
+        this.ballDirX = pongState.ballDirX;
+        this.ballDirZ = pongState.ballDirZ;
 
         this.activeKeys = {};
         this.directionZ = 0;
@@ -19,7 +29,7 @@ export class PlayerController {
         this.acceleration = 0.4;
         this.difficulty = 0.7; // AI difficulty (higher = better tracking)
 
-        if (!this.isMultiplayer) {
+        if (this.gameState.currentState === this.gameState.states.PLAY) {
             this.setupAI();
         }
         this.setupLocalControls();
@@ -35,23 +45,6 @@ export class PlayerController {
         });
     }
 
-    // update() {
-    //     if (this.isMultiplayer) {
-    //         this.receiveMovement();
-    //         if (this.gameState.player1) {
-    //             this.localMovement();
-    //             this.sendMovement();  // Send player movement only if Player 1
-    //         }
-    //     } else {
-    //         if (this.gameState.player1) {
-    //             this.localMovement();
-    //         } else {
-    //             this.setupAI();
-    //         }
-    //     }
-    // }
-
-
     update() {
         // Only multiplayer
         if (this.isMultiplayer) {
@@ -61,13 +54,16 @@ export class PlayerController {
                 this.sendMovement();  // Send player movement only if Player 1
             }
         }
+
         // Only 2 player COOP
-        if (this.gameState.curretState === this.gameState.states.LOCALCOOP) {
+        if (this.gameState.currentState === this.gameState.states.LOCALCOOP) {
+            console.log("HOliwis");
+            this.localMovement();
         }
 
         // IA
-        if (this.gameState.curretState === this.gameState.states.PLAY) {
-            if (this.gameState.player1) {
+        if (this.gameState.currentState === this.gameState.states.PLAY) {
+            if (this.paddle1 === this.playerMesh) {
                 this.localMovement();
             } else {
                 this.setupAI();
@@ -77,16 +73,11 @@ export class PlayerController {
 
 
 
+    // PLAY + MULTIPLAYER + TOURNAMENT CONTROLS
     localMovement() {
         if (!this.playerMesh) return;
 
-        if (this.activeKeys['a']) {
-            this.directionZ = 1;
-        } else if (this.activeKeys['d']) {
-            this.directionZ = -1;
-        } else {
-            this.directionZ = 0;
-        }
+        this.playerActiveKeys();
 
         if (this.directionZ !== 0) {
             this.velocity += this.directionZ * this.acceleration;
@@ -100,7 +91,7 @@ export class PlayerController {
 
         const newZ = this.playerMesh.position.z + this.velocity;
 
-        if (newZ < this.fieldHeight * 0.45 && newZ > -this.fieldHeight * 0.45) {
+        if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
             this.playerMesh.position.z = newZ;
         } else {
             this.velocity = 0;
@@ -109,6 +100,37 @@ export class PlayerController {
         // Smooth scaling effect
         this.playerMesh.scale.z += (1 - this.playerMesh.scale.z) * 0.2;
         this.playerMesh.scale.x += (1 - this.playerMesh.scale.x) * 0.2;
+    }
+
+    playerActiveKeys() {
+        if (this.gameState.currentState !== this.gameState.states.LOCALCOOP) {
+            if (this.activeKeys['a']) {
+                this.directionZ = 1;
+            } else if (this.activeKeys['d']) {
+                this.directionZ = -1;
+            } else {
+                this.directionZ = 0;
+            }
+        } else {
+            // Separar player 1 del 2
+            if (this.paddle1 === this.playerMesh) {
+                if (this.activeKeys['w']) {
+                    this.directionZ = 1;
+                } else if (this.activeKeys['s']) {
+                    this.directionZ = -1;
+                } else {
+                    this.directionZ = 0;
+                }
+            } else {
+                if (this.activeKeys['ArrowUp']) {
+                    this.directionZ = 1;
+                } else if (this.activeKeys['ArrowDown']) {
+                    this.directionZ = -1;
+                } else {
+                    this.directionZ = 0;
+                }
+            }
+        }
     }
 
     setupAI() {
