@@ -12,7 +12,6 @@ export const updateUITexts = () => {
             console.error(`Language ${currentLanguage} not found`);
             return;
         }
-
         // Update lang export
         Object.assign(lang, texts);
         
