@@ -573,10 +573,18 @@ export class Pong {
         this.countdownText.createText((textMesh) => {
             this.countdownMesh = textMesh;
     
-            if (this.state.player2) {
-                this.countdownMesh.rotation.y = -90 * Math.PI / 180;
+            if (this.state.currentState !== this.state.states.LOCALCOOP) {
+                if (this.state.player2) {
+                    this.countdownMesh.rotation.y = -90 * Math.PI / 180;
+                } else {
+                    this.countdownMesh.rotation.y = 90 * Math.PI / 180;
+                }
             } else {
-                this.countdownMesh.rotation.y = 90 * Math.PI / 180;
+            // COOP VIEW FROM ABOVE
+                this.countdownMesh.position.y = 1;
+                this.countdownMesh.position.z = -10;
+                this.countdownMesh.position.x = -20;
+                this.countdownMesh.rotation.x = -90 * Math.PI / 180;
             }
             this.scene.add(this.countdownMesh);
     
