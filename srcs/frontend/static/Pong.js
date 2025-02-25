@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { PlayerController } from './PlayerController.js';
 
+const BALL_SPEED = 200;
+
 export class Pong {
     constructor(state, multiplayer, networkManager, localcoop) {
         this.scene = new THREE.Scene();
@@ -36,7 +38,7 @@ export class Pong {
         // ball
         this.ballDirZ = -1;
         this.ballDirX = -1;
-        this.ballSpeed = 300;
+        this.ballSpeed = BALL_SPEED;
 
         // scores
         this.scoreP1Text = null;
@@ -408,6 +410,8 @@ export class Pong {
         // position the ball in the center of the table
         this.ball.position.x = 0;
         this.ball.position.z = 0;
+        this.ballSpeed = BALL_SPEED;
+
 
         // if player lost the last point, we send the ball to opponent
         if (loser == 1) {

@@ -127,9 +127,9 @@ export class PlayerController {
             // Separar player 1 del 2
             if (this.paddle1 === this.playerMesh) {
                 if (this.activeKeys['w']) {
-                    this.directionZ = 1;
-                } else if (this.activeKeys['s']) {
                     this.directionZ = -1;
+                } else if (this.activeKeys['s']) {
+                    this.directionZ = 1;
                 } else {
                     this.directionZ = 0;
                 }
@@ -155,9 +155,12 @@ export class PlayerController {
         // Lerp AI paddle position towards the ball
         let aiMovement = (targetZ - this.playerMesh.position.z) * this.difficulty * reactionDelay;
     
+        aiMovement *= this.deltaTime;
+        const maxSpeed = this.paddleSpeed * this.deltaTime;
         // Clamp AI speed to prevent unnatural movement
-        if (Math.abs(aiMovement) > this.paddleSpeed * this.deltaTime) {
-            aiMovement = this.paddleSpeed * this.deltaTime * Math.sign(aiMovement);
+        if (Math.abs(aiMovement) > maxSpeed) {
+            aiMovement = this.paddleSpeed * Math.sign(aiMovement);
+            //aiMovement = this.paddleSpeed * this.deltaTime * Math.sign(aiMovement);
         }
     
         // Apply movement within field limits
