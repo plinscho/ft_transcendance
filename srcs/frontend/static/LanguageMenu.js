@@ -30,7 +30,7 @@ export class LanguageMenu {
             0xffd300,
             0xde38c8,
         ];
-        
+
         this.createLanguageMenu();
         this.setupEvents();
         window.addEventListener('resize', this.resize.bind(this));
@@ -87,10 +87,10 @@ export class LanguageMenu {
                 const buttonGroup = new THREE.Group();
                 buttonGroup.add(textMesh);
                 buttonGroup.add(hitbox);
-                buttonGroup.userData = { 
+                buttonGroup.userData = {
                     onClick: button.onClick,
                     type: 'language',
-                    code: lang.code 
+                    code: lang.code
                 };
 
                 this.scene.add(buttonGroup);
@@ -121,9 +121,9 @@ export class LanguageMenu {
             const buttonGroup = new THREE.Group();
             buttonGroup.add(textMesh);
             buttonGroup.add(hitbox);
-            buttonGroup.userData = { 
+            buttonGroup.userData = {
                 onClick: backButton.onClick,
-                type: 'back' 
+                type: 'back'
             };
 
             this.scene.add(buttonGroup);
@@ -239,33 +239,30 @@ export class LanguageMenu {
         try {
             // 1. Actualizar el idioma en el backend
             const response = await updateLanguage(langCode);
+    
             if (response && response.language) {
-                // 2. Actualizar el estado local
+                // 2. Actualizar el estado local inmediatamente
                 state.data.language = langCode;
                 
-                // 3. Cargar los nuevos datos y esperar a que terminen
-                await loadData();
-                
-                // 4. Esperar a que se actualicen los textos de la UI
+                // 3. Actualizar también localStorage
+                localStorage.setItem('userLanguage', langCode);
+    
+                // 4. Actualizar los textos de la UI
                 await updateUITexts();
-                
-                // 5. Esperar un momento para asegurar que todo está listo
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // 6. Recargar el menú principal
+    
+                // 5. Recargar el menú principal si existe
                 if (this.game.scenes.menu) {
-                    this.game.scenes.menu.handleLanguageChange();
+                    await this.game.scenes.menu.handleLanguageChange();
                 }
-                
-                // 7. Finalmente, cambiar la escena
-                this.game.loadScene(this.game.states.MENU);
+    
+                // 6. Cambiar la escena
+                this.game.loadScene(this.game.states.MENU)
                 this.setActive(false);
             }
         } catch (error) {
             console.error('Error changing language:', error);
         }
     }
-    
     getScene() {
         return this.scene;
     }
