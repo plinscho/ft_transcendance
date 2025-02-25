@@ -1,0 +1,111 @@
+/* General styles */
+html, main {
+    background-color: #424242;
+}
+
+p, label, h1, h2, h3, h4, h5, h6 {
+    color: #fff !important;
+}
+
+.invisible {
+    display: none;
+}
+
+/* Centering the views */
+.center {
+    margin: auto;
+    margin-top: 1px;
+    width: 100%;
+    border: 3px solid rgb(11, 156, 240);
+    padding: 10px;
+}
+
+/* Styling the views */
+.view {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    background-color: #424242;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.view h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+.view p {
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+    color: #666;
+}
+
+.view a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.view a:hover {
+    text-decoration: underline;
+}
+
+/* Form styles */
+.form-outline {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+    color: #333333;
+}
+
+.form-control {
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    border: 1px solid #268aee;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    background-color: #5e5d5d;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+#view-ready {
+    display: flex;
+    align-items: center;
+    padding: 0rem;
+}
+
+#loginForm, #registerForm, #2fa {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center the forms vertically */
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
