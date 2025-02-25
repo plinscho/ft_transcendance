@@ -1,208 +1,276 @@
 import * as THREE from 'three';
 
 export class PlayerController {
-    constructor(gameState, pongState, playerMesh, isPlayerOne) {
-        this.gameState = gameState;
-        // These are refences to both for future management (controls, etc.)
-        this.paddle1 = pongState.paddle1;
-        this.paddle2 = pongState.paddle2;
+	constructor(gameState, pongState, playerMesh, isPlayerOne) {
+		this.gameState = gameState;
+		// These are refences to both for future management (controls, etc.)
+		this.paddle1 = pongState.paddle1;
+		this.paddle2 = pongState.paddle2;
 
-        this.deltaTime = gameState.deltaTime;
-        // This is pongState.paddle1 or pongState.paddle2
-        this.playerMesh = playerMesh;
+		this.deltaTime = gameState.deltaTime;
+		// This is pongState.paddle1 or pongState.paddle2
+		this.playerMesh = playerMesh;
 
-        // This is for AI
-        this.isPlayerOne = isPlayerOne;
+		// This is for AI
+		this.isPlayerOne = isPlayerOne;
 
-        this.isMultiplayer = pongState.multiplayer;
-        this.networkManager = pongState.networkManager;
+		this.isMultiplayer = pongState.multiplayer;
+		this.networkManager = pongState.networkManager;
 
-        this.field_x = pongState.field_x;
-        this.field_y = pongState.field_y;
-        this.field_z = pongState.field_z;
+		this.field_x = pongState.field_x;
+		this.field_y = pongState.field_y;
+		this.field_z = pongState.field_z;
 
-        this.paddleSpeed = 5;
-        this.ball = pongState.ball; // Pass the ball for AI tracking
+		this.paddleSpeed = 5;
+		this.ball = pongState.ball; // Pass the ball for AI tracking
 
-        this.ballDirX = pongState.ballDirX;
-        this.ballDirZ = pongState.ballDirZ;
+		this.ballDirX = pongState.ballDirX;
+		this.ballDirZ = pongState.ballDirZ;
 
-        this.activeKeys = {};
-        this.directionZ = 0;
-        this.velocity = 5;
-        this.friction = 0.8;
-        this.acceleration = 0.4;
-        this.difficulty = 1; // AI difficulty (higher = better tracking)
+		this.activeKeys = {};
+		this.directionZ = 0;
+		this.velocity = 5;
+		this.friction = 0.8;
+		this.acceleration = 0.4;
+		this.difficulty = 1; // AI difficulty (higher = better tracking)
 
-        if (this.gameState.currentState === this.gameState.states.PLAY) {
-            this.setupAI();
-        }
-        this.setupLocalControls();
-    }
+		if (this.gameState.currentState === this.gameState.states.PLAY) {
+			this.setupAI();
+		}
+		this.setupLocalControls();
 
-    setupLocalControls() {
-        window.addEventListener('keydown', (e) => {
-            const key = e.key.toLowerCase();
-            if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-                this.activeKeys[e.key] = true;
-            } else {
-                this.activeKeys[key] = true;
-            }
-        });
-    
-        window.addEventListener('keyup', (e) => {
-            const key = e.key.toLowerCase();
-            if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-                this.activeKeys[e.key] = false;
-            } else {
-                this.activeKeys[key] = false;
-            }
-        });
-    }
+		if (this.isMultiplayer) {
+			if (this.gameState.player1)
+				this.startSendingMovement();
+			else
+				this.startSendingMovement();
+		}
+	}
 
-    update() {
-        // Only multiplayer
-        if (this.isMultiplayer) {
-            this.localMovement();
-            this.sendMovement();
-            this.receiveMovement();
-        }
+	setupLocalControls() {
+		window.addEventListener('keydown', (e) => {
+			const key = e.key.toLowerCase();
+			if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+				this.activeKeys[e.key] = true;
+			} else {
+				this.activeKeys[key] = true;
+			}
+		});
+	
+		window.addEventListener('keyup', (e) => {
+			const key = e.key.toLowerCase();
+			if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+				this.activeKeys[e.key] = false;
+			} else {
+				this.activeKeys[key] = false;
+			}
+		});
+	}
 
-        // Only 2 player COOP
-        if (this.gameState.currentState === this.gameState.states.LOCALCOOP) {
-            this.localMovement();
-        }
+	update() {
+		// Only multiplayer
+		if (this.isMultiplayer) {
+			if (this.gameState.player1) {
+				this.localMovement();
+				//this.sendMovement();
+				this.receiveMovement();
+			}
+			else
+			{
+				this.localMovement();
+				//this.sendMovement();
+				this.receiveMovement();
+			}
+		}
 
-        // IA
-        if (this.gameState.currentState === this.gameState.states.PLAY) {
-            if (this.isPlayerOne) {
-                this.localMovement();
-            } else {
-                this.setupAI();
-            }
-        }
-    }
+		// Only 2 player COOP
+		if (this.gameState.currentState === this.gameState.states.LOCALCOOP) {
+			this.localMovement();
+		}
 
+		// IA
+		if (this.gameState.currentState === this.gameState.states.PLAY) {
+			if (this.isPlayerOne) {
+				this.localMovement();
+			} else {
+				this.setupAI();
+			}
+		}
+	}
 
+	// PLAY + MULTIPLAYER + TOURNAMENT CONTROLS
+	localMovement() {
+		if (!this.playerMesh) return;
 
-    // PLAY + MULTIPLAYER + TOURNAMENT CONTROLS
-    localMovement() {
-        if (!this.playerMesh) return;
+		this.playerActiveKeys();
 
-        this.playerActiveKeys();
+		if (this.directionZ !== 0) {
+			this.velocity += this.directionZ * this.acceleration;
+		} else {
+			this.velocity *= this.friction;
+		}
 
-        if (this.directionZ !== 0) {
-            this.velocity += this.directionZ * this.acceleration;
-        } else {
-            this.velocity *= this.friction;
-        }
+		if (Math.abs(this.velocity) > this.paddleSpeed) {
+			this.velocity = this.paddleSpeed * Math.sign(this.velocity);
+		}
 
-        if (Math.abs(this.velocity) > this.paddleSpeed) {
-            this.velocity = this.paddleSpeed * Math.sign(this.velocity);
-        }
+		const newZ = this.playerMesh.position.z + this.velocity;
 
-        const newZ = this.playerMesh.position.z + this.velocity;
+		if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
+			this.playerMesh.position.z = newZ;
+		} else {
+			this.velocity = 0;
+		}
 
-        if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
-            this.playerMesh.position.z = newZ;
-        } else {
-            this.velocity = 0;
-        }
+		// Smooth scaling effect
+		this.playerMesh.scale.z += (1 - this.playerMesh.scale.z) * 0.2;
+		this.playerMesh.scale.x += (1 - this.playerMesh.scale.x) * 0.2;
+	}
 
-        // Smooth scaling effect
-        this.playerMesh.scale.z += (1 - this.playerMesh.scale.z) * 0.2;
-        this.playerMesh.scale.x += (1 - this.playerMesh.scale.x) * 0.2;
-    }
+	playerActiveKeys() {
+		if (this.gameState.currentState !== this.gameState.states.LOCALCOOP) {
+			if (this.gameState.player1) {
+				if (this.activeKeys['a']) {
+					this.directionZ = -1;
+				} else if (this.activeKeys['d']) {
+					this.directionZ = 1;
+				} else {
+					this.directionZ = 0;
+				}
+			}
+			else {
+				if (this.activeKeys['a']) {
+					this.directionZ = 1;
+				} else if (this.activeKeys['d']) {
+					this.directionZ = -1;
+				} else {
+					this.directionZ = 0;
+				}
+			}
+			
+		} else {
+			// Separar player 1 del 2
+			if (this.paddle1 === this.playerMesh) {
+				if (this.activeKeys['w']) {
+					this.directionZ = -1;
+				} else if (this.activeKeys['s']) {
+					this.directionZ = 1;
+				} else {
+					this.directionZ = 0;
+				}
+			} else {
+				if (this.activeKeys["ArrowUp"]) {
+					this.directionZ = -1;
+				} else if (this.activeKeys["ArrowDown"]) {
+					this.directionZ = 1;
+				} else {
+					this.directionZ = 0;
+				}
+			}
+		}
+	}
 
-    playerActiveKeys() {
-        if (this.gameState.currentState !== this.gameState.states.LOCALCOOP) {
-            if (this.activeKeys['a']) {
-                this.directionZ = -1;
-            } else if (this.activeKeys['d']) {
-                this.directionZ = 1;
-            } else {
-                this.directionZ = 0;
-            }
-        } else {
-            // Separar player 1 del 2
-            if (this.paddle1 === this.playerMesh) {
-                if (this.activeKeys['w']) {
-                    this.directionZ = -1;
-                } else if (this.activeKeys['s']) {
-                    this.directionZ = 1;
-                } else {
-                    this.directionZ = 0;
-                }
-            } else {
-                if (this.activeKeys["ArrowUp"]) {
-                    this.directionZ = -1;
-                } else if (this.activeKeys["ArrowDown"]) {
-                    this.directionZ = 1;
-                } else {
-                    this.directionZ = 0;
-                }
-            }
-        }
-    }
+	setupAI() {
+		if (!this.ball || !this.playerMesh) return;
+	
+		// AI reaction delay factor (randomized for more challenge)
+		const reactionDelay = Math.random() * 0.2 + 0.1; // Between 0.1 and 0.3
+		const targetZ = this.ball.position.z;
+	
+		// Lerp AI paddle position towards the ball
+		let aiMovement = (targetZ - this.playerMesh.position.z) * this.difficulty * reactionDelay;
+	
+		aiMovement *= this.deltaTime;
+		const maxSpeed = this.paddleSpeed * this.deltaTime;
+		// Clamp AI speed to prevent unnatural movement
+		if (Math.abs(aiMovement) > maxSpeed) {
+			aiMovement = this.paddleSpeed * Math.sign(aiMovement);
+			//aiMovement = this.paddleSpeed * this.deltaTime * Math.sign(aiMovement);
+		}
+	
+		// Apply movement within field limits
+		const newZ = this.playerMesh.position.z + aiMovement;
+		if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
+			this.playerMesh.position.z = newZ;
+		}
+	
+		// Smooth scaling effect
+		this.playerMesh.scale.z += (1 - this.playerMesh.scale.z) * 0.2;
+	}
+	
+	startSendingMovement() {
+		if (!this.networkManager) return;
 
-    setupAI() {
-        if (!this.ball || !this.playerMesh) return;
-    
-        // AI reaction delay factor (randomized for more challenge)
-        const reactionDelay = Math.random() * 0.2 + 0.1; // Between 0.1 and 0.3
-        const targetZ = this.ball.position.z;
-    
-        // Lerp AI paddle position towards the ball
-        let aiMovement = (targetZ - this.playerMesh.position.z) * this.difficulty * reactionDelay;
-    
-        aiMovement *= this.deltaTime;
-        const maxSpeed = this.paddleSpeed * this.deltaTime;
-        // Clamp AI speed to prevent unnatural movement
-        if (Math.abs(aiMovement) > maxSpeed) {
-            aiMovement = this.paddleSpeed * Math.sign(aiMovement);
-            //aiMovement = this.paddleSpeed * this.deltaTime * Math.sign(aiMovement);
-        }
-    
-        // Apply movement within field limits
-        const newZ = this.playerMesh.position.z + aiMovement;
-        if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
-            this.playerMesh.position.z = newZ;
-        }
-    
-        // Smooth scaling effect
-        this.playerMesh.scale.z += (1 - this.playerMesh.scale.z) * 0.2;
-    }
-    
+		this.movementInterval = setInterval(() => {
+			this.sendMovement();
+		}, 1000);
+	}
 
-    sendMovement() {
-        if (!this.networkManager) return;
-        let data = {
-            type: "MOVE",
-            player: this.gameState.apiState.data.username,
-            x: this.playerMesh.position.x,
-            y: this.playerMesh.position.y,
-            z: this.playerMesh.position.z,
-            ballX: this.ball.position.x,
-            ballY: this.ball.position.y,
-            ballZ: this.ball.position.z,
-            ballDirX: this.ballDirX,
-            ballDirY: this.ballDirY
-        }
-        this.networkManager.sendData(data);
-    }
+	stopSendingMovement() {
+		clearInterval(this.movementInterval);
+	}
 
-    receiveMovement() {
-        if (!this.networkManager) return;
+	sendMovement() {
+		if (!this.networkManager) return;
 
-        this.networkManager.onMessage((data) => {
-            if (data.type === "MOVE") {
-                this.playerMesh.position.set(data.x, data.y, data.z);
-                if (this.ball) {
-                    //this.ball.position.set(data.ballX, data.ballY, data.ballZ);
-                    this.ballDirX = data.ballDirX;
-                    this.ballDirY = data.ballDirY;
-                }
-            }
-        });
-    }
+		let data;
+
+		if (this.gameState.player1)
+		{
+			data = {
+				type: "MOVE",
+				player: this.gameState.apiState.data.username,
+				x: this.paddle1.position.x,
+				y: this.paddle1.position.y,
+				z: this.paddle1.position.z,
+				ballX: this.ball.position.x,
+				ballY: this.ball.position.y,
+				ballZ: this.ball.position.z,
+				ballDirX: this.ballDirX,
+				ballDirY: this.ballDirY
+			};
+		}
+		else
+		{
+			data = {
+				type: "MOVE",
+				player: this.gameState.apiState.data.username,
+				x: this.paddle2.position.x,
+				y: this.paddle2.position.y,
+				z: this.paddle2.position.z,
+				ballX: this.ball.position.x,
+				ballY: this.ball.position.y,
+				ballZ: this.ball.position.z,
+				ballDirX: this.ballDirX,
+				ballDirY: this.ballDirY
+			};
+		}
+		this.networkManager.sendData(data);
+	}
+
+	receiveMovement() {
+		if (!this.networkManager) return;
+
+		this.networkManager.onMessage((data) => {
+			if (data.type === "MOVE") {
+				
+				if (this.gameState.player1)
+				{
+					this.paddle2.position.set(data.x, data.y, data.z);
+					console.log("Player 1 data: " + data);
+				}
+				else
+				{
+					this.paddle1.position.set(data.x, data.y, data.z);
+					console.log("Player 2 data: " + data);
+				}
+				if (this.ball) {
+					//this.ball.position.set(data.ballX, data.ballY, data.ballZ);
+					this.ballDirX = data.ballDirX;
+					this.ballDirY = data.ballDirY;
+				}
+				console.log(this.gameState.player1, this.gameState.player2)
+			}
+		});
+	}
 }

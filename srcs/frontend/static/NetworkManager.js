@@ -21,7 +21,7 @@ export class NetworkManager {
         }    
         this.socket.onmessage = (msg) => {
             const data = JSON.parse(msg.data);
-            console.log("Server data:", data);
+            //console.log("Server data:", data);
 
             if (this.messageCallback) {
                 this.messageCallback(data);

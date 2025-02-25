@@ -541,6 +541,11 @@ export class Pong {
             this.networkManager.disconnect();
             this.active = false;
             window.removeEventListener('keydown', this.boundEscapeHandler);
+            
+            if (this.state.playe1)
+                this.player1.stopSendingMovement();
+            else
+                this.player2.stopSendingMovement();
         }
         delete this.player1;
         delete this.player2;
