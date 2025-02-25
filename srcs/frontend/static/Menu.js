@@ -252,12 +252,10 @@ export class Menu {
         });
     }
 
-    // Add dispose method to clean up
     dispose() {
         window.removeEventListener('languageChanged', this.handleLanguageChange);
         this.clearScene();
     }
-
 
     getScene() {
         return this.scene;
