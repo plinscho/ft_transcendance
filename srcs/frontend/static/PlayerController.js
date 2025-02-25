@@ -129,7 +129,7 @@ export class PlayerController {
 
 	playerActiveKeys() {
 		if (this.gameState.currentState !== this.gameState.states.LOCALCOOP) {
-			if (this.gameState.player1) {
+			if (this.gameState.player1 || this.gameState.currentState === this.gameState.states.PLAY) {
 				if (this.activeKeys['a']) {
 					this.directionZ = -1;
 				} else if (this.activeKeys['d']) {
@@ -257,12 +257,12 @@ export class PlayerController {
 				if (this.gameState.player1)
 				{
 					this.paddle2.position.set(data.x, data.y, data.z);
-					console.log("Player 1 data: " + data);
+					console.log("Player 1 data: " + JSON.stringify(data));
 				}
 				else
 				{
 					this.paddle1.position.set(data.x, data.y, data.z);
-					console.log("Player 2 data: " + data);
+					console.log("Player 2 data: " + JSON.stringify(data));
 				}
 				if (this.ball) {
 					//this.ball.position.set(data.ballX, data.ballY, data.ballZ);
