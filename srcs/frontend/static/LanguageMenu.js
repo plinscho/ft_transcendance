@@ -6,8 +6,8 @@ import { state } from './state.js';
 import { loadData } from './api.js';
 
 export class LanguageMenu {
-    constructor(game) {
-        this.game = game;
+    constructor(state) {
+        this.game = state;
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x424242);
         this.camera = this.createCamera();
@@ -73,6 +73,7 @@ export class LanguageMenu {
                 async () => {
                     if (this.active) {
                         await this.handleLanguageChange(lang.code);
+                        this.setActive(false);
                     }
                 }
             );
@@ -106,6 +107,7 @@ export class LanguageMenu {
             () => {
                 if (this.active) {
                     this.game.loadScene(this.game.states.MENU);
+                    this.setActive(false);
                 }
             }
         );
@@ -192,6 +194,7 @@ export class LanguageMenu {
                     break;
                 case 'Escape':
                     this.game.loadScene(this.game.states.MENU);
+                    this.setActive(false);    
                     break;
             }
         });
@@ -256,6 +259,7 @@ export class LanguageMenu {
                 
                 // 7. Finalmente, cambiar la escena
                 this.game.loadScene(this.game.states.MENU);
+                this.setActive(false);
             }
         } catch (error) {
             console.error('Error changing language:', error);

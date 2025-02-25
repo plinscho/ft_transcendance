@@ -87,8 +87,32 @@ export const register = async (username, email, password) => {
     }
 };
 
+// export const logout = () => {
+//     localStorage.removeItem('authToken');
+//     location.reload();
+// };
+
+// Función de logout (si está en algún archivo)
 export const logout = () => {
+    // Guardar el idioma antes de limpiar
+    const currentLanguage = localStorage.getItem('userLanguage');
+    
+    // Limpiar autenticación
     localStorage.removeItem('authToken');
+    // Otros limpiezas necesarias
+    
+    // Restaurar el idioma
+    if (currentLanguage) {
+        localStorage.setItem('userLanguage', currentLanguage);
+    }
+    
+    // Actualizar estado
+    state.authenticated = false;
+    state.data = { 
+        language: currentLanguage || 'en' 
+    };
+    
+    // Recargar o redirigir
     location.reload();
 };
 
