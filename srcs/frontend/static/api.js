@@ -40,8 +40,8 @@ export const loadData = async () => {
 		...state.data,
 		...data
 	  };
-	  // Actualizar los textos de la UI cuando cambia el idioma
-	  updateUITexts();
+	  // Actualizar los textos de la UI cuando cambia el idioma - AHORA CON AWAIT
+	  await updateUITexts();
 	}
 	
 	state.error = false;
@@ -60,29 +60,32 @@ export const loadData = async () => {
 };
 
 export const updateLanguage = async (language) => {
-  try {
-	  const response = await fetch(URL + '/api/user/update-language/', {
-		  method: 'PATCH',
-		  headers: {
-			  'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-			  'Content-Type': 'application/json',
-		  },
-		  body: JSON.stringify({ language })
-	  });
-
-	  if (response.ok) {
-		  const data = await response.json();
-		  state.data.language = data.language;
-		  
-		  // Disparar un evento personalizado para notificar el cambio de idioma
-		  window.dispatchEvent(new Event('languageChanged'));
-		  
-		  return data;
-	  } else {
-		  throw new Error('Failed to update language');
-	  }
-  } catch (error) {
-	  console.error('Error:', error);
-	  throw error;
-  }
-};
+	try {
+		const response = await fetch(URL + '/api/user/update-language/', {
+			method: 'PATCH',
+			headers: {
+				'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ language })
+		});
+  
+		if (response.ok) {
+			const data = await response.json();
+			state.data.language = data.language;
+			
+			// Actualizar también localStorage
+			localStorage.setItem('userLanguage', data.language);
+			
+			// Disparar un evento personalizado para notificar el cambio de idioma
+			window.dispatchEvent(new Event('languageChanged'));
+			
+			return data;
+		} else {
+			throw new Error('Failed to update language');
+		}
+	} catch (error) {
+		console.error('Error:', error);
+		throw error;
+	}
+  };
