@@ -65,12 +65,14 @@ export class Pong {
             this.state,
             this,
             this.paddle1,
+            true
         );
 
         this.player2 = new PlayerController(
             this.state,
             this,
             this.paddle2,
+            false // variable solo para VS IA
         );
 
 
@@ -87,7 +89,7 @@ export class Pong {
     createCamera1() {
         //Camara player1
         const camera1 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera1.position.set(400, 200, 0); // Start behind Paddle1
+        camera1.position.set(-400, 200, 0); // Start behind Paddle1
         camera1.lookAt(new THREE.Vector3(0, 0, 0));
 
         return camera1;
@@ -96,7 +98,7 @@ export class Pong {
     createCamera2() {
         //Camara player2
         const camera2 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera2.position.set(-400, 200, 0); // Posición detrás del paddle 2, en el lado opuesto
+        camera2.position.set(400, 200, 0); // Posición detrás del paddle 2, en el lado opuesto
         camera2.lookAt(new THREE.Vector3(0, 0, 0));
 
         return camera2;
@@ -105,7 +107,6 @@ export class Pong {
 
     updateCameraPlayer1() {
         if (!this.camera1 || !this.paddle1 || !this.ball) return;
-
         this.camera1.lookAt(0, 0, 0);
         // Move camera behind Paddle1
         //this.camera1.position.x = this.paddle1.position.x - 200;
@@ -121,7 +122,7 @@ export class Pong {
     updateCameraPlayer2() {
         if (!this.camera2 || !this.paddle2 || !this.ball) return;
 
-        this.camera1.lookAt(0, 0, 0);
+        this.camera2.lookAt(0, 0, 0);
         // Posición de la cámara detrás de Paddle2 (invertida respecto a Player 1)
         // this.camera2.position.x = this.paddle2.position.x + 200;  // Invertimos la dirección
         // this.camera2.position.y += (this.paddle2.position.y - this.camera2.position.y) * 0.05;
@@ -190,7 +191,7 @@ export class Pong {
     createScene() {
         const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x00ffff });
         const tableMaterial = new THREE.MeshLambertMaterial({ color: 0x440066 });
-        const paddleMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
+        const paddleMaterial = new THREE.MeshLambertMaterial({ color: 0xff66ff });
         const paddle2Material = new THREE.MeshLambertMaterial({ color: 0xffffff });
         const ballMaterial = new THREE.MeshLambertMaterial({ color: 0xD43001 });
 
@@ -306,9 +307,9 @@ export class Pong {
             this.scoreP1Mesh = textMesh;
             if (this.state.currentState !== this.state.states.LOCALCOOP) {
                 if (this.state.player2) {
-                    this.scoreP1Mesh.rotation.y = -90 * Math.PI / 180;
-                } else {
                     this.scoreP1Mesh.rotation.y = 90 * Math.PI / 180;
+                } else {
+                    this.scoreP1Mesh.rotation.y = -90 * Math.PI / 180;
                 }
 
             }
@@ -334,9 +335,9 @@ export class Pong {
             this.scoreP2Mesh = textMesh;
             if (this.state.currentState !== this.state.states.LOCALCOOP) {
                 if (this.state.player2) {
-                    this.scoreP2Mesh.rotation.y = -90 * Math.PI / 180;
-                } else {
                     this.scoreP2Mesh.rotation.y = 90 * Math.PI / 180;
+                } else {
+                    this.scoreP2Mesh.rotation.y = -90 * Math.PI / 180;
                 }
             } else {
                 // COOP VIEW FROM ABOVE
@@ -503,15 +504,15 @@ export class Pong {
     }
 
     createWinnerBanner(text) {
-        const winnerText = new Text3D(text, { x: 0, y: 50, z: 180 }, 0xffffff, 40, 1);
+        const winnerText = new Text3D(text, { x: 0, y: 50, z: -180 }, 0xffffff, 40, 1);
 
         winnerText.createText((textMesh) => {
             this.winnerText = textMesh;
             if (this.state.currentState !== this.state.states.LOCALCOOP) {
                 if (this.state.player2) {
-                    this.winnerText.rotation.y = -90 * Math.PI / 180;
-                } else {
                     this.winnerText.rotation.y = 90 * Math.PI / 180;
+                } else {
+                    this.winnerText.rotation.y = -90 * Math.PI / 180;
                 }
             } else {
                 // COOP VIEW FROM ABOVE
@@ -576,9 +577,9 @@ export class Pong {
 
             if (this.state.currentState !== this.state.states.LOCALCOOP) {
                 if (this.state.player2) {
-                    this.countdownMesh.rotation.y = -90 * Math.PI / 180;
-                } else {
                     this.countdownMesh.rotation.y = 90 * Math.PI / 180;
+                } else {
+                    this.countdownMesh.rotation.y = -90 * Math.PI / 180;
                 }
             } else {
                 // COOP VIEW FROM ABOVE
@@ -610,15 +611,18 @@ export class Pong {
     update() {
         if (!this.paddle1 || !this.paddle2 || !this.ball) return;
 
-        if (this.state.currentState === this.state.states.LOCALCOOP)
+        if (this.state.currentState === this.state.states.PLAY) {
+            this.updateCameraPlayer1();
+        } else if (this.state.currentState === this.state.states.LOCALCOOP) {
             this.updateLocalCoopCamera();
-        if (this.state.player1)
+        } else if (this.state.player1) {
             this.updateCameraPlayer1();
-        else if (this.state.player2)
+        } else if (this.state.player2) {
             this.updateCameraPlayer2();
-        else
+        } else {
             this.updateCameraPlayer1();
-
+        }
+        
 
         if (!this.start) {
             this.start = this.gameStart();
@@ -638,12 +642,13 @@ export class Pong {
 
     getCamera() {
         if (this.state.currentState === this.state.states.LOCALCOOP)
-            return this.localcoopCamera
+            return this.localcoopCamera;
+        if (this.state.currentState === this.state.states.PLAY)
+            return this.camera1;
         if (this.state.player1)
             return this.camera1;
         if (this.state.player2)
             return this.camera2;
-        else
-            return this.camera1;
+        return this.camera1;
     }
 }

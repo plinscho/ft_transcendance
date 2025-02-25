@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export class PlayerController {
-    constructor(gameState, pongState, playerMesh) {
+    constructor(gameState, pongState, playerMesh, isPlayerOne) {
         this.gameState = gameState;
         // These are refences to both for future management (controls, etc.)
         this.paddle1 = pongState.paddle1;
@@ -10,6 +10,9 @@ export class PlayerController {
         this.deltaTime = gameState.deltaTime;
         // This is pongState.paddle1 or pongState.paddle2
         this.playerMesh = playerMesh;
+
+        // This is for AI
+        this.isPlayerOne = isPlayerOne;
 
         this.isMultiplayer = pongState.multiplayer;
         this.networkManager = pongState.networkManager;
@@ -26,10 +29,10 @@ export class PlayerController {
 
         this.activeKeys = {};
         this.directionZ = 0;
-        this.velocity = 0;
+        this.velocity = 5;
         this.friction = 0.8;
         this.acceleration = 0.4;
-        this.difficulty = 0.7; // AI difficulty (higher = better tracking)
+        this.difficulty = 1; // AI difficulty (higher = better tracking)
 
         if (this.gameState.currentState === this.gameState.states.PLAY) {
             this.setupAI();
@@ -60,11 +63,9 @@ export class PlayerController {
     update() {
         // Only multiplayer
         if (this.isMultiplayer) {
+            this.localMovement();
+            this.sendMovement();
             this.receiveMovement();
-            if (this.gameState.player1) {
-                this.localMovement();
-                this.sendMovement();  // Send player movement only if Player 1
-            }
         }
 
         // Only 2 player COOP
@@ -74,7 +75,7 @@ export class PlayerController {
 
         // IA
         if (this.gameState.currentState === this.gameState.states.PLAY) {
-            if (this.paddle1 === this.playerMesh) {
+            if (this.isPlayerOne) {
                 this.localMovement();
             } else {
                 this.setupAI();
@@ -116,9 +117,9 @@ export class PlayerController {
     playerActiveKeys() {
         if (this.gameState.currentState !== this.gameState.states.LOCALCOOP) {
             if (this.activeKeys['a']) {
-                this.directionZ = 1;
-            } else if (this.activeKeys['d']) {
                 this.directionZ = -1;
+            } else if (this.activeKeys['d']) {
+                this.directionZ = 1;
             } else {
                 this.directionZ = 0;
             }
@@ -126,9 +127,9 @@ export class PlayerController {
             // Separar player 1 del 2
             if (this.paddle1 === this.playerMesh) {
                 if (this.activeKeys['w']) {
-                    this.directionZ = -1;
-                } else if (this.activeKeys['s']) {
                     this.directionZ = 1;
+                } else if (this.activeKeys['s']) {
+                    this.directionZ = -1;
                 } else {
                     this.directionZ = 0;
                 }
@@ -146,28 +147,29 @@ export class PlayerController {
 
     setupAI() {
         if (!this.ball || !this.playerMesh) return;
-
+    
         // AI reaction delay factor (randomized for more challenge)
         const reactionDelay = Math.random() * 0.2 + 0.1; // Between 0.1 and 0.3
-        const targetY = this.ball.position.y;
-
+        const targetZ = this.ball.position.z;
+    
         // Lerp AI paddle position towards the ball
-        let aiMovement = (targetY - this.playerMesh.position.y) * this.difficulty * reactionDelay;
-
+        let aiMovement = (targetZ - this.playerMesh.position.z) * this.difficulty * reactionDelay;
+    
         // Clamp AI speed to prevent unnatural movement
-        if (Math.abs(aiMovement) > this.paddleSpeed) {
-            aiMovement = this.paddleSpeed * Math.sign(aiMovement);
+        if (Math.abs(aiMovement) > this.paddleSpeed * this.deltaTime) {
+            aiMovement = this.paddleSpeed * this.deltaTime * Math.sign(aiMovement);
         }
-
+    
         // Apply movement within field limits
-        const newY = this.playerMesh.position.y + aiMovement;
-        if (newY < this.fieldHeight * 0.45 && newY > -this.fieldHeight * 0.45) {
-            this.playerMesh.position.y = newY;
+        const newZ = this.playerMesh.position.z + aiMovement;
+        if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
+            this.playerMesh.position.z = newZ;
         }
-
+    
         // Smooth scaling effect
-        this.playerMesh.scale.y += (1 - this.playerMesh.scale.y) * 0.2;
+        this.playerMesh.scale.z += (1 - this.playerMesh.scale.z) * 0.2;
     }
+    
 
     sendMovement() {
         if (!this.networkManager) return;
