@@ -84,8 +84,31 @@ export const updateLanguage = async (language) => {
 		} else {
 			throw new Error('Failed to update language');
 		}
+	// } catch (error) {
+	// 	console.error('Error:', error);
+	// 	throw error;
+	// }
 	} catch (error) {
-		console.error('Error:', error);
-		throw error;
+		console.error("Error:", error);
+		state.error = true;
+		
+		// Guardar el idioma actual antes de resetear
+		const currentLanguage = state.data?.language || localStorage.getItem('userLanguage') || 'en';
+		
+		// Resetear datos pero mantener idioma
+		state.data = {
+			language: currentLanguage
+		};
+		
+		// Eliminar token pero mantener idioma
+		localStorage.removeItem("authToken");
+		
+		// Asegurarse de que userLanguage está establecido
+		localStorage.setItem('userLanguage', currentLanguage);
+		
+		location.reload();
+		console.log("Removed previous authToken, kept language:", currentLanguage);
+	} finally {
+		state.loading = false;
 	}
   };
