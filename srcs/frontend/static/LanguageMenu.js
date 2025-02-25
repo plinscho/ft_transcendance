@@ -194,6 +194,7 @@ export class LanguageMenu {
                     break;
                 case 'Escape':
                     this.game.loadScene(this.game.states.MENU);
+                    this.setActive(false);    
                     break;
             }
         });
