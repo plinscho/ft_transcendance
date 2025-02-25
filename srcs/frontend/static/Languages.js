@@ -7,16 +7,17 @@ let currentLanguageTexts = {};
 // Función para obtener el idioma actual
 // Función para obtener el idioma actual
 export function getCurrentLanguage() {
-    // Priorizar el idioma del estado sobre localStorage
-    const stateLang = state.data?.language;
     const storedLang = localStorage.getItem('userLanguage');
+    const stateLang = state.data?.language;
     
-    // Usar el idioma del estado, el almacenado o inglés por defecto
-    const selectedLang = stateLang || storedLang || 'en';
+    // Si hay un idioma en localStorage, usarlo primero
+    // Esto es especialmente importante cuando no hay sesión activa
+    const selectedLang = storedLang || stateLang || 'en';
     
     // Si el idioma seleccionado no existe, usar inglés
     return languages[selectedLang] ? selectedLang : 'en';
 }
+
 // Función para establecer el idioma
 export function setLanguage(langCode) {
     if (!languages[langCode]) {
