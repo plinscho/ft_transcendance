@@ -16,7 +16,7 @@ export class Game {
         
         // for game loop
         this.deltaTime = 0;
-        this.fps = 90;
+        this.fps = 60;
 
         document.body.appendChild(this.renderer.domElement);
 

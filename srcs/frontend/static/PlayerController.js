@@ -33,6 +33,9 @@ export class PlayerController {
         this.friction = 0.8;
         this.acceleration = 0.4;
         this.difficulty = 1; // AI difficulty (higher = better tracking)
+        this.paddle1.targetPosition = this.paddle1.position;
+        this.paddle2.targetPosition = this.paddle2.position;
+        this.ball.targetPosition = this.ball.position;
 
         if (this.gameState.currentState === this.gameState.states.PLAY) {
             this.setupAI();
@@ -40,10 +43,7 @@ export class PlayerController {
         this.setupLocalControls();
 
         if (this.isMultiplayer) {
-            if (this.gameState.player1)
-                this.startSendingMovement();
-            else
-                this.startSendingMovement();
+            this.startSendingMovement();
         }
     }
 
@@ -72,9 +72,9 @@ export class PlayerController {
         if (this.isMultiplayer) {
             this.receiveMovement();
             if (this.gameState.player1) {
-                this.localMovement(); // Player 1 moves locally
+                this.localMovementPlayer1(); // Player 1 moves locally
             } else if (this.gameState.player2) {
-                this.localMovement(); // Player 2 moves locally
+                this.localMovementPlayer2(); // Player 2 moves locally
             }
         }
 
@@ -120,6 +120,62 @@ export class PlayerController {
         // Smooth scaling effect
         this.playerMesh.scale.z += (1 - this.playerMesh.scale.z) * 0.2;
         this.playerMesh.scale.x += (1 - this.playerMesh.scale.x) * 0.2;
+    }
+
+    localMovementPlayer1() {
+        if (!this.paddle1) return;
+
+        this.playerActiveKeys();
+
+        if (this.directionZ !== 0) {
+            this.velocity += this.directionZ * this.acceleration;
+        } else {
+            this.velocity *= this.friction;
+        }
+
+        if (Math.abs(this.velocity) > this.paddleSpeed) {
+            this.velocity = this.paddleSpeed * Math.sign(this.velocity);
+        }
+
+        const newZ = this.paddle1.position.z + this.velocity;
+
+        if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
+            this.paddle1.position.z = newZ;
+        } else {
+            this.velocity = 0;
+        }
+
+        // Smooth scaling effect
+        this.paddle1.scale.z += (1 - this.paddle1.scale.z) * 0.2;
+        this.paddle1.scale.x += (1 - this.paddle1.scale.x) * 0.2;
+    }
+
+    localMovementPlayer2() {
+        if (!this.paddle2) return;
+
+        this.playerActiveKeys();
+
+        if (this.directionZ !== 0) {
+            this.velocity += this.directionZ * this.acceleration;
+        } else {
+            this.velocity *= this.friction;
+        }
+
+        if (Math.abs(this.velocity) > this.paddleSpeed) {
+            this.velocity = this.paddleSpeed * Math.sign(this.velocity);
+        }
+
+        const newZ = this.paddle2.position.z + this.velocity;
+
+        if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
+            this.paddle2.position.z = newZ;
+        } else {
+            this.velocity = 0;
+        }
+
+        // Smooth scaling effect
+        this.paddle2.scale.z += (1 - this.paddle2.scale.z) * 0.2;
+        this.paddle2.scale.x += (1 - this.paddle2.scale.x) * 0.2;
     }
 
     playerActiveKeys() {
@@ -198,7 +254,7 @@ export class PlayerController {
 
         this.movementInterval = setInterval(() => {
             this.sendMovement();
-        }, 1000 / 60);
+        }, 1000 / this.gameState.fps);
     }
 
     stopSendingMovement() {
@@ -209,45 +265,48 @@ export class PlayerController {
         if (!this.networkManager) return;
 
         let data = {
-                type: "MOVE",
-                player: this.gameState.apiState.data.username,
-                x: this.playerMesh.position.x,
-                y: this.playerMesh.position.y,
-                z: this.playerMesh.position.z,
-                ballX: this.ball.position.x,
-                ballY: this.ball.position.y,
-                ballZ: this.ball.position.z,
-                ballDirX: this.ballDirX,
-                ballDirY: this.ballDirY
-            };
-        
+            type: "MOVE",
+            player: this.gameState.apiState.data.username,
+            //x: this.playerMesh.position.x,
+            //y: this.playerMesh.position.y,
+            z: this.gameState.player1 ? this.paddle1.position.z : this.paddle2.position.z,
+            ballX: this.ball.position.x,
+            ballY: this.ball.position.y,
+            ballZ: this.ball.position.z,
+            ballDirX: this.ballDirX,
+            ballDirY: this.ballDirY
+        };
         this.networkManager.sendData(data);
     }
 
     receiveMovement() {
         if (!this.networkManager) return;
-    
+
         this.networkManager.onMessage((data) => {
             console.log("Received data:", data);
-    
+
             if (data.type === "MOVE") {
                 if (data.player === this.gameState.apiState.data.username) {
                     console.log("Ignoring own movement update:", data);
                     return; // Ignore our own sent movement
                 }
-                
+
+
                 if (this.gameState.player1) {
-                    this.paddle2.position.set(data.x, data.y, data.z);
+                    this.paddle2.targetPosition = new THREE.Vector3(this.paddle2.position.x, this.paddle2.position.y, data.z);
+                    this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
                 } else if (this.gameState.player2) {
-                    this.paddle1.position.set(data.x, data.y, data.z);
+                    this.paddle1.targetPosition = new THREE.Vector3(this.paddle1.position.x, this.paddle1.position.y, data.z);
+                    this.paddle1.position.lerp(this.paddle1.targetPosition, 0.1);
                 }
                 if (this.ball) {
-                    this.ball.position.set(data.ballX, data.ballY, data.ballZ);
+                    this.ball.targetPosition = new THREE.Vector3(data.ballX, data.ballY, data.ballZ);
+                    this.ball.position.lerp(this.ball.targetPosition, 0.1);
                     this.ballDirX = data.ballDirX;
                     this.ballDirY = data.ballDirY;
                 }
             }
         });
     }
-    
+
 }
