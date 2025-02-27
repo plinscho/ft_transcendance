@@ -263,44 +263,68 @@ export class PlayerController {
 
     sendMovement() {
         if (!this.networkManager) return;
-
-        let data = {
+    
+        const paddleZ = this.gameState.player1 
+            ? this.paddle1.position.z 
+            : this.paddle2.position.z;
+    
+        const data = {
             type: "MOVE",
             player: this.gameState.apiState.data.username,
-            //x: this.playerMesh.position.x,
-            //y: this.playerMesh.position.y,
-            z: this.gameState.player1 ? this.paddle1.position.z : this.paddle2.position.z,
-            ballX: this.ball.position.x,
-            ballY: this.ball.position.y,
-            ballZ: this.ball.position.z,
-            ballDirX: this.ballDirX,
-            ballDirY: this.ballDirY
+            isPlayer1: this.gameState.player1, // Flag to indicate Player 1 or Player 2
+            paddleZ: paddleZ,
         };
+    
+        // Only Player 1 sends ball data
+        if (this.gameState.player1 && this.ball) {
+            data.ballX = this.ball.position.x;
+            data.ballY = this.ball.position.y;
+            data.ballZ = this.ball.position.z;
+            data.ballDirX = this.ballDirX;
+            data.ballDirY = this.ballDirY;
+        }
+    
         this.networkManager.sendData(data);
     }
 
     receiveMovement() {
         if (!this.networkManager) return;
-
+    
         this.networkManager.onMessage((data) => {
-            console.log("Received data:", data);
-
             if (data.type === "MOVE") {
                 if (data.player === this.gameState.apiState.data.username) {
                     console.log("Ignoring own movement update:", data);
                     return; // Ignore our own sent movement
                 }
-
-
-                if (this.gameState.player1) {
-                    this.paddle2.targetPosition = new THREE.Vector3(this.paddle2.position.x, this.paddle2.position.y, data.z);
-                    this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
-                } else if (this.gameState.player2) {
-                    this.paddle1.targetPosition = new THREE.Vector3(this.paddle1.position.x, this.paddle1.position.y, data.z);
-                    this.paddle1.position.lerp(this.paddle1.targetPosition, 0.1);
+    
+                // Update paddle position
+                if (data.isPlayer1) {
+                    if (this.gameState.player2 && this.paddle1) {
+                        this.paddle1.targetPosition = new THREE.Vector3(
+                            this.paddle1.position.x,
+                            this.paddle1.position.y,
+                            data.paddleZ
+                        );
+                        this.paddle1.position.lerp(this.paddle1.targetPosition, 0.1);
+                    }
+                } else {
+                    if (this.gameState.player1 && this.paddle2) {
+                        this.paddle2.targetPosition = new THREE.Vector3(
+                            this.paddle2.position.x,
+                            this.paddle2.position.y,
+                            data.paddleZ
+                        );
+                        this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
+                    }
                 }
-                if (this.ball) {
-                    this.ball.targetPosition = new THREE.Vector3(data.ballX, data.ballY, data.ballZ);
+    
+                // Update ball position and direction (only for Player 2)
+                if (this.gameState.player2 && this.ball) {
+                    this.ball.targetPosition = new THREE.Vector3(
+                        data.ballX,
+                        data.ballY,
+                        data.ballZ
+                    );
                     this.ball.position.lerp(this.ball.targetPosition, 0.1);
                     this.ballDirX = data.ballDirX;
                     this.ballDirY = data.ballDirY;
