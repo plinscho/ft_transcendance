@@ -365,7 +365,7 @@ export class Pong {
     ballPhysics() {
 
         // Si la pelota esta pausada no la muevas
-        if (this.ballPaused) return ;
+        if (this.ballPaused) return;
 
         // if ball goes off the 'left' side (Player's side)
         if (this.ball.position.x <= -this.field_x / 2) {
@@ -434,7 +434,6 @@ export class Pong {
                 this.ballPaused = false;
             }, "2000");
         }
-
     }
 
     paddlePhysics() {
@@ -552,7 +551,7 @@ export class Pong {
             this.networkManager.disconnect();
             this.active = false;
             window.removeEventListener('keydown', this.boundEscapeHandler);
-            
+
             if (this.state.playe1)
                 this.player1.stopSendingMovement();
             else
@@ -609,20 +608,31 @@ export class Pong {
                 this.countdownMesh.rotation.x = -90 * Math.PI / 180;
             }
             this.scene.add(this.countdownMesh);
+            if (this.state.currentState === this.state.states.LOCALCOOP || this.state.currentState === this.state.states.PLAY) {
+                const interval = setInterval(() => {
+                    countdown--;
 
-            const interval = setInterval(() => {
-                countdown--;
+                    if (countdown >= 0) {
+                        this.countdownText.updateText(countdown.toString());
+                    }
 
-                if (countdown >= 0) {
-                    this.countdownText.updateText(countdown.toString());
-                }
-
-                if (countdown < 0) {
-                    clearInterval(interval);
-                    this.scene.remove(this.countdownMesh);
-                    this.start = true; // Start the game
-                }
-            }, 1000);
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        this.scene.remove(this.countdownMesh);
+                        this.start = true; // Start the game
+                    }
+                }, 1000);
+            } else {
+                this.networkManager.onMessage((data) => {
+                    if (data.type === "START_GAME_TIMER") {
+                        this.countdownText.updateText(data.countdown.toString());
+                        if (data.countdown === 0) {
+                            this.scene.remove(this.countdownMesh);
+                            this.start = true;
+                        }
+                    }
+                });
+            }
         });
 
         return false;
@@ -642,7 +652,7 @@ export class Pong {
         } else {
             this.updateCameraPlayer1();
         }
-        
+
 
         if (!this.start) {
             this.start = this.gameStart();
