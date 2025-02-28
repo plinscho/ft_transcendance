@@ -36,6 +36,7 @@ export class Pong {
         this.paddleSpeed = 200;
 
         // ball
+        this.ballPaused = false;
         this.ballDirZ = -1;
         this.ballDirX = -1;
         this.ballSpeed = BALL_SPEED;
@@ -362,6 +363,10 @@ export class Pong {
     }
 
     ballPhysics() {
+
+        // Si la pelota esta pausada no la muevas
+        if (this.ballPaused) return ;
+
         // if ball goes off the 'left' side (Player's side)
         if (this.ball.position.x <= -this.field_x / 2) {
             // CPU scores
@@ -405,25 +410,33 @@ export class Pong {
             this.ballDirZ = -this.ballSpeed * 2;
         }
     }
+    
 
+    
     resetBall(loser) {
         // position the ball in the center of the table
+        this.ballPaused = true;
         this.ball.position.x = 0;
         this.ball.position.z = 0;
         this.ballSpeed = BALL_SPEED;
 
-
         // if player lost the last point, we send the ball to opponent
         if (loser == 1) {
-            this.ballDirX = -1;
+            setTimeout(() => {
+                this.ballDirX = -1;
+                this.ballDirZ = 1;
+                this.ballPaused = false;
+            }, "2000");
         }
         // else if opponent lost, we send ball to player
         else {
-            this.ballDirX = 1;
+            setTimeout(() => {
+                this.ballDirX = 1;
+                this.ballDirZ = 1;
+                this.ballPaused = false;
+            }, "2000");
         }
 
-        // set the ball to move +ve in y plane (towards left from the camera)
-        this.ballDirZ = 1;
     }
 
     paddlePhysics() {
