@@ -18,10 +18,15 @@ export class NetworkManager {
             );
             this.socket.onopen = () => console.log('Connected to multiplayer server');
 
-        }    
+        }
+        // Esto siempre está disponible porque ya existe el websocket (la conexión)
         this.socket.onmessage = (msg) => {
             const data = JSON.parse(msg.data);
-            //console.log("Server data:", data);
+            if (data.type === "PLAYER_1" ||
+                data.type === "PLAYER_2" || 
+                data.type === "START_GAME" ||
+                data.type === "START_GAME_TIMER")
+                    console.log("Server data:", data);
 
             if (this.messageCallback) {
                 this.messageCallback(data);

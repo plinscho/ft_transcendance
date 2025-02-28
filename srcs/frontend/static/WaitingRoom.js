@@ -47,7 +47,7 @@ export class WaitingRoom {
         });
 
         this.network.connect();
-        this.network.onMessage((data) => this.handleServerMessage(data));
+        this.network.onMessage((response) => this.handleServerMessage(response));
     }
 
     handleServerMessage(data) {

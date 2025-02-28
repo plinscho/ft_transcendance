@@ -85,8 +85,23 @@ class PongConsumer(AsyncWebsocketConsumer):
                     'type': 'start_game'
                 }
             )
+            asyncio.create_task(self.start_countdown())
         else:
             await self.send(text_data=json.dumps({"status": "waiting" , "room": self.room_name}))
+
+    async def start_countdown(self):
+            await asyncio.sleep(1)
+            start_game_timer = 5
+            while start_game_timer >= 0:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'start_game_timer',
+                        'countdown': start_game_timer
+                    }
+                )
+                await asyncio.sleep(1)
+                start_game_timer -= 1
 
     # Metodo para decir que jugador somos
     async def player_1(self, event):
@@ -94,6 +109,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def player_2(self, event):
         await self.send(text_data=json.dumps({'type': 'PLAYER_TWO'}))
+
+    # Metodo para enviar mensaje de que empieza el juego
+    async def start_game(self, event):
+        await self.send(text_data=json.dumps({'type': 'START_GAME'}))
+
+    async def start_game_timer(self, event):
+        await self.send(text_data=json.dumps({'type': 'START_GAME_TIMER', 'countdown': event["countdown"]}))
+    
     
     #El metodo se llama cuando un jugador se desconecta de la sala
     async def disconnect(self, close_code):
@@ -177,10 +200,6 @@ class PongConsumer(AsyncWebsocketConsumer):
     # Metodo para enviar direccion de movimiento a los jugadores
     async def player_move(self, event):
         await self.send(text_data=json.dumps(event["data"]))  # Envía el mensaje JSON al otro jugador
-
-    # Metodo para enviar mensaje de que empieza el juego
-    async def start_game(self, event):
-        await self.send(text_data=json.dumps({'type': 'START_GAME'}))
 
     # Metodo para enviar mensaje de que el oponente se desconectó
     async def opponent_disconnected(self, event):

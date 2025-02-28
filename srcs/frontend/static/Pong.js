@@ -410,9 +410,7 @@ export class Pong {
             this.ballDirZ = -this.ballSpeed * 2;
         }
     }
-    
 
-    
     resetBall(loser) {
         // position the ball in the center of the table
         this.ballPaused = true;
