@@ -543,6 +543,20 @@ export class Pong {
         this.state.loadScene(this.state.states.MENU);
     }
 
+    multiPlayerHandler() {
+        this.networkManager.onMessage((data) => {
+            let winnerName;
+            if (data.type === "GOAL") {
+                this.score1 = data.score1;
+                this.score2 = data.score2;
+            }
+            if (data.engame) {
+                this.createWinnerBanner(data.winner);
+            }
+        }
+        );
+    }
+
     matchScoreCheck() {
         if (this.score1 >= this.maxScore) {
             this.ballSpeed = 0; // Stop ball movement
@@ -645,6 +659,8 @@ export class Pong {
         if (!this.multiplayer) {
             this.ballPhysics();
             this.paddlePhysics();
+        } else {
+            multiPlayerHandler();
         }
         this.updateScoreboard();
     }
