@@ -12,7 +12,7 @@ waiting_rooms = {} #Ejemplo: { "room_1": ["player1", "player2"] }
 lock = asyncio.Lock() # Lock para sincronizar accesos a waiting_rooms
 room_counter = 0 #Contador de salas
 
-game = BallPhysics()
+games = {}
 
 #Clase que hereda de AsyncWebsocketConsumer para crear un consumidor de WebSockets y define tres metodos
 #Connect: Se llama cuando un cliente se conecta al servidor con un WebSocket. Se acepta la conexión
@@ -48,6 +48,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 self.room_name = f"room_{room_counter}" #Creamos identificador de la sala
                 waiting_rooms[self.room_name] = [self.channel_name]
                 player_type = 'Player1'
+                games[self.room_name] = BallPhysics()
 
         #Creamos el nombre del grupo de la sala. Ex: pong_room_1
         self.room_group_name = f"pong_{self.room_name}"
@@ -61,7 +62,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         #Aceptamos la conexión
         await self.accept()
-
+        await asyncio.sleep(0.1)
         if player_type == "Player1":
             await self.channel_layer.send(
                         self.channel_name,
@@ -78,7 +79,6 @@ class PongConsumer(AsyncWebsocketConsumer):
                     )
 
         logger.debug(f"WebSocket connected, joined {self.room_name}")
-        await asyncio.sleep(0.1)
 
         #Si hay dos jugadores en la sala, empezamos el juego mandando un mensaje al grupo
         if len(waiting_rooms[self.room_name]) == 2:
@@ -130,6 +130,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         async with lock:
             #Eliminamos al jugador de la sala
+            if self.room_name in games:
+                del games[self.room_name]
             if self.room_name in waiting_rooms and self.channel_name in waiting_rooms[self.room_name]:
                 waiting_rooms[self.room_name].remove(self.channel_name)
                 #Si no hay jugadores en la sala, la eliminamos
@@ -185,14 +187,17 @@ class PongConsumer(AsyncWebsocketConsumer):
                 players = waiting_rooms.get(self.room_name, [])
                 if len(players) == 2:
                     opponent = players[0] if players[1] == self.channel_name else players[1]
-                    
+                    game = games.get(self.room_name, None)
+                    if game is None:
+                        return
                     # Actualizar la posición del paddle en la física del juego
+                    prev_z = game.paddle1_position['z'] if data["isPlayer1"] else game.paddle2_position['z']
                     if data["isPlayer1"]:
                         game.paddle1_position['z'] = data["paddleZ"]
-                        game.paddle1_dir_z = data["paddleZ"] - game.paddle1_position['z']
+                        game.paddle1_dir_z = data["paddleZ"] - prev_z
                     else:
                         game.paddle2_position['z'] = data["paddleZ"]
-                        game.paddle2_dir_z = data["paddleZ"] - game.paddle2_position['z']
+                        game.paddle2_dir_z = data["paddleZ"] - prev_z
                     
                     # Llamamos a las funciones que haran los cambios
                     game.paddlePhysics()
@@ -220,9 +225,10 @@ class PongConsumer(AsyncWebsocketConsumer):
                         game.goalFlag = False
                         goalData = {
                             "type": "GOAL",
-                            "player1_score": game.score1,
-                            "player2_score": game.score2,
-                            #"winner": 
+                            "score1": game.score1,
+                            "score2": game.score2,
+                            "winner": game.winner,
+                            "endgame": game.endgame,
                         }
                         await self.channel_layer.group_send(
                             self.room_group_name,

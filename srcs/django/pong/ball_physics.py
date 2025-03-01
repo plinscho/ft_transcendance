@@ -21,6 +21,7 @@ class BallPhysics:
 		self.winner = None
 		self.goalFlag = False
 		self.score_winner = 5
+		self.endgame = False
 
 	def paddlePhysics(self):
 		if self.paddle1_position['x'] <= self.ball_position['x'] <= self.paddle1_position['x'] + self.paddle_x:
@@ -52,7 +53,13 @@ class BallPhysics:
 		if self.ball_position['x'] >= self.field_x / 2:
 			self.score1 += 1
 			self.reset_ball(1)
-			self.goalFlag = True     
+			self.goalFlag = True
+		if self.score1 == self.score_winner:
+			self.winner = "Player1"
+			self.endgame = True
+		elif self.score2 == self.score_winner:
+			self.winner = "Player2"
+			self.endgame = True
 		if self.ball_position['z'] <= -self.field_z / 2 or self.ball_position['z'] >= self.field_z / 2:
 			self.ball_dir_z = -self.ball_dir_z        
 		self.ball_position['x'] += self.ball_dir_x * self.ball_speed # * self.delta_time

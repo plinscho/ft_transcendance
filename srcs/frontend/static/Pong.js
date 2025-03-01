@@ -660,7 +660,7 @@ export class Pong {
             this.ballPhysics();
             this.paddlePhysics();
         } else {
-            multiPlayerHandler();
+            this.multiPlayerHandler();
         }
         this.updateScoreboard();
     }
