@@ -1,13 +1,12 @@
 import asyncio
 
-field_x = 400
-field_z = 300
-
 class BallPhysics:
 	def __init__(self):
 		self.ball_position = {'x': 0, 'z': 0}
 		self.paddle1_position = {'x': 0, 'z': 0}
 		self.paddle2_position = {'x': 0, 'z': 0}
+		self.field_x = 400
+		self.field_z = 300
 		self.ball_dir_x = 1
 		self.ball_dir_z = 1
 		self.ball_speed = 200.0
@@ -56,8 +55,8 @@ class BallPhysics:
 			self.goalFlag = True     
 		if self.ball_position['z'] <= -self.field_z / 2 or self.ball_position['z'] >= self.field_z / 2:
 			self.ball_dir_z = -self.ball_dir_z        
-		self.ball_position['x'] += self.ball_dir_x * self.ball_speed * self.delta_time
-		self.ball_position['z'] += self.ball_dir_z * self.ball_speed * self.delta_time        
+		self.ball_position['x'] += self.ball_dir_x * self.ball_speed # * self.delta_time
+		self.ball_position['z'] += self.ball_dir_z * self.ball_speed # * self.delta_time        
 		if self.ball_dir_z > self.ball_speed * 2:
 			self.ball_dir_z = self.ball_speed * 2
 		elif self.ball_dir_z < -self.ball_speed * 2:
@@ -77,3 +76,6 @@ class BallPhysics:
 			self.ball_dir_z = 1
 		asyncio.create_task(self.resume_ball())
 
+	async def resume_ball(self):
+			await asyncio.sleep(1)  # Pausa de 2 segundos
+			self.ball_paused = False

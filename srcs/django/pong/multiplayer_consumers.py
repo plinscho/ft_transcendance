@@ -12,6 +12,8 @@ waiting_rooms = {} #Ejemplo: { "room_1": ["player1", "player2"] }
 lock = asyncio.Lock() # Lock para sincronizar accesos a waiting_rooms
 room_counter = 0 #Contador de salas
 
+game = BallPhysics()
+
 #Clase que hereda de AsyncWebsocketConsumer para crear un consumidor de WebSockets y define tres metodos
 #Connect: Se llama cuando un cliente se conecta al servidor con un WebSocket. Se acepta la conexión
 #Disconnect: Se llama cuando un cliente se desconecta del servidor. No se hace nada especial
@@ -186,24 +188,24 @@ class PongConsumer(AsyncWebsocketConsumer):
                     
                     # Actualizar la posición del paddle en la física del juego
                     if data["isPlayer1"]:
-                        self.game.paddle1_position['z'] = data["paddleZ"]
-                        self.game.paddle1_dir_z = data["paddleZ"] - self.game.paddle1_position['z']
+                        game.paddle1_position['z'] = data["paddleZ"]
+                        game.paddle1_dir_z = data["paddleZ"] - game.paddle1_position['z']
                     else:
-                        self.game.paddle2_position['z'] = data["paddleZ"]
-                        self.game.paddle2_dir_z = data["paddleZ"] - self.game.paddle2_position['z']
+                        game.paddle2_position['z'] = data["paddleZ"]
+                        game.paddle2_dir_z = data["paddleZ"] - game.paddle2_position['z']
                     
                     # Llamamos a las funciones que haran los cambios
-                    self.game.paddlePhysics()
-                    self.game.ball_physics()
+                    game.paddlePhysics()
+                    game.ball_physics()
                     
                     update_data = {
                         "type": "MOVE",
-                        "opponentPaddleZ": self.game.paddle1_position['z'] if not data["isPlayer1"] else self.game.paddle2_position['z'],
-                        "ballX": self.game.ball_position['x'],
-                        "ballZ": self.game.ball_position['z'],
-                        "ballDirX": self.game.ball_dir_x,
-                        "ballDirZ": self.game.ball_dir_z,
-                        #"ballSpeed": self.game.ball_speed,
+                        "opponentPaddleZ": game.paddle1_position['z'] if not data["isPlayer1"] else game.paddle2_position['z'],
+                        "ballX": game.ball_position['x'],
+                        "ballZ": game.ball_position['z'],
+                        "ballDirX": game.ball_dir_x,
+                        "ballDirZ": game.ball_dir_z,
+                        #"ballSpeed": game.ball_speed,
                     }
                     # Enviar el mensaje completo al oponente
                     await self.channel_layer.send(
@@ -214,12 +216,12 @@ class PongConsumer(AsyncWebsocketConsumer):
                         }
                     )
 
-                    if self.game.goalFlag:
-                        self.game.goalFlag = False
+                    if game.goalFlag:
+                        game.goalFlag = False
                         goalData = {
                             "type": "GOAL",
-                            "player1_score": self.game.score1,
-                            "player2_score": self.game.score2,
+                            "player1_score": game.score1,
+                            "player2_score": game.score2,
                             #"winner": 
                         }
                         await self.channel_layer.group_send(
