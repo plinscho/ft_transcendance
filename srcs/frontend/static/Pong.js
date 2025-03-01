@@ -385,12 +385,15 @@ export class Pong {
         }
     }
     
+
     ballPhysics() {
 
         // Si la pelota esta pausada no la muevas
         if (this.ballPaused) return;
 
         // if ball goes off the 'left' side (Player's side)
+        // if (this.isMultiplayer) 
+        //      checkBounds();
         if (this.ball.position.x <= -this.field_x / 2) {
             // CPU scores
             this.score2++;
@@ -639,8 +642,10 @@ export class Pong {
 
         this.player1.update();
         this.player2.update();
-        this.ballPhysics();
-        this.paddlePhysics();
+        if (!this.multiplayer) {
+            this.ballPhysics();
+            this.paddlePhysics();
+        }
         this.updateScoreboard();
     }
 

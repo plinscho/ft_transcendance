@@ -9,7 +9,7 @@ class BallPhysics:
 		self.field_z = 300
 		self.ball_dir_x = 1
 		self.ball_dir_z = 1
-		self.ball_speed = 200.0
+		self.ball_speed = 2.0
 		self.ball_paused = False
 		self.paddle_x = 10
 		self.paddle_z = 10
@@ -40,7 +40,7 @@ class BallPhysics:
 					self.ball_dir_z += self.paddle2_dir_z * 0.5
 					self.ball_dir_x = -self.ball_dir_x * 1.05
 					self.ball_speed = max(self.ball_speed, self.ball_speed + abs(self.paddle2_dir_z) * 0.2) * 1.02
-
+					#self.ball_speed = 10
 
 	def ball_physics(self):
 		if self.ball_paused:
@@ -66,7 +66,7 @@ class BallPhysics:
 	def reset_ball(self, loser):
 		self.ball_paused = True
 		self.ball_position = {'x': 0, 'z': 0}
-		self.ball_speed = 200.0
+		self.ball_speed = 2.0
 
 		if loser == 1:
 			self.ball_dir_x = -1
