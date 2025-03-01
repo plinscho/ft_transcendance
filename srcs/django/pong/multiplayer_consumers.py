@@ -4,6 +4,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer #Crear consumidores de WebSockets asincronos
 import logging
 import asyncio
+from .ball_physics import BallPhysics
 
 logger = logging.getLogger(__name__)
 
@@ -90,9 +91,10 @@ class PongConsumer(AsyncWebsocketConsumer):
             await self.send(text_data=json.dumps({"status": "waiting" , "room": self.room_name}))
 
     async def start_countdown(self):
-            await asyncio.sleep(1)
+            #await asyncio.sleep(1)
             start_game_timer = 5
             while start_game_timer >= 0:
+                logger.debug(f"Vuelta con timer = {start_game_timer}\n")
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
@@ -102,6 +104,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 )
                 await asyncio.sleep(1)
                 start_game_timer -= 1
+
 
     # Metodo para decir que jugador somos
     async def player_1(self, event):
@@ -180,14 +183,52 @@ class PongConsumer(AsyncWebsocketConsumer):
                 players = waiting_rooms.get(self.room_name, [])
                 if len(players) == 2:
                     opponent = players[0] if players[1] == self.channel_name else players[1]
+                    
+                    # Actualizar la posición del paddle en la física del juego
+                    if data["isPlayer1"]:
+                        self.game.paddle1_position['z'] = data["paddleZ"]
+                        self.game.paddle1_dir_z = data["paddleZ"] - self.game.paddle1_position['z']
+                    else:
+                        self.game.paddle2_position['z'] = data["paddleZ"]
+                        self.game.paddle2_dir_z = data["paddleZ"] - self.game.paddle2_position['z']
+                    
+                    # Llamamos a las funciones que haran los cambios
+                    self.game.paddlePhysics()
+                    self.game.ball_physics()
+                    
+                    update_data = {
+                        "type": "MOVE",
+                        "opponentPaddleZ": self.game.paddle1_position['z'] if not data["isPlayer1"] else self.game.paddle2_position['z'],
+                        "ballX": self.game.ball_position['x'],
+                        "ballZ": self.game.ball_position['z'],
+                        "ballDirX": self.game.ball_dir_x,
+                        "ballDirZ": self.game.ball_dir_z,
+                        #"ballSpeed": self.game.ball_speed,
+                    }
                     # Enviar el mensaje completo al oponente
                     await self.channel_layer.send(
                         opponent,
                         {
                             "type": "player_move",
-                            "data": data  # Reenviamos exactamente lo que recibimos
+                            "data": update_data  # Reenviamos exactamente lo que recibimos
                         }
                     )
+
+                    if self.game.goalFlag:
+                        self.game.goalFlag = False
+                        goalData = {
+                            "type": "GOAL",
+                            "player1_score": self.game.score1,
+                            "player2_score": self.game.score2,
+                            #"winner": 
+                        }
+                        await self.channel_layer.group_send(
+                            self.room_group_name,
+                            {
+                                'type': 'goal_notification',
+                                'data': 'PONG'
+                            }
+                        )
             return
         
         if message_type == 'QUIT':
@@ -200,6 +241,9 @@ class PongConsumer(AsyncWebsocketConsumer):
     # Metodo para enviar direccion de movimiento a los jugadores
     async def player_move(self, event):
         await self.send(text_data=json.dumps(event["data"]))  # Envía el mensaje JSON al otro jugador
+
+    async def goal_notification(self, event):
+        await self.send(text_data=json.dumps(event["data"]))
 
     # Metodo para enviar mensaje de que el oponente se desconectó
     async def opponent_disconnected(self, event):
