@@ -32,7 +32,7 @@ export class PlayerController {
         this.velocity = 5;
         this.friction = 0.8;
         this.acceleration = 0.4;
-        this.difficulty = 1; // AI difficulty (higher = better tracking)
+        this.difficulty = 0.3; // AI difficulty (higher = better tracking)
         this.paddle1.targetPosition = this.paddle1.position;
         this.paddle2.targetPosition = this.paddle2.position;
         this.ball.targetPosition = this.ball.position;
@@ -111,7 +111,7 @@ export class PlayerController {
 
         const newZ = this.playerMesh.position.z + this.velocity;
 
-        if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
+        if (newZ < this.field_z * 0.45 && newZ > -this.field_z * 0.45) {
             this.playerMesh.position.z = newZ;
         } else {
             this.velocity = 0;
@@ -139,7 +139,7 @@ export class PlayerController {
 
         const newZ = this.paddle1.position.z + this.velocity;
 
-        if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
+        if (newZ < this.field_z * 0.45 && newZ > -this.field_z * 0.45) {
             this.paddle1.position.z = newZ;
         } else {
             this.velocity = 0;
@@ -167,7 +167,7 @@ export class PlayerController {
 
         const newZ = this.paddle2.position.z + this.velocity;
 
-        if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
+        if (newZ < this.field_z * 0.45 && newZ > -this.field_z * 0.45) {
             this.paddle2.position.z = newZ;
         } else {
             this.velocity = 0;
@@ -241,7 +241,7 @@ export class PlayerController {
 
         // Apply movement within field limits
         const newZ = this.playerMesh.position.z + aiMovement;
-        if (newZ < this.field_x * 0.45 && newZ > -this.field_x * 0.45) {
+        if (newZ < this.field_z * 0.45 && newZ > -this.field_z * 0.45) {
             this.playerMesh.position.z = newZ;
         }
 
