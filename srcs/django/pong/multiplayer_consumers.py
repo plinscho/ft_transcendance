@@ -234,7 +234,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                             self.room_group_name,
                             {
                                 'type': 'goal_notification',
-                                'data': 'PONG'
+                                'data': goalData
                             }
                         )
             return
