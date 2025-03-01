@@ -102,7 +102,7 @@ export class PlayerController {
         if (this.directionZ !== 0) {
             this.velocity += this.directionZ * this.acceleration;
         } else {
-            this.velocity *= this.friction;
+            this.velocity = 0; 
         }
 
         if (Math.abs(this.velocity) > this.paddleSpeed) {
@@ -130,7 +130,7 @@ export class PlayerController {
         if (this.directionZ !== 0) {
             this.velocity += this.directionZ * this.acceleration;
         } else {
-            this.velocity *= this.friction;
+            this.velocity = 0;
         }
 
         if (Math.abs(this.velocity) > this.paddleSpeed) {
@@ -158,7 +158,7 @@ export class PlayerController {
         if (this.directionZ !== 0) {
             this.velocity += this.directionZ * this.acceleration;
         } else {
-            this.velocity *= this.friction;
+            this.velocity = 0;
         }
 
         if (Math.abs(this.velocity) > this.paddleSpeed) {
@@ -263,12 +263,12 @@ export class PlayerController {
 
     sendMovement() {
         if (!this.networkManager) return;
-    
-        const paddleZ = this.gameState.player1 
-            ? this.paddle1.position.z 
+
+        const paddleZ = this.gameState.player1
+            ? this.paddle1.position.z
             : this.paddle2.position.z;
-        const paddleX = this.gameState.player1 
-            ? this.paddle1.position.x 
+        const paddleX = this.gameState.player1
+            ? this.paddle1.position.x
             : this.paddle2.position.x;
         const data = {
             type: "MOVE",
@@ -277,29 +277,20 @@ export class PlayerController {
             paddleX: paddleX,
             paddleZ: paddleZ,
         };
-    
-        // Only Player 1 sends ball data
-        if (this.gameState.player1 && this.ball) {
-            data.ballX = this.ball.position.x;
-            data.ballY = this.ball.position.y;
-            data.ballZ = this.ball.position.z;
-            data.ballDirX = this.ballDirX;
-            data.ballDirY = this.ballDirY;
-        }
-    
+
         this.networkManager.sendData(data);
     }
 
     receiveMovement() {
         if (!this.networkManager) return;
-    
+
         this.networkManager.onMessage((data) => {
             if (data.type === "MOVE") {
                 if (data.player === this.gameState.apiState.data.username) {
                     console.log("Ignoring own movement update:", data);
                     return; // Ignore our own sent movement
                 }
-    
+
                 // Update paddle position
                 if (data.isPlayer1) {
                     if (this.gameState.player2 && this.paddle1) {
@@ -320,7 +311,7 @@ export class PlayerController {
                         this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
                     }
                 }
-    
+
                 // Update ball position and direction (only for Player 2)
                 if (this.ball) {
                     this.ball.targetPosition = new THREE.Vector3(
