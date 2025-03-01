@@ -267,11 +267,14 @@ export class PlayerController {
         const paddleZ = this.gameState.player1 
             ? this.paddle1.position.z 
             : this.paddle2.position.z;
-    
+        const paddleX = this.gameState.player1 
+            ? this.paddle1.position.x 
+            : this.paddle2.position.x;
         const data = {
             type: "MOVE",
             player: this.gameState.apiState.data.username,
             isPlayer1: this.gameState.player1, // Flag to indicate Player 1 or Player 2
+            paddleX: paddleX,
             paddleZ: paddleZ,
         };
     
@@ -319,7 +322,7 @@ export class PlayerController {
                 }
     
                 // Update ball position and direction (only for Player 2)
-                if (this.gameState.player2 && this.ball) {
+                if (this.ball) {
                     this.ball.targetPosition = new THREE.Vector3(
                         data.ballX,
                         data.ballY,

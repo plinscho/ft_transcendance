@@ -77,8 +77,6 @@ export class Pong {
             this.paddle2,
             false // variable solo para VS IA
         );
-
-
     }
 
     createLocalCoopCamera() {
@@ -362,6 +360,31 @@ export class Pong {
         }
     }
 
+    checkOfflineBallCollisions() {
+        // if ball goes off the top side (side of table)
+        if (this.ball.position.z <= -this.field_z / 2) {
+            this.ballDirZ = -this.ballDirZ;
+        }
+        // if ball goes off the bottom side (side of table)
+        if (this.ball.position.z >= this.field_z / 2) {
+            this.ballDirZ = -this.ballDirZ;
+        }
+
+        // update ball position over time
+        this.ball.position.x += this.ballDirX * this.ballSpeed * this.deltaTime;
+        this.ball.position.z += this.ballDirZ * this.ballSpeed * this.deltaTime;
+
+        // limit ball's y-speed to 2x the x-speed
+        // this is so the ball doesn't speed from left to right super fast
+        // keeps game playable for humans
+        if (this.ballDirZ > this.ballSpeed * 2) {
+            this.ballDirZ = this.ballSpeed * 2;
+        }
+        else if (this.ballDirZ < -this.ballSpeed * 2) {
+            this.ballDirZ = -this.ballSpeed * 2;
+        }
+    }
+    
     ballPhysics() {
 
         // Si la pelota esta pausada no la muevas
@@ -386,29 +409,7 @@ export class Pong {
             this.resetBall(1);
             this.matchScoreCheck();
         }
-
-        // if ball goes off the top side (side of table)
-        if (this.ball.position.z <= -this.field_z / 2) {
-            this.ballDirZ = -this.ballDirZ;
-        }
-        // if ball goes off the bottom side (side of table)
-        if (this.ball.position.z >= this.field_z / 2) {
-            this.ballDirZ = -this.ballDirZ;
-        }
-
-        // update ball position over time
-        this.ball.position.x += this.ballDirX * this.ballSpeed * this.deltaTime;
-        this.ball.position.z += this.ballDirZ * this.ballSpeed * this.deltaTime;
-
-        // limit ball's y-speed to 2x the x-speed
-        // this is so the ball doesn't speed from left to right super fast
-        // keeps game playable for humans
-        if (this.ballDirZ > this.ballSpeed * 2) {
-            this.ballDirZ = this.ballSpeed * 2;
-        }
-        else if (this.ballDirZ < -this.ballSpeed * 2) {
-            this.ballDirZ = -this.ballSpeed * 2;
-        }
+        if (!this.multiplayer) this.checkOfflineBallCollisions();
     }
 
     resetBall(loser) {
@@ -438,10 +439,6 @@ export class Pong {
 
     paddlePhysics() {
         // PLAYER PADDLE LOGIC
-
-        // if ball is aligned with paddle1 on x plane
-        // remember the position is the CENTER of the object
-        // we only check between the front and the middle of the paddle (one-way collision)
         if (this.ball.position.x <= this.paddle1.position.x + this.paddle_x
             && this.ball.position.x >= this.paddle1.position.x) {
             // and if ball is aligned with paddle1 on y plane
@@ -451,13 +448,6 @@ export class Pong {
                 if (this.ballDirX < 0) {
                     // stretch the paddle to indicate a hit
                     this.paddle1.scale.z = 1.3;
-                    // switch direction of ball travel to create bounce
-                    //this.ballDirX = -this.ballDirX;
-                    // we impact ball angle when hitting it
-                    // this is not realistic physics, just spices up the gameplay
-                    // allows you to 'slice' the ball to beat the opponent
-                    //this.ballDirZ -= this.paddle1DirZ * 0.7;
-
                     let impact = (this.ball.position.z - this.paddle1.position.z) / (this.paddle_z / 2);
                     this.ballDirZ = impact * 1.5; // Ajustamos la inclinación del rebote
 
@@ -475,11 +465,6 @@ export class Pong {
             }
         }
 
-        // OPPONENT PADDLE LOGIC	
-
-        // if ball is aligned with paddle2 on x plane
-        // remember the position is the CENTER of the object
-        // we only check between the front and the middle of the paddle (one-way collision)
         if (this.ball.position.x <= this.paddle2.position.x + this.paddle_x
             && this.ball.position.x >= this.paddle2.position.x) {
             // and if ball is aligned with paddle2 on y plane
@@ -489,12 +474,6 @@ export class Pong {
                 if (this.ballDirX > 0) {
                     // stretch the paddle to indicate a hit
                     this.paddle2.scale.z = 1.3;
-                    // switch direction of ball travel to create bounce
-                    //this.ballDirX = -this.ballDirX;
-                    // we impact ball angle when hitting it
-                    // this is not realistic physics, just spices up the gameplay
-                    // allows you to 'slice' the ball to beat the opponent
-                    //this.ballDirZ -= this.paddle2DirZ * 0.7;
 
                     // Calculamos la desviación en función del punto de impacto
                     let impact = (this.ball.position.z - this.paddle2.position.z) / (this.paddle_z / 2);
@@ -505,10 +484,9 @@ export class Pong {
                     if (Math.abs(this.ballDirZ) < 0.2) {
                         this.ballDirZ = 0.2 * Math.sign(this.ballDirZ);
                     }
-
                     // Invertimos dirección en X (rebote)
                     this.ballDirX = -this.ballDirX * 1.05;
-
+                    
                     // Aumentamos velocidad si la pala estaba en movimiento
                     let newSpeed = this.ballSpeed + Math.abs(this.paddle2DirZ) * 0.2;
                     this.ballSpeed = Math.max(this.ballSpeed, newSpeed) * 1.02;
