@@ -41,7 +41,6 @@ export class PlayerController {
             this.setupAI();
         }
         this.setupLocalControls();
-
         if (this.isMultiplayer) {
             this.startSendingMovement();
         }
@@ -277,7 +276,6 @@ export class PlayerController {
             paddleX: paddleX,
             paddleZ: paddleZ,
         };
-
         this.networkManager.sendData(data);
     }
 
@@ -285,12 +283,8 @@ export class PlayerController {
         if (!this.networkManager) return;
 
         this.networkManager.onMessage((data) => {
+            console.log("Received movement data:", data);
             if (data.type === "MOVE") {
-                if (data.player === this.gameState.apiState.data.username) {
-                    console.log("Ignoring own movement update:", data);
-                    return; // Ignore our own sent movement
-                }
-
                 // Update paddle position
                 if (data.isPlayer1) {
                     if (this.gameState.player2 && this.paddle1) {

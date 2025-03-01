@@ -531,7 +531,6 @@ export class Pong {
             this.networkManager.sendData({ type: "QUIT" });
             this.networkManager.disconnect();
             this.active = false;
-            window.removeEventListener('keydown', this.boundEscapeHandler);
 
             if (this.state.playe1)
                 this.player1.stopSendingMovement();
@@ -545,13 +544,14 @@ export class Pong {
 
     multiPlayerHandler() {
         this.networkManager.onMessage((data) => {
-            let winnerName;
             if (data.type === "GOAL") {
                 this.score1 = data.score1;
                 this.score2 = data.score2;
-            }
-            if (data.engame) {
-                this.createWinnerBanner(data.winner);
+
+                if (data.endgame) {
+                    console.log("Game Over", data.winner);
+                    this.createWinnerBanner(data.winner);
+                }
             }
         }
         );
@@ -653,7 +653,6 @@ export class Pong {
             this.start = this.gameStart();
             return;
         }
-
         this.player1.update();
         this.player2.update();
         if (!this.multiplayer) {

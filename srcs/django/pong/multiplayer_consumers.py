@@ -205,7 +205,8 @@ class PongConsumer(AsyncWebsocketConsumer):
                     
                     update_data = {
                         "type": "MOVE",
-                        "opponentPaddleZ": game.paddle1_position['z'] if not data["isPlayer1"] else game.paddle2_position['z'],
+                        "isPlayer1": data["isPlayer1"],
+                        "paddleZ": game.paddle1_position['z'] if not data["isPlayer1"] else game.paddle2_position['z'],
                         "ballX": game.ball_position['x'],
                         "ballZ": game.ball_position['z'],
                         "ballDirX": game.ball_dir_x,
