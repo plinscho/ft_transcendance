@@ -1,15 +1,19 @@
 import asyncio
+import random
+
+delta_time = 0.016
+BALL_SPEED = 5
 
 class BallPhysics:
 	def __init__(self):
 		self.ball_position = {'x': 0, 'z': 0}
-		self.paddle1_position = {'x': 0, 'z': 0}
-		self.paddle2_position = {'x': 0, 'z': 0}
+		self.paddle1_position = {'x': -190, 'z': 0}
+		self.paddle2_position = {'x': 190, 'z': 0}
 		self.field_x = 400
 		self.field_z = 300
 		self.ball_dir_x = 1
 		self.ball_dir_z = 1
-		self.ball_speed = 0.1
+		self.ball_speed = BALL_SPEED
 		self.ball_paused = False
 		self.paddle_x = 10
 		self.paddle_z = 10
@@ -22,6 +26,7 @@ class BallPhysics:
 		self.goalFlag = False
 		self.score_winner = 5
 		self.endgame = False
+		self.gameStarted = False
 
 	def paddlePhysics(self):
 		if not self.endgame:
@@ -64,8 +69,8 @@ class BallPhysics:
 				self.endgame = True
 			if self.ball_position['z'] <= -self.field_z / 2 or self.ball_position['z'] >= self.field_z / 2:
 				self.ball_dir_z = -self.ball_dir_z        
-			self.ball_position['x'] += self.ball_dir_x * self.ball_speed # * self.delta_time
-			self.ball_position['z'] += self.ball_dir_z * self.ball_speed # * self.delta_time        
+			self.ball_position['x'] += self.ball_dir_x * self.ball_speed  #* delta_time
+			self.ball_position['z'] += self.ball_dir_z * self.ball_speed  #* delta_time        
 			if self.ball_dir_z > self.ball_speed * 2:
 				self.ball_dir_z = self.ball_speed * 2
 			elif self.ball_dir_z < -self.ball_speed * 2:
@@ -75,14 +80,14 @@ class BallPhysics:
 	def reset_ball(self, loser):
 		self.ball_paused = True
 		self.ball_position = {'x': 0, 'z': 0}
-		self.ball_speed = 0.2
+		self.ball_speed = BALL_SPEED
 
 		if loser == 1:
-			self.ball_dir_x = -1
-			self.ball_dir_z = 1
+			self.ball_dir_x = -1 * random.uniform(0.8, 1.2)
+			self.ball_dir_z = random.choice([-1, 1]) * random.uniform(0.5, 1.0)
 		else:
-			self.ball_dir_x = 1
-			self.ball_dir_z = 1
+			self.ball_dir_x = 1 * random.uniform(0.8, 1.2)
+			self.ball_dir_z = random.choice([-1, 1]) * random.uniform(0.5, 1.0)
 		asyncio.create_task(self.resume_ball())
 
 	async def resume_ball(self):

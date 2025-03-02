@@ -106,6 +106,8 @@ class PongConsumer(AsyncWebsocketConsumer):
                 )
                 await asyncio.sleep(1)
                 start_game_timer -= 1
+                games[self.room_name].gameStarted = True
+            
 
 
     # Metodo para decir que jugador somos
@@ -184,13 +186,19 @@ class PongConsumer(AsyncWebsocketConsumer):
         # Si el mensaje es un movimiento del jugador
         if message_type == "MOVE":
             async with lock:
+                game = games.get(self.room_name, None)
+                if game is None or not game.gameStarted:
+                    return  
+                
                 players = waiting_rooms.get(self.room_name, [])
+                
                 if len(players) == 2:
                     opponent = players[0] if players[1] == self.channel_name else players[1]
                     game = games.get(self.room_name, None)
                     if game is None:
                         return
                     # Actualizar la posición del paddle en la física del juego
+                    logger.debug(f"Received Z: {data["paddleZ"]}")
                     prev_z = game.paddle1_position['z'] if data["isPlayer1"] else game.paddle2_position['z']
                     if data["isPlayer1"]:
                         game.paddle1_position['z'] = data["paddleZ"]

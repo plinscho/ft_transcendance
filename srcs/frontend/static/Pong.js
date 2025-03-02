@@ -553,6 +553,18 @@ export class Pong {
                     this.createWinnerBanner(data.winner);
                 }
             }
+            else if (data.type === "MOVE") {
+                if (data.isPlayer1 && this.paddle1) {
+                    this.paddle1.position.z = data.paddleZ;
+                } else if (!data.isPlayer1 && this.paddle2) {
+                    this.paddle2.position.z = data.paddleZ;
+                }
+    
+                if (data.ballX !== undefined && data.ballZ !== undefined) {
+                    this.ball.position.x = data.ballX;
+                    this.ball.position.z = data.ballZ;
+                }
+            }
         }
         );
     }
@@ -653,6 +665,7 @@ export class Pong {
             this.start = this.gameStart();
             return;
         }
+        console.log("Llega a hacer los updates " + this.start);
         this.player1.update();
         this.player2.update();
         if (!this.multiplayer) {
