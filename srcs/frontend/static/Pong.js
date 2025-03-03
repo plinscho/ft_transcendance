@@ -387,7 +387,7 @@ export class Pong {
     
 
     ballPhysics() {
-
+        console.log("Ball Physics");
         // Si la pelota esta pausada no la muevas
         if (this.ballPaused) return;
 
@@ -526,16 +526,13 @@ export class Pong {
     }
 
     backToMenu() {
-
         if (this.multiplayer) {
+            console.log("Sending QUIT signal to server");
             this.networkManager.sendData({ type: "QUIT" });
             this.networkManager.disconnect();
             this.active = false;
-
-            if (this.state.playe1)
-                this.player1.stopSendingMovement();
-            else
-                this.player2.stopSendingMovement();
+           // this.player1.stopSendingMovement();
+           // this.player2.stopSendingMovement();
         }
         delete this.player1;
         delete this.player2;
@@ -551,18 +548,6 @@ export class Pong {
                 if (data.endgame) {
                     console.log("Game Over", data.winner);
                     this.createWinnerBanner(data.winner);
-                }
-            }
-            else if (data.type === "MOVE") {
-                if (data.isPlayer1 && this.paddle1) {
-                    this.paddle1.position.z = data.paddleZ;
-                } else if (!data.isPlayer1 && this.paddle2) {
-                    this.paddle2.position.z = data.paddleZ;
-                }
-    
-                if (data.ballX !== undefined && data.ballZ !== undefined) {
-                    this.ball.position.x = data.ballX;
-                    this.ball.position.z = data.ballZ;
                 }
             }
         }
@@ -665,7 +650,6 @@ export class Pong {
             this.start = this.gameStart();
             return;
         }
-        console.log("Llega a hacer los updates " + this.start);
         this.player1.update();
         this.player2.update();
         if (!this.multiplayer) {

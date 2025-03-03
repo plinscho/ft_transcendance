@@ -8,6 +8,9 @@ export class NetworkManager {
 
     connect(isTournament) {
         this.messageCallback = null;
+        if (this.socket) {
+            this.disconnect();
+        }
         if (isTournament) {
             this.socket = new WebSocket(
                 'ws://localhost:8000/ws/tournament/?authToken=' + this.token
@@ -23,12 +26,14 @@ export class NetworkManager {
         // Esto siempre está disponible porque ya existe el websocket (la conexión)
         this.socket.onmessage = (msg) => {
             const data = JSON.parse(msg.data);
-            console.log("Server data:", data);
+            //console.log("Server data:", data);
             /*if (data.type !== "MOVE")
                     console.log("Server data:", data);*/
 
             if (this.messageCallback) {
                 this.messageCallback(data);
+            } else {
+                console.warn("No message callback set for received data:", data);
             }
         };
 

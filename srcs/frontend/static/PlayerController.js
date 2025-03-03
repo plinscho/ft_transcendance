@@ -41,9 +41,6 @@ export class PlayerController {
 			this.setupAI();
 		}
 		this.setupLocalControls();
-		if (this.isMultiplayer) {
-			this.startSendingMovement();
-		}
 	}
 
 	setupLocalControls() {
@@ -126,7 +123,16 @@ export class PlayerController {
 	localMovementPlayer1() {
 		if (!this.paddle1) return;
 
-		this.playerActiveKeys();
+		if (this.activeKeys['a']) {
+			this.directionZ = -1;
+			this.sendMovement();
+		} else if (this.activeKeys['d']) {
+			this.directionZ = 1;
+			this.sendMovement();
+		} else {
+			this.directionZ = 0;
+		}
+	
 
 		if (this.directionZ !== 0) {
 			this.velocity += this.directionZ * this.acceleration;
@@ -154,7 +160,15 @@ export class PlayerController {
 	localMovementPlayer2() {
 		if (!this.paddle2) return;
 
-		this.playerActiveKeys();
+		if (this.activeKeys['a']) {
+			this.directionZ = 1;
+			this.sendMovement();
+		} else if (this.activeKeys['d']) {
+			this.directionZ = -1;
+			this.sendMovement();
+		} else {
+			this.directionZ = 0;
+		}
 
 		if (this.directionZ !== 0) {
 			this.velocity += this.directionZ * this.acceleration;
@@ -199,7 +213,6 @@ export class PlayerController {
 					this.directionZ = 0;
 				}
 			}
-
 		} else {
 			// Separar player 1 del 2
 			if (this.paddle1 === this.playerMesh) {
@@ -250,7 +263,7 @@ export class PlayerController {
 		this.playerMesh.scale.z += (1 - this.playerMesh.scale.z) * 0.2;
 	}
 
-	startSendingMovement() {
+	/*startSendingMovement() {
 		if (!this.networkManager) return;
 
 		this.movementInterval = setInterval(() => {
@@ -260,13 +273,11 @@ export class PlayerController {
 
 	stopSendingMovement() {
 		clearInterval(this.movementInterval);
-	}
+	}*/
 
 	sendMovement() {
 		if (!this.networkManager || !this.paddle1 || !this.paddle2) return;
-	
-		//console.log("Las z son:\nPadde1: " + this.paddle1.position.z + "\nPaddle2: " + this.paddle2.position.z);
-		//console.log("Las x son:\nPadde1: " + this.paddle1.position.x + "\nPaddle2: " + this.paddle2.position.x);
+
 		const paddleZ = this.gameState.player1
 			? this.paddle1.position.z
 			: this.paddle2.position.z;
@@ -280,46 +291,53 @@ export class PlayerController {
 			paddleX: paddleX,
 			paddleZ: paddleZ,
 		};
+		console.log("Sending movement data:", data);
 		this.networkManager.sendData(data);
 	}
 
 	receiveMovement() {
-		if (!this.networkManager || !this.paddle1 || !this.paddle2 || !this.ball) return;
+		if (!this.networkManager) return;
 
 		this.networkManager.onMessage((data) => {
-			console.log("Received movement data:", data);
 			if (data.type === "MOVE") {
-				// Update paddle position
-				if (data.isPlayer1 && this.paddle1) {
-					if (this.gameState.player2 && this.paddle1) {
-						this.paddle1.targetPosition = new THREE.Vector3(
-							this.paddle1.position.x,
-							this.paddle1.position.y,
-							data.paddleZ
-						);
-						this.paddle1.position.lerp(this.paddle1.targetPosition, 0.1);
-					}
-				} else {
-					if (this.gameState.player1 && this.paddle2) {
-						this.paddle2.targetPosition = new THREE.Vector3(
-							this.paddle2.position.x,
-							this.paddle2.position.y,
-							data.paddleZ
-						);
-						this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
-					}
-				}
-
+                if (data.player === this.gameState.apiState.data.username) {
+                    console.log("Ignoring own movement update:", data);
+                    return; // Ignore our own sent movement
+                }
+    
+                // Update paddle position
+                if (data.isPlayer1) {
+                    if (this.gameState.player2 && this.paddle1) {
+                        this.paddle1.targetPosition = new THREE.Vector3(
+                            this.paddle1.position.x,
+                            this.paddle1.position.y,
+                            data.paddleZ
+                        );
+                        this.paddle1.position.lerp(this.paddle1.targetPosition, 0.1);
+                    }
+                } else {
+                    if (this.gameState.player1 && this.paddle2) {
+                        this.paddle2.targetPosition = new THREE.Vector3(
+                            this.paddle2.position.x,
+                            this.paddle2.position.y,
+                            data.paddleZ
+                        );
+                        this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
+                    }
+                }
+				
 				// Update ball position and direction (only for Player 2)
-				if (this.ball) {
-					this.ball.targetPosition = new THREE.Vector3(
-						data.ballX,
-						data.ballY,
-						data.ballZ
-					);
-					this.ball.position.lerp(this.ball.targetPosition, 0.1);
-					this.ballDirX = data.ballDirX;
-					this.ballDirZ = data.ballDirZ;
+				if (data.type === "BALL") {
+					if (this.ball) {
+						this.ball.targetPosition = new THREE.Vector3(
+							data.ballX,
+							data.ballY,
+							data.ballZ
+						);
+						this.ball.position.lerp(this.ball.targetPosition, 0.1);
+						this.ballDirX = data.ballDirX;
+						this.ballDirZ = data.ballDirZ;
+					}
 				}
 			}
 		});
