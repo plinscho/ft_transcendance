@@ -16,8 +16,7 @@ class BallPhysics:
 		self.ball_speed = BALL_SPEED
 		self.ball_paused = False
 		self.paddle_x = 10
-		self.paddle_z = 10
-		#self.paddle_y = 50
+		self.paddle_z = 50
 		self.paddle1_dir_z = 0
 		self.paddle2_dir_z = 0
 		self.score1 = 0
@@ -28,6 +27,18 @@ class BallPhysics:
 		self.endgame = False
 		self.gameStarted = False
 
+	def get_paddle1_position_z(self):
+		return self.paddle1_position['z']
+
+	def get_paddle2_position_z(self):
+		return self.paddle2_position['z']
+	
+	def set_paddle1_position_z(self, new_z):
+		self.paddle1_position['z'] = new_z
+
+	def set_paddle2_position_z(self, new_z):
+		self.paddle2_position['z'] = new_z
+	
 	def paddlePhysics(self):
 		if not self.endgame:
 			if self.paddle1_position['x'] <= self.ball_position['x'] <= self.paddle1_position['x'] + self.paddle_x:
