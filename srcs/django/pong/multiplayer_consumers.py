@@ -18,6 +18,7 @@ games = {}
 #Connect: Se llama cuando un cliente se conecta al servidor con un WebSocket. Se acepta la conexión
 #Disconnect: Se llama cuando un cliente se desconecta del servidor. No se hace nada especial
 #Receive: Se llama cuando el servidor recibe un mensaje del cliente. Se envía el mismo mensaje de vuelta al cliente
+
 class PongConsumer(AsyncWebsocketConsumer):
     #Método que se llama cuando un cliente se conecta al servidor a travś de un WebSocket
     #Recibe el JWT y mira si el usuario esta autenticado
@@ -224,31 +225,30 @@ class PongConsumer(AsyncWebsocketConsumer):
                 
                 if len(players) == 2:
                     opponent = players[0] if players[1] == self.channel_name else players[1]
-                    game = games.get(self.room_name, None)
-                    if game is None:
-                        return
+
                     # Actualizar la posición del paddle en la física del juego
                     logger.debug(f"Received Z: {data["paddleZ"]}")
 
                     if data["isPlayer1"]:
-                        prev_z = game.paddle1_position['z']  # Guarda el valor anterior
-                        game.paddle1_position['z'] = data["paddleZ"]
+                        prev_z = game.get_paddle1_position_z()  # Guarda el valor anterior
+                        game.set_paddle1_position_z(data['paddleZ'])
                         game.paddle1_dir_z = data["paddleZ"] - prev_z
                     else:
-                        prev_z = game.paddle2_position['z']
-                        game.paddle2_position['z'] = data["paddleZ"]
+                        prev_z = game.get_paddle2_position_z()
+                        game.set_paddle1_position_z(data['paddleZ'])
                         game.paddle2_dir_z = data["paddleZ"] - prev_z
                     
                     # Llamamos a las funciones que haran los cambios
                     game.paddlePhysics()
                     game.ball_physics()
-                    
-                    logger.debug(f"Z send: {game.paddle2_position['z']}")
+
+                    logger.debug(f"Z send from raw game variable: {game.paddle2_position['z']}")
                     if data["isPlayer1"]:
-                        z_send = data["paddleZ"]
+                        z_send = game.get_paddle2_position_z()
                     else:
-                        z_send = data["paddleZ"]
-                    logger.debug(f"Z send: {z_send}")
+                        z_send = game.get_paddle1_position_z()
+                    
+                    logger.debug(f"Z send from getter: {z_send}")
                     update_data = {
                         "type": "MOVE",
                         "isPlayer1": data["isPlayer1"],
