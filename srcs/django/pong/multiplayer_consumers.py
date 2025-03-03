@@ -89,14 +89,42 @@ class PongConsumer(AsyncWebsocketConsumer):
                 }
             )
             asyncio.create_task(self.start_countdown())
+            #asyncio.create_task(self.send_ball, interval=0.5)
         else:
             await self.send(text_data=json.dumps({"status": "waiting" , "room": self.room_name}))
+
+
+
+    # Enviamos la pelota
+    async def send_ball(self, interval):
+        game = games.get(self.room_name, None)
+        if self.room_name not in waiting_rooms or len(waiting_rooms[self.room_name]) < 2:
+            return
+        while not game.endgame:
+            logger.debug(f"\n\nVuelta bucle BALL\n\n")
+            game.paddlePhysics()
+            game.ball_physics()
+            data = {
+                "ballX": game.ball_position['x'],
+                "ballZ": game.ball_position['z'],
+                "ballDirX": game.ball_dir_x,
+                "ballDirZ": game.ball_dir_z,
+            }
+            await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'ball_movement',
+                            'data': data
+                        }
+                    )
+            await asyncio.sleep(interval)
+
 
     async def start_countdown(self):
             #await asyncio.sleep(1)
             start_game_timer = 5
             while start_game_timer >= 0:
-                logger.debug(f"Vuelta con timer = {start_game_timer}\n")
+                #logger.debug(f"Vuelta con timer = {start_game_timer}\n")
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
@@ -106,8 +134,9 @@ class PongConsumer(AsyncWebsocketConsumer):
                 )
                 await asyncio.sleep(1)
                 start_game_timer -= 1
-                games[self.room_name].gameStarted = True
-            
+
+            games[self.room_name].gameStarted = True
+            asyncio.create_task(self.send_ball(interval=0.5))
 
 
     # Metodo para decir que jugador somos
@@ -124,7 +153,9 @@ class PongConsumer(AsyncWebsocketConsumer):
     async def start_game_timer(self, event):
         await self.send(text_data=json.dumps({'type': 'START_GAME_TIMER', 'countdown': event["countdown"]}))
     
-    
+    async def ball_movement(self, event):
+        await self.send(text_data=json.dumps({'type': 'BALL', 'data': event["data"]}))
+
     #El metodo se llama cuando un jugador se desconecta de la sala
     async def disconnect(self, close_code):
         logger.debug(f"Disconnecting from room: {self.room_name}")
@@ -211,14 +242,19 @@ class PongConsumer(AsyncWebsocketConsumer):
                     game.paddlePhysics()
                     game.ball_physics()
                     
+                    if data["isPlayer1"]:
+                        z_send = game.paddle2_position['z']
+                    else:
+                        z_send = game.paddle1_position['z']
+
                     update_data = {
                         "type": "MOVE",
                         "isPlayer1": data["isPlayer1"],
-                        "paddleZ": game.paddle1_position['z'] if not data["isPlayer1"] else game.paddle2_position['z'],
-                        "ballX": game.ball_position['x'],
-                        "ballZ": game.ball_position['z'],
-                        "ballDirX": game.ball_dir_x,
-                        "ballDirZ": game.ball_dir_z,
+                        "paddleZ": z_send,
+                        #"ballX": game.ball_position['x'],
+                        #"ballZ": game.ball_position['z'],
+                        #"ballDirX": game.ball_dir_x,
+                        #"ballDirZ": game.ball_dir_z,
                         #"ballSpeed": game.ball_speed,
                     }
                     # Enviar el mensaje completo al oponente

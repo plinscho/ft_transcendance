@@ -41,6 +41,9 @@ export class PlayerController {
 			this.setupAI();
 		}
 		this.setupLocalControls();
+
+		if (this.isMultiplayer)
+			this.receiveMovement();
 	}
 
 	setupLocalControls() {
@@ -68,7 +71,7 @@ export class PlayerController {
 
 		// Only multiplayer
 		if (this.isMultiplayer) {
-			this.receiveMovement();
+			
 			if (this.gameState.player1) {
 				this.localMovementPlayer1(); // Player 1 moves locally
 			} else if (this.gameState.player2) {
@@ -325,19 +328,18 @@ export class PlayerController {
                         this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
                     }
                 }
-				
-				// Update ball position and direction (only for Player 2)
-				if (data.type === "BALL") {
-					if (this.ball) {
-						this.ball.targetPosition = new THREE.Vector3(
-							data.ballX,
-							data.ballY,
-							data.ballZ
-						);
-						this.ball.position.lerp(this.ball.targetPosition, 0.1);
-						this.ballDirX = data.ballDirX;
-						this.ballDirZ = data.ballDirZ;
-					}
+			}	
+			// Update ball position and direction (only for Player 2)
+			if (data.type === "BALL") {
+				if (this.ball) {
+					this.ball.targetPosition = new THREE.Vector3(
+						data.ballX,
+						data.ballY,
+						data.ballZ
+					);
+					this.ball.position.lerp(this.ball.targetPosition, 0.1);
+					this.ballDirX = data.ballDirX;
+					this.ballDirZ = data.ballDirZ;
 				}
 			}
 		});

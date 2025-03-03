@@ -384,7 +384,7 @@ export class Pong {
             this.ballDirZ = -this.ballSpeed * 2;
         }
     }
-    
+
 
     ballPhysics() {
         console.log("Ball Physics");
@@ -489,7 +489,7 @@ export class Pong {
                     }
                     // Invertimos dirección en X (rebote)
                     this.ballDirX = -this.ballDirX * 1.05;
-                    
+
                     // Aumentamos velocidad si la pala estaba en movimiento
                     let newSpeed = this.ballSpeed + Math.abs(this.paddle2DirZ) * 0.2;
                     this.ballSpeed = Math.max(this.ballSpeed, newSpeed) * 1.02;
@@ -531,8 +531,8 @@ export class Pong {
             this.networkManager.sendData({ type: "QUIT" });
             this.networkManager.disconnect();
             this.active = false;
-           // this.player1.stopSendingMovement();
-           // this.player2.stopSendingMovement();
+            // this.player1.stopSendingMovement();
+            // this.player2.stopSendingMovement();
         }
         delete this.player1;
         delete this.player2;
@@ -548,6 +548,19 @@ export class Pong {
                 if (data.endgame) {
                     console.log("Game Over", data.winner);
                     this.createWinnerBanner(data.winner);
+                }
+            }
+            if (data.type === "BALL") {
+                if (this.ball) {
+                    console.log("BALL!!!!!", data);
+                    this.ball.targetPosition = new THREE.Vector3(
+                        data.data.ballX,
+                        this.ball.position.y,
+                        data.data.ballZ,
+                    );
+                    this.ball.position.lerp(this.ball.targetPosition, 0.1);
+                    this.ballDirX = data.data.ballDirX;
+                    this.ballDirZ = data.data.ballDirZ;
                 }
             }
         }
