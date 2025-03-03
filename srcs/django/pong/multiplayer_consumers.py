@@ -101,7 +101,6 @@ class PongConsumer(AsyncWebsocketConsumer):
         if self.room_name not in waiting_rooms or len(waiting_rooms[self.room_name]) < 2:
             return
         while not game.endgame:
-            logger.debug(f"\n\nVuelta bucle BALL\n\n")
             game.paddlePhysics()
             game.ball_physics()
             data = {
@@ -136,7 +135,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 start_game_timer -= 1
 
             games[self.room_name].gameStarted = True
-            asyncio.create_task(self.send_ball(interval=0.5))
+            asyncio.create_task(self.send_ball(interval=1/60))
 
 
     # Metodo para decir que jugador somos
@@ -241,11 +240,11 @@ class PongConsumer(AsyncWebsocketConsumer):
                     # Llamamos a las funciones que haran los cambios
                     game.paddlePhysics()
                     game.ball_physics()
-                    
+                    logger.debug(f"Z send: {game.paddle2_position['z']}")
                     if data["isPlayer1"]:
-                        z_send = game.paddle2_position['z']
+                        z_send = data["paddleZ"]
                     else:
-                        z_send = game.paddle1_position['z']
+                        z_send = data["paddleZ"]
                     logger.debug(f"Z send: {z_send}")
                     update_data = {
                         "type": "MOVE",
