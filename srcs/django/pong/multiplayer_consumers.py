@@ -229,17 +229,20 @@ class PongConsumer(AsyncWebsocketConsumer):
                         return
                     # Actualizar la posición del paddle en la física del juego
                     logger.debug(f"Received Z: {data["paddleZ"]}")
-                    prev_z = game.paddle1_position['z'] if data["isPlayer1"] else game.paddle2_position['z']
+
                     if data["isPlayer1"]:
+                        prev_z = game.paddle1_position['z']  # Guarda el valor anterior
                         game.paddle1_position['z'] = data["paddleZ"]
                         game.paddle1_dir_z = data["paddleZ"] - prev_z
                     else:
+                        prev_z = game.paddle2_position['z']
                         game.paddle2_position['z'] = data["paddleZ"]
                         game.paddle2_dir_z = data["paddleZ"] - prev_z
                     
                     # Llamamos a las funciones que haran los cambios
                     game.paddlePhysics()
                     game.ball_physics()
+                    
                     logger.debug(f"Z send: {game.paddle2_position['z']}")
                     if data["isPlayer1"]:
                         z_send = data["paddleZ"]

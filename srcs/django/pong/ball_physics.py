@@ -36,18 +36,23 @@ class BallPhysics:
 						impact = (self.ball_position['z'] - self.paddle1_position['z']) / (self.paddle_z / 2)
 						self.ball_dir_z = impact * 1.5
 						self.ball_dir_z += self.paddle1_dir_z * 0.2
+						
+						if abs(self.ball_dir_z) < 0.2:
+							self.ball_dir_z = 0.2 * (1 if self.ball_dir_z >= 0 else -1)
 						self.ball_dir_x = -self.ball_dir_x * 1.05
 						self.ball_speed = max(self.ball_speed, self.ball_speed + abs(self.paddle1_dir_z) * 0.2) * 1.02
-
 			if self.paddle2_position['x'] <= self.ball_position['x'] <= self.paddle2_position['x'] + self.paddle_x:
 				if self.paddle2_position['z'] - self.paddle_z / 2 <= self.ball_position['z'] <= self.paddle2_position['z'] + self.paddle_z / 2:
 					if self.ball_dir_x > 0:
 						impact = (self.ball_position['z'] - self.paddle2_position['z']) / (self.paddle_z / 2)
 						self.ball_dir_z = impact * 1.5
 						self.ball_dir_z += self.paddle2_dir_z * 0.5
+						
+						if abs(self.ball_dir_z) < 0.2:
+							self.ball_dir_z = 0.2 * (1 if self.ball_dir_z >= 0 else -1)
+						
 						self.ball_dir_x = -self.ball_dir_x * 1.05
 						self.ball_speed = max(self.ball_speed, self.ball_speed + abs(self.paddle2_dir_z) * 0.2) * 1.02
-						#self.ball_speed = 10
 
 	def ball_physics(self):
 		if not self.endgame:
