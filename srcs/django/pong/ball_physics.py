@@ -2,7 +2,7 @@ import asyncio
 import random
 
 delta_time = 0.016
-BALL_SPEED = 5
+BALL_SPEED = 2
 
 class BallPhysics:
 	def __init__(self):

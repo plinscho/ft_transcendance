@@ -55,15 +55,10 @@ export class WaitingRoom {
         if (data.type === "PLAYER_TWO") this.state.player2 = true;
         if (data.type === "START_GAME") {
             console.log("Match found! Starting game...");
-            //this.isWaiting = false;
+            this.isWaiting = false;
             this.startMultiplayerGame();
         }
-        if (data.type === "START_GAME_TIMER" && Number(data.cowntdown) === 0) {
-
-            console.log("\n\nSTART!!!\n\n");
-            this.isWaiting = false;
-            //this.startMultiplayerGame();
-        }
+    
     }
 
     startMultiplayerGame() {

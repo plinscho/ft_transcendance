@@ -246,7 +246,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                         z_send = game.paddle2_position['z']
                     else:
                         z_send = game.paddle1_position['z']
-
+                    logger.debug(f"Z send: {z_send}")
                     update_data = {
                         "type": "MOVE",
                         "isPlayer1": data["isPlayer1"],

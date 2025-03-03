@@ -42,8 +42,8 @@ export class PlayerController {
 		}
 		this.setupLocalControls();
 
-		if (this.isMultiplayer)
-			this.receiveMovement();
+		//if (this.isMultiplayer)
+			//this.receiveMovement();
 	}
 
 	setupLocalControls() {

@@ -7,7 +7,6 @@ export class NetworkManager {
     }
 
     connect(isTournament) {
-        this.messageCallback = null;
         if (this.socket) {
             this.disconnect();
         }
