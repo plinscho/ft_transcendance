@@ -254,7 +254,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         update_data = {
             "type": "MOVE",
             "isPlayer1": data["isPlayer1"],
-            "paddleZ": pong_game.get_paddle2_position_z() if data["isPlayer1"] else pong_game.get_paddle1_position_z(), 
+            "paddleZ": data['paddleZ'], 
         }
         await self.channel_layer.send(
             opponent,

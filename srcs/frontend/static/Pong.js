@@ -565,7 +565,7 @@ export class Pong {
                         this.paddle1.position.y,
                         data.paddleZ
                     );
-                    this.paddle1.position.lerp(this.paddle1.targetPosition, 0.1);
+                    this.paddle1.position.lerp(this.paddle1.targetPosition, 0.05);
                 }
                 if (this.state.player1) {
                     this.paddle2.targetPosition = new THREE.Vector3(
@@ -573,7 +573,7 @@ export class Pong {
                         this.paddle2.position.y,
                         data.paddleZ
                     );
-                    this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
+                    this.paddle2.position.lerp(this.paddle2.targetPosition, 0.05);
                 }
             }
 
@@ -584,7 +584,7 @@ export class Pong {
                         this.ball.position.y,
                         data.data.ballZ,
                     );
-                    this.ball.position.lerp(this.ball.targetPosition, 0.1);
+                    this.ball.position.lerp(this.ball.targetPosition, 0.05);
                     this.ballDirX = data.data.ballDirX;
                     this.ballDirZ = data.data.ballDirZ;
                 }
