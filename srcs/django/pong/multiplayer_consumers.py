@@ -161,7 +161,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 start_game_timer -= 1
             room_management.games[self.room_name].gameStarted = True
             # interval set to 1/60 (60 fps)
-            asyncio.create_task(self.send_ball(1/30))
+            asyncio.create_task(self.send_ball(1/60))
 #_____________________________________________________________________________
 
     async def start_game_timer(self, event):
@@ -174,8 +174,6 @@ class PongConsumer(AsyncWebsocketConsumer):
         if not game: return
 
         while not game.endgame:
-            game.paddlePhysics()
-            game.ball_physics()
             data = {
                 "ballX": game.ball_position['x'],
                 "ballZ": game.ball_position['z'],
@@ -189,6 +187,8 @@ class PongConsumer(AsyncWebsocketConsumer):
                             'data': data
                         }
                     )
+            game.paddlePhysics()
+            game.ball_physics()
             await asyncio.sleep(interval)
     
     async def ball_movement(self, event):
