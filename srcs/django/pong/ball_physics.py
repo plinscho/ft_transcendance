@@ -107,5 +107,5 @@ class BallPhysics:
 		asyncio.create_task(self.resume_ball())
 
 	async def resume_ball(self):
-			await asyncio.sleep(1)  # Pausa de 2 segundos
+			await asyncio.sleep(2)  # Pausa de 2 segundos
 			self.ball_paused = False

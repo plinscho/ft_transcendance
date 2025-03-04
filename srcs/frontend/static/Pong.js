@@ -33,7 +33,7 @@ export class Pong {
         // paddle
         this.paddle1DirZ = 0;
         this.paddle2DirZ = 0;
-        this.paddleSpeed = 200;
+        this.paddleSpeed = 5;
 
         // ball
         this.ballPaused = false;
@@ -565,7 +565,7 @@ export class Pong {
                         this.paddle1.position.y,
                         data.paddleZ
                     );
-                    this.paddle1.position.lerp(this.paddle1.targetPosition, 0.05);
+                    this.paddle1.position.lerp(this.paddle1.targetPosition, 0.2);
                 }
                 if (this.state.player1) {
                     this.paddle2.targetPosition = new THREE.Vector3(
@@ -573,7 +573,7 @@ export class Pong {
                         this.paddle2.position.y,
                         data.paddleZ
                     );
-                    this.paddle2.position.lerp(this.paddle2.targetPosition, 0.05);
+                    this.paddle2.position.lerp(this.paddle2.targetPosition, 0.2);
                 }
             }
 
@@ -680,10 +680,7 @@ export class Pong {
             this.updateCameraPlayer1();
         } else if (this.state.player2) {
             this.updateCameraPlayer2();
-        } else {
-            this.updateCameraPlayer1();
         }
-
 
         if (!this.start) {
             this.start = this.gameStart();

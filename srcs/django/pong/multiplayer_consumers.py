@@ -161,7 +161,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                 start_game_timer -= 1
             room_management.games[self.room_name].gameStarted = True
             # interval set to 1/60 (60 fps)
-            asyncio.create_task(self.send_ball(1/60))
+            asyncio.create_task(self.send_ball(1/30))
 #_____________________________________________________________________________
 
     async def start_game_timer(self, event):

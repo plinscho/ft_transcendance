@@ -294,7 +294,7 @@ export class PlayerController {
 			paddleX: paddleX,
 			paddleZ: paddleZ,
 		};
-		console.log("Sending movement data:", data);
+		//console.log("Sending movement data:", data);
 		this.networkManager.sendData(data);
 	}
 
