@@ -589,6 +589,10 @@ export class Pong {
                     this.ballDirZ = data.data.ballDirZ;
                 }
             }
+            // Recibimos el jugador que se ha quedado en la sala, será el ganador
+            if (data.type === "OPPONENT_DISCONNECTED") {
+                this.createWinnerBanner("YOU WIN!");
+            }
         }
         );
     }

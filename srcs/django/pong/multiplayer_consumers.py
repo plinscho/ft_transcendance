@@ -284,17 +284,18 @@ class PongConsumer(AsyncWebsocketConsumer):
     #El metodo se llama cuando un jugador se desconecta de la sala
     async def disconnect(self, close_code):
         logger.debug(f"Disconnecting from room: {self.room_name}")
-
+        game = room_management.get_game_from_room(self.room_name)
         remaining_player = await room_management.remove_player_from_room(self.room_name, self.channel_name)
-
+        
+        
         if remaining_player:
             await self.channel_layer.send(
                 remaining_player,
                 {
-                    'type': 'opponent_disconnected'
+                    'type': 'opponent_disconnected',
+                    'winner': str(remaining_player)
                 }
             )
-
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -309,7 +310,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 #_____________________________________________________________________________
     # Metodo para enviar mensaje de que el oponente se desconectó
     async def opponent_disconnected(self, event):
-        await self.send(text_data=json.dumps({'type': 'OPPONENT_DISCONNECTED'}))
+        await self.send(text_data=json.dumps({'type': 'OPPONENT_DISCONNECTED', 'winner': event['winner']}))
 #_____________________________________________________________________________
 
 room_management = RoomManager()
