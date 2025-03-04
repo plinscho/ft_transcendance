@@ -708,12 +708,12 @@ export class Pong {
     getCamera() {
         if (this.state.currentState === this.state.states.LOCALCOOP)
             return this.localcoopCamera;
-        if (this.state.currentState === this.state.states.PLAY)
+        else if (this.state.currentState === this.state.states.PLAY)
             return this.camera1;
-        if (this.state.player1)
+        else if (this.state.player1)
             return this.camera1;
-        if (this.state.player2)
+        else if (this.state.player2)
             return this.camera2;
-        return this.camera1;
+        //return this.camera1;
     }
 }

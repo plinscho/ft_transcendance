@@ -8,7 +8,7 @@ class BallPhysics:
 	def __init__(self):
 		self.ball_position = {'x': 0, 'z': 0}
 		self.paddle1_position = {'x': -190, 'z': 0}
-		self.paddle2_position = {'x': 190, 'z': 0}
+		self.paddle2_position = {'x': 180, 'z': 0}
 		self.field_x = 400
 		self.field_z = 300
 		self.ball_dir_x = 1
@@ -16,7 +16,7 @@ class BallPhysics:
 		self.ball_speed = BALL_SPEED
 		self.ball_paused = False
 		self.paddle_x = 10
-		self.paddle_z = 50
+		self.paddle_z = 60
 		self.paddle1_dir_z = 0
 		self.paddle2_dir_z = 0
 		self.score1 = 0
