@@ -541,6 +541,7 @@ export class Pong {
 
     multiPlayerHandler() {
         this.networkManager.onMessage((data) => {
+
             if (data.type === "GOAL") {
                 this.score1 = data.score1;
                 this.score2 = data.score2;
@@ -550,37 +551,34 @@ export class Pong {
                     this.createWinnerBanner(data.winner);
                 }
             }
+
             if (data.type === "MOVE") {
                 console.log("Received movement data:", data);
                 if (data.player === this.state.apiState.data.username) {
                     console.log("Ignoring own movement update:", data);
                     return; // Ignore our own sent movement
                 }
-
                 // Update paddle position
-                if (data.isPlayer1) {
-                    if (this.state.player2 && this.paddle1) {
-                        this.paddle1.targetPosition = new THREE.Vector3(
-                            this.paddle1.position.x,
-                            this.paddle1.position.y,
-                            data.paddleZ
-                        );
-                        this.paddle1.position.lerp(this.paddle1.targetPosition, 0.1);
-                    }
-                } else {
-                    if (this.state.player1 && this.paddle2) {
-                        this.paddle2.targetPosition = new THREE.Vector3(
-                            this.paddle2.position.x,
-                            this.paddle2.position.y,
-                            data.paddleZ
-                        );
-                        this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
-                    }
+                if (this.state.player2) {
+                    this.paddle1.targetPosition = new THREE.Vector3(
+                        this.paddle1.position.x,
+                        this.paddle1.position.y,
+                        data.paddleZ
+                    );
+                    this.paddle1.position.lerp(this.paddle1.targetPosition, 0.1);
+                }
+                if (this.state.player1) {
+                    this.paddle2.targetPosition = new THREE.Vector3(
+                        this.paddle2.position.x,
+                        this.paddle2.position.y,
+                        data.paddleZ
+                    );
+                    this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
                 }
             }
+
             if (data.type === "BALL") {
                 if (this.ball) {
-                    console.log("BALL!!!!!", data);
                     this.ball.targetPosition = new THREE.Vector3(
                         data.data.ballX,
                         this.ball.position.y,

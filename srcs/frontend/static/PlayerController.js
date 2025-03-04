@@ -298,7 +298,7 @@ export class PlayerController {
 		this.networkManager.sendData(data);
 	}
 
-	receiveMovement() {
+	/*receiveMovement() {
 		if (!this.networkManager) return;
 
 		this.networkManager.onMessage((data) => {
@@ -309,8 +309,7 @@ export class PlayerController {
                 }
     
                 // Update paddle position
-                if (data.isPlayer1) {
-                    if (this.gameState.player2 && this.paddle1) {
+                    if (this.gameState.player2) {
                         this.paddle1.targetPosition = new THREE.Vector3(
                             this.paddle1.position.x,
                             this.paddle1.position.y,
@@ -318,7 +317,6 @@ export class PlayerController {
                         );
                         this.paddle1.position.lerp(this.paddle1.targetPosition, 0.1);
                     }
-                } else {
                     if (this.gameState.player1 && this.paddle2) {
                         this.paddle2.targetPosition = new THREE.Vector3(
                             this.paddle2.position.x,
@@ -326,9 +324,8 @@ export class PlayerController {
                             data.paddleZ
                         );
                         this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
-                    }
-                }
-			}	
+					}
+
 			// Update ball position and direction (only for Player 2)
 			if (data.type === "BALL") {
 				if (this.ball) {
@@ -343,6 +340,6 @@ export class PlayerController {
 				}
 			}
 		});
-	}
+	}*/
 
 }
