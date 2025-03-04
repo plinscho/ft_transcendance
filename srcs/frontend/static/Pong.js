@@ -33,9 +33,10 @@ export class Pong {
         // paddle
         this.paddle1DirZ = 0;
         this.paddle2DirZ = 0;
-        this.paddleSpeed = 200;
+        this.paddleSpeed = 5;
 
         // ball
+        this.ballPaused = false;
         this.ballDirZ = -1;
         this.ballDirX = -1;
         this.ballSpeed = BALL_SPEED;
@@ -76,8 +77,6 @@ export class Pong {
             this.paddle2,
             false // variable solo para VS IA
         );
-
-
     }
 
     createLocalCoopCamera() {
@@ -361,27 +360,7 @@ export class Pong {
         }
     }
 
-    ballPhysics() {
-        // if ball goes off the 'left' side (Player's side)
-        if (this.ball.position.x <= -this.field_x / 2) {
-            // CPU scores
-            this.score2++;
-            // update scoreboard HTML
-            // reset ball to center
-            this.resetBall(2);
-            this.matchScoreCheck();
-        }
-
-        // if ball goes off the 'right' side (CPU's side)
-        if (this.ball.position.x >= this.field_x / 2) {
-            // Player scores
-            this.score1++;
-
-            // reset ball to center
-            this.resetBall(1);
-            this.matchScoreCheck();
-        }
-
+    checkOfflineBallCollisions() {
         // if ball goes off the top side (side of table)
         if (this.ball.position.z <= -this.field_z / 2) {
             this.ballDirZ = -this.ballDirZ;
@@ -406,32 +385,63 @@ export class Pong {
         }
     }
 
+
+    ballPhysics() {
+        console.log("Ball Physics");
+        // Si la pelota esta pausada no la muevas
+        if (this.ballPaused) return;
+
+        // if ball goes off the 'left' side (Player's side)
+        // if (this.isMultiplayer) 
+        //      checkBounds();
+        if (this.ball.position.x <= -this.field_x / 2) {
+            // CPU scores
+            this.score2++;
+            // update scoreboard HTML
+            // reset ball to center
+            this.resetBall(2);
+            this.matchScoreCheck();
+        }
+
+        // if ball goes off the 'right' side (CPU's side)
+        if (this.ball.position.x >= this.field_x / 2) {
+            // Player scores
+            this.score1++;
+
+            // reset ball to center
+            this.resetBall(1);
+            this.matchScoreCheck();
+        }
+        if (!this.multiplayer) this.checkOfflineBallCollisions();
+    }
+
     resetBall(loser) {
         // position the ball in the center of the table
+        this.ballPaused = true;
         this.ball.position.x = 0;
         this.ball.position.z = 0;
         this.ballSpeed = BALL_SPEED;
 
-
         // if player lost the last point, we send the ball to opponent
         if (loser == 1) {
-            this.ballDirX = -1;
+            setTimeout(() => {
+                this.ballDirX = -1;
+                this.ballDirZ = 1;
+                this.ballPaused = false;
+            }, "2000");
         }
         // else if opponent lost, we send ball to player
         else {
-            this.ballDirX = 1;
+            setTimeout(() => {
+                this.ballDirX = 1;
+                this.ballDirZ = 1;
+                this.ballPaused = false;
+            }, "2000");
         }
-
-        // set the ball to move +ve in y plane (towards left from the camera)
-        this.ballDirZ = 1;
     }
 
     paddlePhysics() {
         // PLAYER PADDLE LOGIC
-
-        // if ball is aligned with paddle1 on x plane
-        // remember the position is the CENTER of the object
-        // we only check between the front and the middle of the paddle (one-way collision)
         if (this.ball.position.x <= this.paddle1.position.x + this.paddle_x
             && this.ball.position.x >= this.paddle1.position.x) {
             // and if ball is aligned with paddle1 on y plane
@@ -441,13 +451,6 @@ export class Pong {
                 if (this.ballDirX < 0) {
                     // stretch the paddle to indicate a hit
                     this.paddle1.scale.z = 1.3;
-                    // switch direction of ball travel to create bounce
-                    //this.ballDirX = -this.ballDirX;
-                    // we impact ball angle when hitting it
-                    // this is not realistic physics, just spices up the gameplay
-                    // allows you to 'slice' the ball to beat the opponent
-                    //this.ballDirZ -= this.paddle1DirZ * 0.7;
-
                     let impact = (this.ball.position.z - this.paddle1.position.z) / (this.paddle_z / 2);
                     this.ballDirZ = impact * 1.5; // Ajustamos la inclinación del rebote
 
@@ -465,11 +468,6 @@ export class Pong {
             }
         }
 
-        // OPPONENT PADDLE LOGIC	
-
-        // if ball is aligned with paddle2 on x plane
-        // remember the position is the CENTER of the object
-        // we only check between the front and the middle of the paddle (one-way collision)
         if (this.ball.position.x <= this.paddle2.position.x + this.paddle_x
             && this.ball.position.x >= this.paddle2.position.x) {
             // and if ball is aligned with paddle2 on y plane
@@ -479,12 +477,6 @@ export class Pong {
                 if (this.ballDirX > 0) {
                     // stretch the paddle to indicate a hit
                     this.paddle2.scale.z = 1.3;
-                    // switch direction of ball travel to create bounce
-                    //this.ballDirX = -this.ballDirX;
-                    // we impact ball angle when hitting it
-                    // this is not realistic physics, just spices up the gameplay
-                    // allows you to 'slice' the ball to beat the opponent
-                    //this.ballDirZ -= this.paddle2DirZ * 0.7;
 
                     // Calculamos la desviación en función del punto de impacto
                     let impact = (this.ball.position.z - this.paddle2.position.z) / (this.paddle_z / 2);
@@ -495,7 +487,6 @@ export class Pong {
                     if (Math.abs(this.ballDirZ) < 0.2) {
                         this.ballDirZ = 0.2 * Math.sign(this.ballDirZ);
                     }
-
                     // Invertimos dirección en X (rebote)
                     this.ballDirX = -this.ballDirX * 1.05;
 
@@ -535,16 +526,75 @@ export class Pong {
     }
 
     backToMenu() {
-
         if (this.multiplayer) {
+            console.log("Sending QUIT signal to server");
             this.networkManager.sendData({ type: "QUIT" });
             this.networkManager.disconnect();
             this.active = false;
-            window.removeEventListener('keydown', this.boundEscapeHandler);
+            // this.player1.stopSendingMovement();
+            // this.player2.stopSendingMovement();
         }
         delete this.player1;
         delete this.player2;
         this.state.loadScene(this.state.states.MENU);
+    }
+
+    multiPlayerHandler() {
+        this.networkManager.onMessage((data) => {
+
+            if (data.type === "GOAL") {
+                this.score1 = data.score1;
+                this.score2 = data.score2;
+
+                if (data.endgame) {
+                    console.log("Game Over", data.winner);
+                    this.createWinnerBanner(data.winner);
+                }
+            }
+
+            if (data.type === "MOVE") {
+                console.log("Received movement data:", data);
+                if (data.player === this.state.apiState.data.username) {
+                    console.log("Ignoring own movement update:", data);
+                    return; // Ignore our own sent movement
+                }
+                // Update paddle position
+                if (this.state.player2) {
+                    this.paddle1.targetPosition = new THREE.Vector3(
+                        this.paddle1.position.x,
+                        this.paddle1.position.y,
+                        data.paddleZ
+                    );
+                    this.paddle1.position.lerp(this.paddle1.targetPosition, 1);
+                }
+                if (this.state.player1) {
+                    this.paddle2.targetPosition = new THREE.Vector3(
+                        this.paddle2.position.x,
+                        this.paddle2.position.y,
+                        data.paddleZ
+                    );
+                    this.paddle2.position.lerp(this.paddle2.targetPosition, 1);
+                }
+            }
+
+            if (data.type === "BALL") {
+                if (this.ball) {
+                    this.ball.targetPosition = new THREE.Vector3(
+                        data.data.ballX,
+                        this.ball.position.y,
+                        data.data.ballZ,
+                    );
+                    this.ball.position.lerp(this.ball.targetPosition, 1);
+                    this.ballDirX = data.data.ballDirX;
+                    this.ballDirZ = data.data.ballDirZ;
+                }
+            }
+            // Recibimos el jugador que se ha quedado en la sala, será el ganador
+            if (data.type === "OPPONENT_DISCONNECTED") {
+                this.createWinnerBanner("YOU WIN!");
+            }
+        }
+        );
     }
 
     matchScoreCheck() {
@@ -593,20 +643,31 @@ export class Pong {
                 this.countdownMesh.rotation.x = -90 * Math.PI / 180;
             }
             this.scene.add(this.countdownMesh);
+            if (this.state.currentState === this.state.states.LOCALCOOP || this.state.currentState === this.state.states.PLAY) {
+                const interval = setInterval(() => {
+                    countdown--;
 
-            const interval = setInterval(() => {
-                countdown--;
+                    if (countdown >= 0) {
+                        this.countdownText.updateText(countdown.toString());
+                    }
 
-                if (countdown >= 0) {
-                    this.countdownText.updateText(countdown.toString());
-                }
-
-                if (countdown < 0) {
-                    clearInterval(interval);
-                    this.scene.remove(this.countdownMesh);
-                    this.start = true; // Start the game
-                }
-            }, 1000);
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        this.scene.remove(this.countdownMesh);
+                        this.start = true; // Start the game
+                    }
+                }, 1000);
+            } else {
+                this.networkManager.onMessage((data) => {
+                    if (data.type === "START_GAME_TIMER") {
+                        this.countdownText.updateText(data.countdown.toString());
+                        if (data.countdown === 0) {
+                            this.scene.remove(this.countdownMesh);
+                            this.start = true;
+                        }
+                    }
+                });
+            }
         });
 
         return false;
@@ -623,20 +684,20 @@ export class Pong {
             this.updateCameraPlayer1();
         } else if (this.state.player2) {
             this.updateCameraPlayer2();
-        } else {
-            this.updateCameraPlayer1();
         }
-        
 
         if (!this.start) {
             this.start = this.gameStart();
             return;
         }
-
         this.player1.update();
         this.player2.update();
-        this.ballPhysics();
-        this.paddlePhysics();
+        if (!this.multiplayer) {
+            this.ballPhysics();
+            this.paddlePhysics();
+        } else {
+            this.multiPlayerHandler();
+        }
         this.updateScoreboard();
     }
 

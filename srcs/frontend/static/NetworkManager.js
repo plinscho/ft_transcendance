@@ -7,6 +7,9 @@ export class NetworkManager {
     }
 
     connect(isTournament) {
+        if (this.socket) {
+            this.disconnect();
+        }
         if (isTournament) {
             this.socket = new WebSocket(
                 'ws://localhost:8000/ws/tournament/?authToken=' + this.token
@@ -18,23 +21,40 @@ export class NetworkManager {
             );
             this.socket.onopen = () => console.log('Connected to multiplayer server');
 
-        }    
+        }
+        // Esto siempre está disponible porque ya existe el websocket (la conexión)
         this.socket.onmessage = (msg) => {
             const data = JSON.parse(msg.data);
-            console.log("Server data:", data);
+            //console.log("Server data:", data);
+            /*if (data.type !== "MOVE")
+                    console.log("Server data:", data);*/
 
             if (this.messageCallback) {
                 this.messageCallback(data);
+            } else {
+                console.warn("No message callback set for received data:", data);
             }
+        };
+
+        this.socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+
+        this.socket.onclose = (event) => {
+            console.warn("WebSocket closed:", event.reason || "No reason provided");
         };
     }
 
     disconnect() {
         if (this.socket) {
+            this.socket.onopen = null;
+            this.socket.onmessage = null;
+            this.socket.onclose = null;
+            this.socket.onerror = null;
             this.socket.close();
+            this.socket = null;
         }
     }
-
 
     onMessage(callback) {
         this.messageCallback = callback;
@@ -43,6 +63,9 @@ export class NetworkManager {
     sendData(data) {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(data));
+        }
+        else {
+            console.warn("WebSocket is not connected. Message not sent:", data);
         }
     }
 }

@@ -16,7 +16,8 @@ export class Game {
         
         // for game loop
         this.deltaTime = 0;
-        this.fps = 90;
+        this.fps = 60;
+        this.initTime = 0;
 
         document.body.appendChild(this.renderer.domElement);
 
@@ -87,6 +88,7 @@ export class Game {
                     break;
                 default:
                     console.error(`This scene only exists in your head: ${sceneName}`);
+                    this.loadScene(this.states.MENU);
                     return;
             }
         }

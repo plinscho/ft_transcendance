@@ -47,10 +47,11 @@ export class WaitingRoom {
         });
 
         this.network.connect();
-        this.network.onMessage((data) => this.handleServerMessage(data));
+        this.network.onMessage((response) => this.handleServerMessage(response));
     }
 
     handleServerMessage(data) {
+        console.log("Received message from server: ", data);
         if (data.type === "PLAYER_ONE") this.state.player1 = true;
         if (data.type === "PLAYER_TWO") this.state.player2 = true;
         if (data.type === "START_GAME") {
@@ -58,6 +59,7 @@ export class WaitingRoom {
             this.isWaiting = false;
             this.startMultiplayerGame();
         }
+    
     }
 
     startMultiplayerGame() {
