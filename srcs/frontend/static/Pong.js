@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { PlayerController } from './PlayerController.js';
+import { PongBackground } from './PongBackground.js';
 
 const BALL_SPEED = 200;
 
@@ -55,14 +56,13 @@ export class Pong {
         this.countdownText = null; // Holds reference to countdown `Text3D`
         this.countdownMesh = null; // Stores the countdown mesh
 
-        this.createBackground();
+        new PongBackground(this.scene, this.camera1);
 
         // Creates paddles + ball
         this.createScene();
 
         this.createScoreboard();
-
-
+    
         //player initialization
         this.player1 = new PlayerController(
             this.state,
@@ -105,88 +105,20 @@ export class Pong {
         return camera2;
     }
 
-
     updateCameraPlayer1() {
         if (!this.camera1 || !this.paddle1 || !this.ball) return;
         this.camera1.lookAt(0, 0, 0);
-        // Move camera behind Paddle1
-        //this.camera1.position.x = this.paddle1.position.x - 200;
-        //this.camera1.position.y += (this.paddle1.position.y - this.camera1.position.y) * 0.05;
-        //this.camera1.position.z = this.ball.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle1.position.x);
-
-        // Look at the ball instead of manual rotations
-        //this.camera1.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
-        //this.camera1.rotation.y = -60 * Math.PI / 180;
-        //this.camera1.rotation.z = -90 * Math.PI / 180;
     }
 
     updateCameraPlayer2() {
         if (!this.camera2 || !this.paddle2 || !this.ball) return;
 
         this.camera2.lookAt(0, 0, 0);
-        // Posición de la cámara detrás de Paddle2 (invertida respecto a Player 1)
-        // this.camera2.position.x = this.paddle2.position.x + 200;  // Invertimos la dirección
-        // this.camera2.position.y += (this.paddle2.position.y - this.camera2.position.y) * 0.05;
-        // this.camera2.position.z = this.paddle2.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle2.position.x);
-
-        // Ajustar la orientación para que mire correctamente
-
-        // this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
-        // this.camera2.rotation.y = 60 * Math.PI / 180; // Rotamos la cámara 180° en Y
-        // this.camera2.rotation.z = 90 * Math.PI / 180; // Ajuste en Z para mantener perspectiva similar
     }
 
     updateLocalCoopCamera() {
         if (!this.cameraLocalCoop || !this.ball) return;
         this.camera1.lookAt(0, 0, 0);
-        // Posición de la cámara detrás de Paddle2 (invertida respecto a Player 1)
-        // this.camera2.position.x = this.paddle2.position.x + 200;  // Invertimos la dirección
-        // this.camera2.position.y += (this.paddle2.position.y - this.camera2.position.y) * 0.05;
-        // this.camera2.position.z = this.paddle2.position.z + 200 + 0.04 * (-this.ball.position.x + this.paddle2.position.x);
-
-        // Ajustar la orientación para que mire correctamente
-
-        // this.camera2.rotation.x = -0.01 * (this.ball.position.y) * Math.PI / 180;
-        // this.camera2.rotation.y = 60 * Math.PI / 180; // Rotamos la cámara 180° en Y
-        // this.camera2.rotation.z = 90 * Math.PI / 180; // Ajuste en Z para mantener perspectiva similar
-    }
-
-    createBackground() {
-        const bgGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
-
-        const bgMaterial = new THREE.ShaderMaterial({
-            uniforms: {
-                uColor1: { value: new THREE.Color(0x440088) },
-                uColor2: { value: new THREE.Color(0x440066) },
-            },
-            vertexShader: `
-                varying vec2 vUv;
-                void main() {
-                    vUv = uv;
-                    gl_Position = vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform vec3 uColor1;
-                uniform vec3 uColor2;
-                varying vec2 vUv;
-                void main() {
-                    float dist = distance(vUv, vec2(0.5));
-                    vec3 color = mix(uColor2, uColor1, smoothstep(0.1, 0.7, dist));
-                    gl_FragColor = vec4(color, 1.0);
-                }
-            `,
-            depthWrite: false,
-            depthTest: false
-        });
-
-        this.backgroundMesh = new THREE.Mesh(bgGeometry, bgMaterial);
-        this.backgroundMesh.renderOrder = -1;
-
-        const bgCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-        this.backgroundCamera = bgCamera;
-
-        this.scene.add(this.backgroundMesh);
     }
 
     createScene() {
