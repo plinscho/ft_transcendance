@@ -66,6 +66,10 @@ export class SetNickEl extends HTMLElement {
     setNetwork(network) {
         this.network = network;
     }
+    
+    remove() {
+        this.shadowRoot.querySelector('.nick-container').remove();
+    }
 }
 
 // Define the custom element

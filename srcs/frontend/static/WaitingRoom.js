@@ -11,9 +11,10 @@ export class WaitingRoom {
         this.active = true;
         this.state = state;
         this.buttons = [];
-
+        this.SetNickEl;
         this.boundEscapeHandler = this.escapeHandler.bind(this);
         this.setUpKeyboard();
+        this.state.resize();
         this.createWaitingRoom();
     }
 
@@ -47,9 +48,9 @@ export class WaitingRoom {
         });
 
         //NICK ELEMENT
-        const setNickEl = document.createElement('set-nick-el');
-        setNickEl.setNetwork(this.network);
-        document.body.appendChild(setNickEl);
+        this.SetNickEl = document.createElement('set-nick-el');
+        this.SetNickEl.setNetwork(this.network);
+        document.body.appendChild(this.SetNickEl);
 
         this.network.connect();
         this.network.onMessage((response) => this.handleServerMessage(response));
@@ -62,6 +63,8 @@ export class WaitingRoom {
         if (data.type === "START_GAME") {
             console.log("Match found! Starting game...");
             this.isWaiting = false;
+            if (this.SetNickEl)
+                this.SetNickEl.remove();
             this.startMultiplayerGame();
         }
     
@@ -105,6 +108,7 @@ export class WaitingRoom {
         this.network.disconnect();
         this.active = false;
         window.removeEventListener('keydown', this.boundEscapeHandler);
+        this.SetNickEl.remove();
         this.state.loadScene(this.state.states.MENU);
     }
 
