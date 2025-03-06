@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
-import { NetworkManager } from './NetworkManager.js';
+import { SetNickEl } from './WaitingRoomNickEl.js';
 
 export class WaitingRoom {
     constructor(state, network) {
@@ -45,6 +45,11 @@ export class WaitingRoom {
             this.scene.add(textMesh);
             this.buttons.push(textMesh);
         });
+
+        //NICK ELEMENT
+        const setNickEl = document.createElement('set-nick-el');
+        setNickEl.setNetwork(this.network);
+        document.body.appendChild(setNickEl);
 
         this.network.connect();
         this.network.onMessage((response) => this.handleServerMessage(response));
