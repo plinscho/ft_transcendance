@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Menu } from './Menu.js';
-import { Pong } from './Pong.js';
+import { Pong } from './Pong/Pong.js';
 import { WaitingRoom } from './WaitingRoom.js';
 import { NetworkManager } from './NetworkManager.js';
 import { state } from './state.js';
