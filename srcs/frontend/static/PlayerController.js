@@ -21,7 +21,7 @@ export class PlayerController {
 		this.field_y = pongState.field_y;
 		this.field_z = pongState.field_z;
 
-		this.paddleSpeed = 3;
+		this.paddleSpeed = 5;
 		this.ball = pongState.ball; // Pass the ball for AI tracking
 
 		this.ballDirX = pongState.ballDirX;
