@@ -3,6 +3,7 @@ import { Text3D } from '../Text3D.js';
 import { PlayerController } from './PlayerController.js';
 import { PongScene } from './PongScene.js';
 import { PongBackground } from './PongBackground.js';
+import { CameraManager } from './CameraManager.js';
 
 const BALL_SPEED = 200;
 
@@ -10,9 +11,10 @@ export class Pong {
     constructor(state, multiplayer, networkManager, localcoop) {
         this.scene = new THREE.Scene();
         this.state = state;
-        this.camera1 = this.createCamera1();
-        this.camera2 = this.createCamera2();
-        this.localcoopCamera = this.createLocalCoopCamera();
+        this.cameraManager = new CameraManager();
+        this.camera1 = this.cameraManager.camera1;
+        this.camera2 = this.cameraManager.camera2;
+        this.localcoopCamera = this.cameraManager.localCoopCamera;
 
         this.deltaTime = state.deltaTime;
         this.multiplayer = multiplayer;
@@ -87,47 +89,18 @@ export class Pong {
         );
     }
 
-    createLocalCoopCamera() {
-        const cameraLocalCoop = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        cameraLocalCoop.position.set(0, 550, 0);
-        cameraLocalCoop.lookAt(new THREE.Vector3(0, 0, 0));
-
-        return cameraLocalCoop;
-    }
-
-    createCamera1() {
-        //Camara player1
-        const camera1 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera1.position.set(-400, 200, 0); // Start behind Paddle1
-        camera1.lookAt(new THREE.Vector3(0, 0, 0));
-
-        return camera1;
-    }
-
-    createCamera2() {
-        //Camara player2
-        const camera2 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera2.position.set(400, 200, 0); // Posición detrás del paddle 2, en el lado opuesto
-        camera2.lookAt(new THREE.Vector3(0, 0, 0));
-
-        return camera2;
-    }
-
     updateCameraPlayer1() {
-        if (!this.camera1 || !this.paddle1 || !this.ball) return;
-        this.camera1.lookAt(0, 0, 0);
+        this.cameraManager.updateCamera(this.camera1);
     }
-
+    
     updateCameraPlayer2() {
-        if (!this.camera2 || !this.paddle2 || !this.ball) return;
-
-        this.camera2.lookAt(0, 0, 0);
+        this.cameraManager.updateCamera(this.camera2);
     }
-
+    
     updateLocalCoopCamera() {
-        if (!this.cameraLocalCoop || !this.ball) return;
-        this.camera1.lookAt(0, 0, 0);
+        this.cameraManager.updateCamera(this.localcoopCamera, this.ball);
     }
+    
 
     createScoreboard() {
         const scoreOffsetX = 30;
