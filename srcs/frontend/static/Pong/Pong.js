@@ -1,7 +1,9 @@
 import * as THREE from 'three';
-import { Text3D } from './Text3D.js';
+import { Text3D } from '../Text3D.js';
 import { PlayerController } from './PlayerController.js';
+import { PongScene } from './PongScene.js';
 import { PongBackground } from './PongBackground.js';
+import { CameraManager } from './CameraManager.js';
 
 const BALL_SPEED = 200;
 
@@ -9,9 +11,10 @@ export class Pong {
     constructor(state, multiplayer, networkManager, localcoop) {
         this.scene = new THREE.Scene();
         this.state = state;
-        this.camera1 = this.createCamera1();
-        this.camera2 = this.createCamera2();
-        this.localcoopCamera = this.createLocalCoopCamera();
+        this.cameraManager = new CameraManager();
+        this.camera1 = this.cameraManager.camera1;
+        this.camera2 = this.cameraManager.camera2;
+        this.localcoopCamera = this.cameraManager.localCoopCamera;
 
         this.deltaTime = state.deltaTime;
         this.multiplayer = multiplayer;
@@ -58,11 +61,18 @@ export class Pong {
 
         new PongBackground(this.scene, this.camera1);
 
-        // Creates paddles + ball
-        this.createScene();
+        // Create Scene
+        this.pongScene = new PongScene(
+            this.field_x, this.field_y, this.field_z,
+            this.paddle_x, this.paddle_y, this.paddle_z,
+            this.ballRadius, this.scene
+        );
 
+        this.paddle1 = this.pongScene.getPaddle1();
+        this.paddle2 = this.pongScene.getPaddle2();
+        this.ball = this.pongScene.getBall();
         this.createScoreboard();
-    
+
         //player initialization
         this.player1 = new PlayerController(
             this.state,
@@ -79,150 +89,18 @@ export class Pong {
         );
     }
 
-    createLocalCoopCamera() {
-        const cameraLocalCoop = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        cameraLocalCoop.position.set(0, 550, 0);
-        cameraLocalCoop.lookAt(new THREE.Vector3(0, 0, 0));
-
-        return cameraLocalCoop;
-    }
-
-    createCamera1() {
-        //Camara player1
-        const camera1 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera1.position.set(-400, 200, 0); // Start behind Paddle1
-        camera1.lookAt(new THREE.Vector3(0, 0, 0));
-
-        return camera1;
-    }
-
-    createCamera2() {
-        //Camara player2
-        const camera2 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera2.position.set(400, 200, 0); // Posición detrás del paddle 2, en el lado opuesto
-        camera2.lookAt(new THREE.Vector3(0, 0, 0));
-
-        return camera2;
-    }
-
     updateCameraPlayer1() {
-        if (!this.camera1 || !this.paddle1 || !this.ball) return;
-        this.camera1.lookAt(0, 0, 0);
+        this.cameraManager.updateCamera(this.camera1);
     }
-
+    
     updateCameraPlayer2() {
-        if (!this.camera2 || !this.paddle2 || !this.ball) return;
-
-        this.camera2.lookAt(0, 0, 0);
+        this.cameraManager.updateCamera(this.camera2);
     }
-
+    
     updateLocalCoopCamera() {
-        if (!this.cameraLocalCoop || !this.ball) return;
-        this.camera1.lookAt(0, 0, 0);
+        this.cameraManager.updateCamera(this.localcoopCamera, this.ball);
     }
-
-    createScene() {
-        const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x00ffff });
-        const tableMaterial = new THREE.MeshLambertMaterial({ color: 0x440066 });
-        const paddleMaterial = new THREE.MeshLambertMaterial({ color: 0xff66ff });
-        const paddle2Material = new THREE.MeshLambertMaterial({ color: 0xffffff });
-        const ballMaterial = new THREE.MeshLambertMaterial({ color: 0xD43001 });
-
-
-        // Add helpers
-        //const gridHelper = new THREE.GridHelper( 600, 100 );
-        //const axesHelper = new THREE.AxesHelper( 350 );
-        //this.scene.add( gridHelper );
-        //this.scene.add( axesHelper );
-
-        // Enable shadow casting
-        planeMaterial.roughness = 0.5;
-        tableMaterial.roughness = 0.4;
-        paddleMaterial.roughness = 0.2;
-        ballMaterial.roughness = 0.3;
-
-        // Playing surface (Field)
-        const surface = new THREE.Mesh(
-            new THREE.BoxGeometry(this.field_x + 50, this.field_y - 10, this.field_z + 50),
-            planeMaterial
-        );
-        this.scene.add(surface);
-
-        // Table border (for visibility)
-        const table = new THREE.Mesh(
-            new THREE.BoxGeometry(this.field_x, this.field_y, this.field_z),
-            tableMaterial
-        );
-        //table.position.x = 20;
-        table.receiveShadow = true;
-        this.scene.add(table);
-
-        // Ball
-        this.ball = new THREE.Mesh(
-            new THREE.SphereGeometry(this.ballRadius, 16, 16),
-            ballMaterial
-        );
-        this.ball.position.set(0, this.field_y + 5, this.ballRadius);
-        this.ball.castShadow = true;
-        this.ball.receiveShadow = true;
-        this.scene.add(this.ball);
-
-        // Paddles
-        this.paddle1 = new THREE.Mesh(
-            new THREE.BoxGeometry(this.paddle_x, this.paddle_y, this.paddle_z),
-            paddleMaterial
-        );
-
-        let offset = 10;
-
-        this.paddle1.position.set((-this.field_x / 2 + offset), table.position.y + offset, table.position.z / 2);
-        this.paddle1.castShadow = true;
-        this.paddle1.receiveShadow = true;
-        this.scene.add(this.paddle1);
-
-        this.paddle2 = new THREE.Mesh(
-            new THREE.BoxGeometry(this.paddle_x, this.paddle_y, this.paddle_z),
-            paddle2Material
-        );
-        this.paddle2.position.set((this.field_x / 2 - offset), table.position.y + offset, table.position.z / 2);
-        this.paddle2.castShadow = true;
-        this.paddle2.receiveShadow = true;
-        this.scene.add(this.paddle2);
-
-        // Lights
-
-        // 🔹 Ambient Light (Soft global illumination)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        this.scene.add(ambientLight);
-
-        // 🔹 Move Point Light Closer
-        const pointLight = new THREE.PointLight(0xffffff, 20, 1500, 0.1);
-        pointLight.position.set(0, 100, 0); // Closer to objects
-
-        pointLight.castShadow = true;
-        pointLight.shadow.mapSize.width = 2048;
-        pointLight.shadow.mapSize.height = 2048;
-
-        this.scene.add(pointLight);
-
-        // 🔹 Point Light Helper (Visualize Position)
-        const pointLightHelper = new THREE.PointLightHelper(pointLight, 1);
-        this.scene.add(pointLightHelper);
-
-        // 🔹 Spot Light (Strong Shadow Direction)
-        const spotLight = new THREE.SpotLight(0xffffff, 30);
-        spotLight.position.set(0, 0, 0);
-        spotLight.angle = Math.PI / 4;
-        spotLight.penumbra = 0.5;
-        spotLight.decay = 1;
-        spotLight.distance = 1000;
-        spotLight.castShadow = true;
-        spotLight.shadow.mapSize.width = 2048;
-        spotLight.shadow.mapSize.height = 2048;
-        spotLight.target.position.set(0, 0, 0);
-        this.scene.add(spotLight);
-        this.scene.add(spotLight.target);
-    }
+    
 
     createScoreboard() {
         const scoreOffsetX = 30;
@@ -306,9 +184,7 @@ export class Pong {
         this.ball.position.x += this.ballDirX * this.ballSpeed * this.deltaTime;
         this.ball.position.z += this.ballDirZ * this.ballSpeed * this.deltaTime;
 
-        // limit ball's y-speed to 2x the x-speed
-        // this is so the ball doesn't speed from left to right super fast
-        // keeps game playable for humans
+        // limit ball's z-speed to 2x the x-speed
         if (this.ballDirZ > this.ballSpeed * 2) {
             this.ballDirZ = this.ballSpeed * 2;
         }
@@ -319,17 +195,12 @@ export class Pong {
 
 
     ballPhysics() {
-        console.log("Ball Physics");
         // Si la pelota esta pausada no la muevas
         if (this.ballPaused) return;
 
-        // if ball goes off the 'left' side (Player's side)
-        // if (this.isMultiplayer) 
-        //      checkBounds();
         if (this.ball.position.x <= -this.field_x / 2) {
             // CPU scores
             this.score2++;
-            // update scoreboard HTML
             // reset ball to center
             this.resetBall(2);
             this.matchScoreCheck();
@@ -463,8 +334,6 @@ export class Pong {
             this.networkManager.sendData({ type: "QUIT" });
             this.networkManager.disconnect();
             this.active = false;
-            // this.player1.stopSendingMovement();
-            // this.player2.stopSendingMovement();
         }
         delete this.player1;
         delete this.player2;
