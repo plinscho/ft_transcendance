@@ -26,14 +26,14 @@ export class SetNickEl extends HTMLElement {
 			}
 			.screen {
 				position: absolute;
-                top: 70%;
+                top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				justify-content: flex-start;
-				height: 100vh;
+				height: 600px;
 				gap: 20px;
 				padding-top: 50px;
 			}
@@ -112,7 +112,19 @@ export class SetNickEl extends HTMLElement {
 			const nicknames = Array.from(container.querySelectorAll('.nick-input'))
 				.map(input => input.value.trim())
 				.filter(nickname => nickname);
-
+			
+			let findDuplicates = (arr) => new Set(arr).size !== arr.length;
+	
+			if (findDuplicates(nicknames)) {
+				for (let i = 0; i < 4; i++) {
+					if (nicknames.indexOf(nicknames[i]) != i) {
+						this.shadowRoot.querySelector(".nick-input").style.border = "2px solid red";
+						return ;
+					}
+				}
+				return ;
+			}
+			
 			console.log('Nicknames:', nicknames); // <-- Para depuración
 
 			if (nicknames.length == 4) {
