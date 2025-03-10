@@ -80,7 +80,8 @@ export class PlayerController {
 		}
 
 		// Only 2 player COOP
-		if (this.gameState.currentState === this.gameState.states.LOCALCOOP) {
+		if (this.gameState.currentState === this.gameState.states.LOCALCOOP 
+			|| this.gameState.currentState === this.gameState.states.TOURNAMENTS) {
 			this.localMovement();
 		}
 
@@ -197,47 +198,27 @@ export class PlayerController {
 	}
 
 	playerActiveKeys() {
-		if (this.gameState.currentState !== this.gameState.states.LOCALCOOP) {
-			if (this.gameState.player1 || this.gameState.currentState === this.gameState.states.PLAY) {
-				if (this.activeKeys['a']) {
-					this.directionZ = -1;
-				} else if (this.activeKeys['d']) {
-					this.directionZ = 1;
+		switch (this.gameState.currentState) {
+			case this.gameState.states.PLAY:
+			case this.gameState.states.MULTIPLAYER:
+				if (this.gameState.player1) {
+					this.directionZ = this.activeKeys['a'] ? 1 : this.activeKeys['d'] ? -1 : 0;
 				} else {
-					this.directionZ = 0;
+					this.directionZ = this.activeKeys['a'] ? -1 : this.activeKeys['d'] ? 1 : 0;
 				}
-			}
-			else {
-				if (this.activeKeys['a']) {
-					this.directionZ = 1;
-				} else if (this.activeKeys['d']) {
-					this.directionZ = -1;
+				break;
+	
+			case this.gameState.states.LOCALCOOP:
+			case this.gameState.states.TOURNAMENTS:
+				if (this.paddle1 === this.playerMesh) {
+					this.directionZ = this.activeKeys['w'] ? -1 : this.activeKeys['s'] ? 1 : 0;
 				} else {
-					this.directionZ = 0;
+					this.directionZ = this.activeKeys['ArrowUp'] ? -1 : this.activeKeys['ArrowDown'] ? 1 : 0;
 				}
-			}
-		} else {
-			// Separar player 1 del 2
-			if (this.paddle1 === this.playerMesh) {
-				if (this.activeKeys['w']) {
-					this.directionZ = -1;
-				} else if (this.activeKeys['s']) {
-					this.directionZ = 1;
-				} else {
-					this.directionZ = 0;
-				}
-			} else {
-				if (this.activeKeys["ArrowUp"]) {
-					this.directionZ = -1;
-				} else if (this.activeKeys["ArrowDown"]) {
-					this.directionZ = 1;
-				} else {
-					this.directionZ = 0;
-				}
-			}
+				break;
 		}
 	}
-
+	
 	setupAI() {
 		if (!this.ball || !this.playerMesh) return;
 
