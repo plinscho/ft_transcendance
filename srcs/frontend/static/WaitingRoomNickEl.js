@@ -109,10 +109,27 @@ export class SetNickEl extends HTMLElement {
 		
 
 		button.addEventListener('click', () => {
+			let el = null;
 			const nicknames = Array.from(container.querySelectorAll('.nick-input'))
 				.map(input => input.value.trim())
 				.filter(nickname => nickname);
-
+			
+			let findDuplicates = (arr) => new Set(arr).size !== arr.length;
+	
+			if (findDuplicates(nicknames)) {
+				for (let i = 0; i < 4; i++) {
+					if (nicknames.indexOf(nicknames[i]) != i) {
+						this.shadowRoot.querySelector(".nick-input").style.border = "2px solid red";
+						el = container.appendChild(document.createElement('div'));
+						el.style.color = "red";
+						el.style.textAlign = "center";
+						el.innerText = "Nicknames must be unique!";
+						return ;
+					}
+				}
+				return ;
+			}
+			
 			console.log('Nicknames:', nicknames); // <-- Para depuración
 
 			if (nicknames.length == 4) {
