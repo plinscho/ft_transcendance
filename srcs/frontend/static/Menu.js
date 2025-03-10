@@ -78,6 +78,7 @@ export class Menu {
 
     setTournamentMode() {
         this.state.isTournament = true;
+        console.log("Llega");
     }
 
     createMenuScene() {
@@ -110,9 +111,11 @@ export class Menu {
                         if (state && this.state.changeState) {
                             if (text === lang.menu.tournament) {
                                 this.setTournamentMode();
+                                console.log("Entra tournament");
                             }
                             if (text === lang.menu.localcoop) {
                                 this.setLocalCoopMode();
+                                console.log("Entra localcoop");
                             }
                             this.state.loadScene(state);
                             this.setActive(false); // Ocultar el menú al cambiar de escena

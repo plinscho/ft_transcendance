@@ -14,10 +14,14 @@ export class Game {
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         
+        this.tournamentManager;
+
         // for game loop
         this.deltaTime = 0;
         this.fps = 60;
         this.initTime = 0;
+
+        this.nicksResult;
 
         document.body.appendChild(this.renderer.domElement);
 
@@ -27,6 +31,8 @@ export class Game {
         this.player1 = false;
         this.player2 = false;
         this.localcoop = false;
+        this.isTournament = false;
+        this.tournamentNicksGame;
         this.states = {
             MENU: 'menu',
             PLAY: 'play',
@@ -81,7 +87,7 @@ export class Game {
                     this.scenes[sceneName] = new Pong(this, true, this.network, this.localcoop);
                     break;
                 case this.states.TOURNAMENTS:
-                    this.scenes[sceneName] = new Pong(this, true, this.network, this.localcoop);
+                    this.scenes[sceneName] = new Pong(this, false, this.network, this.localcoop, this.tournamentNicksGame);
                     break;
                 case this.states.LANGUAGE_MENU:
                     this.scenes[sceneName] = new LanguageMenu(this);
@@ -167,7 +173,8 @@ export class Game {
         if (currentScene) {
             if (this.currentState === this.states.PLAY || 
                 this.currentState === this.states.MULTIPLAYER || 
-                this.currentState === this.states.LOCALCOOP) {
+                this.currentState === this.states.LOCALCOOP ||
+                this.currentState === this.states.TOURNAMENTS) {
                 this.scenes[this.currentState].update();
             }
             this.renderer.render(currentScene, this.camera);

@@ -1,62 +1,95 @@
 import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { SetNickEl } from './WaitingRoomNickEl.js';
+import { TournamentManager } from './TournamentManager.js';
 
 export class WaitingRoom {
-    constructor(state, network) {
-        this.scene = new THREE.Scene();
-        this.camera = this.createCamera();
-        this.network = network;
-        this.isWaiting = true;
-        this.active = true;
-        this.state = state;
-        this.buttons = [];
-        this.SetNickEl;
-        this.boundEscapeHandler = this.escapeHandler.bind(this);
-        this.setUpKeyboard();
-        this.state.resize();
-        this.createWaitingRoom();
-    }
+	constructor(state, network) {
+		this.scene = new THREE.Scene();
+		this.camera = this.createCamera();
+		this.network = network;
+		this.isWaiting = true;
+		this.active = true;
+		this.state = state;
+		this.buttons = [];
+		this.SetNickEl;
+		this.isTournament = state.isTournament;
+		this.boundEscapeHandler = this.escapeHandler.bind(this);
+		this.setUpKeyboard();
+		this.state.resize();
+		this.createWaitingRoom();
+	}
 
-    createWaitingRoom() {
-        const waitingText = new Text3D(
-            "Waiting for other player...",
-            { x: -4, y: 0, z: 0 },
-            0xffffff,
-            0.4,
-            0,
-            () => {}
-        );
+	createTournamentScreen() {
+		const backToMenu = new Text3D(
+			"ESC TO LEAVE QUEUE",
+			{ x: -8, y: 4, z: 0 },
+			0xff55ff,
+			0.15,
+			0,
+			() => { if (this.active) { this.backToMenu(); }}
+		);
 
-        waitingText.createText((textMesh) => {
-            this.scene.add(textMesh);
-        });
+		backToMenu.createText((textMesh) => {
+			textMesh.userData.onClick = backToMenu.onClick;
+			this.scene.add(textMesh);
+			this.buttons.push(textMesh);
+		});
 
-        const backToMenu = new Text3D(
-            "ESC TO LEAVE QUEUE",
-            { x: -8, y: 4, z: 0 },
-            0xff55ff,
-            0.15,
-            0,
-            () => { if (this.active) { this.backToMenu(); }}
-        );
+		this.SetNickEl = document.createElement('set-nick-el');
+		this.SetNickEl.setState(this);
+		document.body.appendChild(this.SetNickEl);
+		//setNickElement.setNetwork(networkInstance);
+	}
 
-        backToMenu.createText((textMesh) => {
-            textMesh.userData.onClick = backToMenu.onClick;
-            this.scene.add(textMesh);
-            this.buttons.push(textMesh);
-        });
+	createMultiplayer() {
+		const waitingText = new Text3D(
+			"Waiting for other player...",
+			{ x: -4, y: 0, z: 0 },
+			0xffffff,
+			0.4,
+			0,
+			() => {}
+		);
 
-        //NICK ELEMENT
-        this.SetNickEl = document.createElement('set-nick-el');
-        this.SetNickEl.setNetwork(this.network);
-        document.body.appendChild(this.SetNickEl);
+		waitingText.createText((textMesh) => {
+			this.scene.add(textMesh);
+		});
 
-        this.network.connect();
-        this.network.onMessage((response) => this.handleServerMessage(response));
-    }
+		const backToMenu = new Text3D(
+			"ESC TO LEAVE QUEUE",
+			{ x: -8, y: 4, z: 0 },
+			0xff55ff,
+			0.15,
+			0,
+			() => { if (this.active) { this.backToMenu(); }}
+		);
 
-    handleServerMessage(data) {
+		backToMenu.createText((textMesh) => {
+			textMesh.userData.onClick = backToMenu.onClick;
+			this.scene.add(textMesh);
+			this.buttons.push(textMesh);
+		});
+		this.network.connect();
+		this.network.onMessage((response) => this.handleServerMessage(response));
+	}
+
+	createWaitingRoom() {
+		console.log(this.isTournament);
+		if (!this.isTournament) {
+			this.createMultiplayer();
+		}
+		else {
+			this.createTournamentScreen();
+		}
+	}
+
+	launchTournament() {
+		this.state.tournamentManager = new TournamentManager(this.state, this.SetNickEl.getNickNames());
+		this.state.loadScene(this.state.states.TOURNAMENTS);
+	}
+	
+	handleServerMessage(data) {
         console.log("Received message from server: ", data);
         if (data.type === "PLAYER_ONE") this.state.player1 = true;
         if (data.type === "PLAYER_TWO") this.state.player2 = true;
@@ -104,11 +137,14 @@ export class WaitingRoom {
     }
 
     backToMenu() {
-        this.network.sendData({ type: "QUIT" });
-        this.network.disconnect();
-        this.active = false;
-        window.removeEventListener('keydown', this.boundEscapeHandler);
-        this.SetNickEl.remove();
+		if (this.isTournament) {
+			this.SetNickEl.remove();
+        } else {
+			this.network.sendData({ type: "QUIT" });
+			this.network.disconnect();
+		}
+		window.removeEventListener('keydown', this.boundEscapeHandler);
+		this.active = false;
         this.state.loadScene(this.state.states.MENU);
     }
 
