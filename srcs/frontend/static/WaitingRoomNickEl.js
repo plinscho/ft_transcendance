@@ -26,14 +26,14 @@ export class SetNickEl extends HTMLElement {
 			}
 			.screen {
 				position: absolute;
-                top: 70%;
+                top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				justify-content: flex-start;
-				height: 100vh;
+				height: 600px;
 				gap: 20px;
 				padding-top: 50px;
 			}
@@ -109,7 +109,6 @@ export class SetNickEl extends HTMLElement {
 		
 
 		button.addEventListener('click', () => {
-			let el = null;
 			const nicknames = Array.from(container.querySelectorAll('.nick-input'))
 				.map(input => input.value.trim())
 				.filter(nickname => nickname);
@@ -120,10 +119,6 @@ export class SetNickEl extends HTMLElement {
 				for (let i = 0; i < 4; i++) {
 					if (nicknames.indexOf(nicknames[i]) != i) {
 						this.shadowRoot.querySelector(".nick-input").style.border = "2px solid red";
-						el = container.appendChild(document.createElement('div'));
-						el.style.color = "red";
-						el.style.textAlign = "center";
-						el.innerText = "Nicknames must be unique!";
 						return ;
 					}
 				}
