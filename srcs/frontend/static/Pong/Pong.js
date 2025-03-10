@@ -62,6 +62,10 @@ export class Pong {
 		this.start = false;     // Whether the game has officially started
 		this.countdownText = null; // Holds reference to countdown `Text3D`
 		this.countdownMesh = null; // Stores the countdown mesh
+		this.matchupMesh = null;
+		this.matchText = null;
+		this.finishMatchText = false;
+		this.namesFinished = false;
 
 		new PongBackground(this.scene, this.camera1);
 
@@ -105,7 +109,6 @@ export class Pong {
 		this.cameraManager.updateCamera(this.localcoopCamera);
 	}
 	
-
 	createScoreboard() {
 		const scoreOffsetX = 30;
 		const scoreOffsetZ = 0;
@@ -131,7 +134,7 @@ export class Pong {
 				// COOP VIEW FROM ABOVE
 				this.scoreP1Mesh.position.y = 5;
 				this.scoreP1Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
-				this.scoreP1Mesh.rotation.x = -90 * Math.PI / 180;
+				this.scoreP1Mesh.rotation.x = -30 * Math.PI / 180;
 
 			}
 			this.scene.add(this.scoreP1Mesh);
@@ -158,7 +161,7 @@ export class Pong {
 				this.scoreP2Mesh.position.x -= 25;
 				this.scoreP2Mesh.position.y = 5;
 				this.scoreP2Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
-				this.scoreP2Mesh.rotation.x = -90 * Math.PI / 180;
+				this.scoreP2Mesh.rotation.x = -30 * Math.PI / 180;
 			}
 			this.scene.add(this.scoreP2Mesh);
 		});
@@ -320,7 +323,7 @@ export class Pong {
 				this.winnerText.position.y = 5;
 				this.winnerText.position.z = 0;
 				this.winnerText.position.x = -180;
-				this.winnerText.rotation.x = -90 * Math.PI / 180;
+				this.winnerText.rotation.x = -30* Math.PI / 180;
 			}
 			this.scene.add(this.winnerText);
 
@@ -338,6 +341,8 @@ export class Pong {
 			this.score2 = 0;
 			this.starting = false;
 			this.start = false;
+			this.finishMatchText = false;
+			this.namesFinished = false;
 			this.nicks = this.state.tournamentManager.next();
 			if (this.state.tournamentManager.finished())
 				this.state.loadScene(this.state.states.MENU);
@@ -436,9 +441,52 @@ export class Pong {
 		}
 	}
 
+	showMatchUp(nicks) {
+		if (this.namesFinished) return false;
+
+		this.namesFinished = true;
+
+		this.matchText = new Text3D(`${nicks[0]} vs ${nicks[1]}`, { x: -0, y: 50, z: 6 }, 0xffff00, 30, 1);
+		let len = this.matchText.getTextLength();
+
+		this.matchText.createText((textMesh) => {
+			this.matchupMesh = textMesh;
+
+			if (this.state.currentState !== this.state.states.LOCALCOOP && 
+				this.state.currentState !== this.state.states.TOURNAMENTS) {
+				if (this.state.player2) {
+					this.matchupMesh.rotation.y = 90 * Math.PI / 180;
+				} else {
+					this.matchupMesh.rotation.y = -90 * Math.PI / 180;
+				}
+			} else {
+				// COOP VIEW FROM ABOVE
+				this.matchupMesh.position.y = 100;
+				this.matchupMesh.position.z = 60;
+				//this.matchupMesh.position.x = -len / 2 * 100;
+				this.matchText.centerText();
+				this.matchupMesh.rotation.x = -30 * Math.PI / 180;
+			}
+
+			this.scene.add(this.matchupMesh);
+
+			setTimeout(() => {
+				this.scene.remove(this.matchupMesh);
+				this.matchupMesh = null;
+				this.finishMatchText = true;
+			}, 2000);
+		})
+		return false;
+	}
+
 	gameStart() {
 		if (this.starting) return false; // Prevent multiple calls
 		this.starting = true;
+
+		if (this.matchupMesh) {
+			this.scene.remove(this.matchupMesh);
+			this.matchupMesh = null;
+		}
 
 		let countdown = 5;
 		this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 50, z: 6 }, 0xffffff, 50, 1);
@@ -457,7 +505,7 @@ export class Pong {
 				this.countdownMesh.position.y = 1;
 				this.countdownMesh.position.z = -10;
 				this.countdownMesh.position.x = -20;
-				this.countdownMesh.rotation.x = -90 * Math.PI / 180;
+				this.countdownMesh.rotation.x = -30 * Math.PI / 180;
 			}
 			this.scene.add(this.countdownMesh);
 			if (this.state.currentState === this.state.states.LOCALCOOP || this.state.currentState === this.state.states.PLAY || this.state.currentState === this.state.states.TOURNAMENTS) {
@@ -505,7 +553,12 @@ export class Pong {
 		} else if (this.state.player2) {
 			this.updateCameraPlayer2();
 		}
-		if (!this.start) {
+		if (!this.finishMatchText) {
+			this.nicks ? this.nicks : this.nicks = ["Player 1", "Player 2"];
+			this.finishMatchText = this.showMatchUp(this.nicks);
+			return ;
+		}
+		if (!this.start && this.finishMatchText) {
 			this.start = this.gameStart();
 			return;
 		}
