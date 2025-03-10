@@ -134,7 +134,7 @@ export class Pong {
 				// COOP VIEW FROM ABOVE
 				this.scoreP1Mesh.position.y = 5;
 				this.scoreP1Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
-				this.scoreP1Mesh.rotation.x = -90 * Math.PI / 180;
+				this.scoreP1Mesh.rotation.x = -30 * Math.PI / 180;
 
 			}
 			this.scene.add(this.scoreP1Mesh);
@@ -161,7 +161,7 @@ export class Pong {
 				this.scoreP2Mesh.position.x -= 25;
 				this.scoreP2Mesh.position.y = 5;
 				this.scoreP2Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
-				this.scoreP2Mesh.rotation.x = -90 * Math.PI / 180;
+				this.scoreP2Mesh.rotation.x = -30 * Math.PI / 180;
 			}
 			this.scene.add(this.scoreP2Mesh);
 		});
@@ -323,7 +323,7 @@ export class Pong {
 				this.winnerText.position.y = 5;
 				this.winnerText.position.z = 0;
 				this.winnerText.position.x = -180;
-				this.winnerText.rotation.x = -90 * Math.PI / 180;
+				this.winnerText.rotation.x = -30* Math.PI / 180;
 			}
 			this.scene.add(this.winnerText);
 
@@ -446,7 +446,8 @@ export class Pong {
 
 		this.namesFinished = true;
 
-		this.matchText = new Text3D(`${nicks[0]} vs ${nicks[1]}`, { x: -0, y: 50, z: 6 }, 0xffff00, 50, 1);
+		this.matchText = new Text3D(`${nicks[0]} vs ${nicks[1]}`, { x: -0, y: 50, z: 6 }, 0xffff00, 30, 1);
+		let len = this.matchText.getTextLength();
 
 		this.matchText.createText((textMesh) => {
 			this.matchupMesh = textMesh;
@@ -461,9 +462,10 @@ export class Pong {
 			} else {
 				// COOP VIEW FROM ABOVE
 				this.matchupMesh.position.y = 100;
-				this.matchupMesh.position.z = -10;
-				this.matchupMesh.position.x = -200;
-				this.matchupMesh.rotation.x = -90 * Math.PI / 180;
+				this.matchupMesh.position.z = 60;
+				//this.matchupMesh.position.x = -len / 2 * 100;
+				this.matchText.centerText();
+				this.matchupMesh.rotation.x = -30 * Math.PI / 180;
 			}
 
 			this.scene.add(this.matchupMesh);
@@ -503,7 +505,7 @@ export class Pong {
 				this.countdownMesh.position.y = 1;
 				this.countdownMesh.position.z = -10;
 				this.countdownMesh.position.x = -20;
-				this.countdownMesh.rotation.x = -90 * Math.PI / 180;
+				this.countdownMesh.rotation.x = -30 * Math.PI / 180;
 			}
 			this.scene.add(this.countdownMesh);
 			if (this.state.currentState === this.state.states.LOCALCOOP || this.state.currentState === this.state.states.PLAY || this.state.currentState === this.state.states.TOURNAMENTS) {

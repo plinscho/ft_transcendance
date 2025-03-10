@@ -68,4 +68,19 @@ export class Text3D {
             this.mesh.material.dispose();
         }
     }
+
+    getTextLength() {
+        if (!this.geometry) return 0;
+        this.geometry.computeBoundingBox();
+        return this.geometry.boundingBox.max.x - this.geometry.boundingBox.min.x;
+    }
+
+    centerText() {
+        if (!this.mesh || !this.geometry) return;
+    
+        this.geometry.computeBoundingBox();
+        const textLength = this.geometry.boundingBox.max.x - this.geometry.boundingBox.min.x;
+    
+        this.mesh.position.x = -textLength / 2;
+    }
 }
