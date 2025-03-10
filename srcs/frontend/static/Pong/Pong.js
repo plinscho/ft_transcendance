@@ -5,7 +5,7 @@ import { PongScene } from './PongScene.js';
 import { PongBackground } from './PongBackground.js';
 import { CameraManager } from './CameraManager.js';
 
-const BALL_SPEED = 200;
+const BALL_SPEED = 5;
 
 export class Pong {
 	constructor(state, multiplayer, networkManager, localcoop, nicks) {
@@ -184,8 +184,8 @@ export class Pong {
 		}
 
 		// update ball position over time
-		this.ball.position.x += this.ballDirX * this.ballSpeed * this.deltaTime;
-		this.ball.position.z += this.ballDirZ * this.ballSpeed * this.deltaTime;
+		this.ball.position.x += this.ballDirX * this.ballSpeed;
+		this.ball.position.z += this.ballDirZ * this.ballSpeed;
 
 		// limit ball's z-speed to 2x the x-speed
 		if (this.ballDirZ > this.ballSpeed * 2) {

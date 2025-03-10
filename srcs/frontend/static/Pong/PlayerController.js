@@ -21,6 +21,9 @@ export class PlayerController {
 		this.field_y = pongState.field_y;
 		this.field_z = pongState.field_z;
 
+		// IA PADDLE DIR
+		this.paddle2DirZ = 0;
+
 		this.paddleSpeed = 5;
 		this.ball = pongState.ball; // Pass the ball for AI tracking
 
@@ -32,7 +35,7 @@ export class PlayerController {
 		this.velocity = 0;
 		this.friction = 0.8;
 		this.acceleration = 0.6;
-		this.difficulty = 0.3; // AI difficulty (higher = better tracking)
+		this.difficulty = 0.2; // AI difficulty (higher = better tracking)
 		this.paddle1.targetPosition = this.paddle1.position;
 		this.paddle2.targetPosition = this.paddle2.position;
 		this.ball.targetPosition = this.ball.position;
@@ -221,44 +224,25 @@ export class PlayerController {
 	
 	setupAI() {
 		if (!this.ball || !this.playerMesh) return;
+	
+			const reactionDelay = 0.2 + Math.random() * 0.3; // Random delay
+	
+			let targetZ = this.ball.position.z;
+			let directionZ = (targetZ - this.playerMesh.position.z) * this.difficulty * reactionDelay;
+	
+			// AI moves at full speed (No speed limit!)
+			this.playerMesh.position.z += directionZ;
+	
+			// Keep AI within field limits
+			if (this.playerMesh.position.z > this.field_z * 0.45) {
+				this.playerMesh.position.z = this.field_z * 0.45;
+			}
+			if (this.playerMesh.position.z < -this.field_z * 0.45) {
+				this.playerMesh.position.z = -this.field_z * 0.45;
+			}
 
-		// AI reaction delay factor (randomized for more challenge)
-		const reactionDelay = Math.random() * 0.2 + 0.1; // Between 0.1 and 0.3
-		const targetZ = this.ball.position.z;
-
-		// Lerp AI paddle position towards the ball
-		let aiMovement = (targetZ - this.playerMesh.position.z) * this.difficulty * reactionDelay;
-
-		aiMovement *= this.deltaTime;
-		const maxSpeed = this.paddleSpeed * this.deltaTime;
-		// Clamp AI speed to prevent unnatural movement
-		if (Math.abs(aiMovement) > maxSpeed) {
-			aiMovement = this.paddleSpeed * Math.sign(aiMovement);
-			//aiMovement = this.paddleSpeed * this.deltaTime * Math.sign(aiMovement);
-		}
-
-		// Apply movement within field limits
-		const newZ = this.playerMesh.position.z + aiMovement;
-		if (newZ < this.field_z * 0.45 && newZ > -this.field_z * 0.45) {
-			this.playerMesh.position.z = newZ;
-		}
-
-		// Smooth scaling effect
-		this.playerMesh.scale.z += (1 - this.playerMesh.scale.z) * 0.2;
 	}
-
-	/*startSendingMovement() {
-		if (!this.networkManager) return;
-
-		this.movementInterval = setInterval(() => {
-			this.sendMovement();
-		}, 1000 / this.gameState.fps);
-	}
-
-	stopSendingMovement() {
-		clearInterval(this.movementInterval);
-	}*/
-
+	
 	sendMovement() {
 		if (!this.networkManager || !this.paddle1 || !this.paddle2) return;
 
