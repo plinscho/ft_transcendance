@@ -106,7 +106,7 @@ export class Pong {
 	}
 	
 	updateLocalCoopCamera() {
-		this.cameraManager.updateCamera(this.localcoopCamera, this.ball);
+		this.cameraManager.updateCamera(this.localcoopCamera);
 	}
 	
 	createScoreboard() {
