@@ -120,7 +120,7 @@ export class Pong {
 		this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
 		this.scoreP1Text.createText((textMesh) => {
 			this.scoreP1Mesh = textMesh;
-			if (this.state.currentState !== this.state.states.LOCALCOOP || this.state.currentState !== this.state.states.TOURNAMENTS) {
+			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
 				if (this.state.player2) {
 					this.scoreP1Mesh.rotation.y = 90 * Math.PI / 180;
 				} else {
@@ -147,7 +147,7 @@ export class Pong {
 		this.scoreP2Text = new Text3D(this.score2.toString(), positionP2, 0xffffff, 30, 1);
 		this.scoreP2Text.createText((textMesh) => {
 			this.scoreP2Mesh = textMesh;
-			if (this.state.currentState !== this.state.states.LOCALCOOP || this.state.currentState !== this.state.states.TOURNAMENTS) {
+			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
 				if (this.state.player2) {
 					this.scoreP2Mesh.rotation.y = 90 * Math.PI / 180;
 				} else {
@@ -309,7 +309,7 @@ export class Pong {
 
 		winnerText.createText((textMesh) => {
 			this.winnerText = textMesh;
-			if (this.state.currentState !== this.state.states.LOCALCOOP || this.state.currentState !== this.state.states.TOURNAMENTS) {
+			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
 				if (this.state.player2) {
 					this.winnerText.rotation.y = 90 * Math.PI / 180;
 				} else {
@@ -446,7 +446,8 @@ export class Pong {
 		this.countdownText.createText((textMesh) => {
 			this.countdownMesh = textMesh;
 
-			if (this.state.currentState !== this.state.states.LOCALCOOP || this.state.currentState !== this.state.states.TOURNAMENTS) {
+			if (this.state.currentState !== this.state.states.LOCALCOOP &&
+				this.state.currentState !== this.state.states.TOURNAMENTS) {
 				if (this.state.player2) {
 					this.countdownMesh.rotation.y = 90 * Math.PI / 180;
 				} else {
