@@ -334,10 +334,10 @@ export class Pong {
 	backToMenu() {
 		if (this.state.isTournament) {
 			this.state.tournamentManager.setWinner(this.winnerResult);
-			this.start = false;
-			this.starting = false;
 			this.score1 = 0;
 			this.score2 = 0;
+			this.starting = false;
+			this.start = false;
 			this.nicks = this.state.tournamentManager.next();
 			if (this.state.tournamentManager.finished())
 				this.state.loadScene(this.state.states.MENU);
@@ -368,7 +368,6 @@ export class Pong {
 			}
 
 			if (data.type === "MOVE") {
-				console.log("Received movement data:", data);
 				if (data.player === this.state.apiState.data.username) {
 					console.log("Ignoring own movement update:", data);
 					return; // Ignore our own sent movement
@@ -472,6 +471,10 @@ export class Pong {
 						clearInterval(interval);
 						this.scene.remove(this.countdownMesh);
 						this.start = true; // Start the game
+						this.ballPaused = false;
+						this.ballDirX = -1;
+						this.ballDirZ = 1;
+						this.ballSpeed = BALL_SPEED;
 					}
 				}, 1000);
 			} else {
