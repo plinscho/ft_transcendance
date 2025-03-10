@@ -44,4 +44,9 @@ export class PongBackground{
     
             this.scene.add(this.backgroundMesh);
         }
+
+    updateBackground() {
+        this.backgroundMesh.material.uniforms.uColor1.value.setHSL(Math.random(), 1, 0.5);
+        this.backgroundMesh.material.uniforms.uColor2.value.setHSL(Math.random(), 1, 0.5);
+    }
 }

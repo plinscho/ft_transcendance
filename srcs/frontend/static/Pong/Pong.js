@@ -67,7 +67,7 @@ export class Pong {
 		this.finishMatchText = false;
 		this.namesFinished = false;
 
-		new PongBackground(this.scene, this.camera1);
+		this.bg = new PongBackground(this.scene, this.camera1);
 
 		// Create Scene
 		this.pongScene = new PongScene(
@@ -259,6 +259,7 @@ export class Pong {
 				// and if ball is travelling towards player (-ve direction)
 				if (this.ballDirX < 0) {
 					// stretch the paddle to indicate a hit
+					this.bg.updateBackground();
 					this.paddle1.scale.z = 1.3;
 					let impact = (this.ball.position.z - this.paddle1.position.z) / (this.paddle_z / 2);
 					this.ballDirZ = impact * 1.5; // Ajustamos la inclinación del rebote
@@ -284,6 +285,7 @@ export class Pong {
 				&& this.ball.position.z >= this.paddle2.position.z - this.paddle_z / 2) {
 				// and if ball is travelling towards opponent (+ve direction)
 				if (this.ballDirX > 0) {
+					this.bg.updateBackground();
 					// stretch the paddle to indicate a hit
 					this.paddle2.scale.z = 1.3;
 
