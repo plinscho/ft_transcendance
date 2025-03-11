@@ -15,4 +15,5 @@ export class Paddle {
     addToScene(scene) {
         scene.add(this.mesh);
     }
+
 }
