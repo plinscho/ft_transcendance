@@ -64,6 +64,11 @@ export class SetNickEl extends HTMLElement {
 				color: #fff;
 				cursor: pointer;
 			}
+			.error-message {
+                color: red;
+                font-size: 12px;
+                margin-top: 5px;
+            }
 		`;
 
 		container.className = 'nick-container';
@@ -79,9 +84,13 @@ export class SetNickEl extends HTMLElement {
 			let input = document.createElement('input');
 			input.className = 'nick-input';
 			input.placeholder = `alias`;
+			let errorMessage = document.createElement('div');
+            errorMessage.className = 'error-message';
+            errorMessage.style.display = 'none';
 			let item = document.createElement('div');
 			item.appendChild(header);
 			item.appendChild(input);
+			item.append(errorMessage);
 			container.appendChild(item);
 		}
 
@@ -108,33 +117,77 @@ export class SetNickEl extends HTMLElement {
 		shadow.appendChild(screen);
 		
 
+		//button.addEventListener('click', () => {
+		//	const nicknames = Array.from(container.querySelectorAll('.nick-input'))
+		//		.map(input => input.value.trim())
+		//		.filter(nickname => nickname);
+		//	
+		//	let findDuplicates = (arr) => new Set(arr).size !== arr.length;
+	//
+		//	if (findDuplicates(nicknames)) {
+		//		for (let i = 0; i < 4; i++) {
+		//			if (nicknames.indexOf(nicknames[i]) != i) {
+		//				this.shadowRoot.querySelector(".nick-input").style.border = "2px solid red";
+		//				return ;
+		//			}
+		//		}
+		//		return ;
+		//	}
+		//	
+		//	console.log('Nicknames:', nicknames); // <-- Para depuración
+//
+		//	if (nicknames.length == 4) {
+		//		this.nicknames = nicknames; // <-- Asigna el valor correctamente
+		//		console.log('Sent nicknames:', this.nicknames);
+		//		screen.style.display = 'none'; // Hide the nickname input after sending
+		//		this.state.launchTournament();
+		//	}
+		//	//Logica error
+		//});
 		button.addEventListener('click', () => {
-			const nicknames = Array.from(container.querySelectorAll('.nick-input'))
-				.map(input => input.value.trim())
-				.filter(nickname => nickname);
-			
-			let findDuplicates = (arr) => new Set(arr).size !== arr.length;
-	
-			if (findDuplicates(nicknames)) {
-				for (let i = 0; i < 4; i++) {
-					if (nicknames.indexOf(nicknames[i]) != i) {
-						this.shadowRoot.querySelector(".nick-input").style.border = "2px solid red";
-						return ;
-					}
-				}
-				return ;
-			}
-			
-			console.log('Nicknames:', nicknames); // <-- Para depuración
+            const inputs = Array.from(container.querySelectorAll('.nick-input'));
+            const nicknames = inputs.map(input => input.value.trim());
 
-			if (nicknames.length == 4) {
-				this.nicknames = nicknames; // <-- Asigna el valor correctamente
-				console.log('Sent nicknames:', this.nicknames);
-				screen.style.display = 'none'; // Hide the nickname input after sending
-				this.state.launchTournament();
-			}
-			//Logica error
-		});
+            // Reset error states
+            inputs.forEach(input => {
+                input.style.border = '';
+                input.nextElementSibling.style.display = 'none';
+            });
+
+			let hasErrors = false;
+			inputs.forEach(input => {
+				if (input.value.trim() === '') {
+					input.style.border = '2px solid red';
+                    input.nextElementSibling.textContent = "Watch out! Nickname can' be empty";
+                    input.nextElementSibling.style.display = 'block';
+                    hasErrors = true;
+				}
+			})
+			if (hasErrors) return;
+
+            let findDuplicates = (arr) => new Set(arr).size !== arr.length;
+
+            if (findDuplicates(nicknames)) {
+                const duplicates = nicknames.filter((item, index) => nicknames.indexOf(item) !== index);
+                inputs.forEach(input => {
+                    if (duplicates.includes(input.value.trim())) {
+                        input.style.border = '2px solid red';
+                        input.nextElementSibling.textContent = 'Duplicate nickname';
+                        input.nextElementSibling.style.display = 'block';
+                    }
+                });
+                return;
+            }
+
+            console.log('Nicknames:', nicknames); // <-- Para depuración
+
+            if (nicknames.length === 4) {
+                this.nicknames = nicknames; // <-- Asigna el valor correctamente
+                console.log('Sent nicknames:', this.nicknames);
+                screen.style.display = 'none'; // Hide the nickname input after sending
+                this.state.launchTournament();
+            }
+        });
 	}
 
 	getNickNames() {
