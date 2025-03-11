@@ -75,7 +75,16 @@ export class Text3D {
         return this.geometry.boundingBox.max.x - this.geometry.boundingBox.min.x;
     }
 
-    centerText() {
+    centerTextZ() {
+        if (!this.mesh || !this.geometry) return;
+    
+        this.geometry.computeBoundingBox();
+        const textLength = this.geometry.boundingBox.max.x - this.geometry.boundingBox.min.x;
+    
+        this.mesh.position.z = -textLength / 2;
+    }
+
+    centerTextX() {
         if (!this.mesh || !this.geometry) return;
     
         this.geometry.computeBoundingBox();

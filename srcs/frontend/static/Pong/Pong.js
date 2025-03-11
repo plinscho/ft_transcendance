@@ -100,15 +100,15 @@ export class Pong {
 	updateCameraPlayer1() {
 		this.cameraManager.updateCamera(this.camera1);
 	}
-	
+
 	updateCameraPlayer2() {
 		this.cameraManager.updateCamera(this.camera2);
 	}
-	
+
 	updateLocalCoopCamera() {
 		this.cameraManager.updateCamera(this.localcoopCamera);
 	}
-	
+
 	createScoreboard() {
 		const scoreOffsetX = 30;
 		const scoreOffsetZ = 0;
@@ -323,7 +323,7 @@ export class Pong {
 				this.winnerText.position.y = 5;
 				this.winnerText.position.z = 0;
 				this.winnerText.position.x = -180;
-				this.winnerText.rotation.x = -30* Math.PI / 180;
+				this.winnerText.rotation.x = -30 * Math.PI / 180;
 			}
 			this.scene.add(this.winnerText);
 
@@ -352,7 +352,7 @@ export class Pong {
 			this.nicks = this.state.tournamentManager.next();
 			if (this.state.tournamentManager.finished())
 				this.state.loadScene(this.state.states.MENU);
-			return ;
+			return;
 		}
 		if (this.multiplayer) {
 			console.log("Sending QUIT signal to server");
@@ -430,9 +430,7 @@ export class Pong {
 			this.createWinnerBanner("Player 1 Wins!");
 			// Player 1 celebration effect
 			this.bounceTime++;
-			this.player1.playerMesh.position.z = Math.sin(this.bounceTime * 0.1) * 10;
-			this.player1.playerMesh.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
-			this.player1.playerMesh.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
+			this.player1.playerMesh.scale.x = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
 		}
 		else if (this.score2 >= this.maxScore) {
 			if (this.state.isTournament)
@@ -441,9 +439,8 @@ export class Pong {
 			this.createWinnerBanner("Player 2 Wins!");
 			// Player 2 celebration effect
 			this.bounceTime++;
-			this.player2.playerMesh.position.z = Math.sin(this.bounceTime * 0.1) * 10;
-			this.player2.playerMesh.scale.z = 2 + Math.abs(Math.sin(this.bounceTime * 0.1)) * 10;
-			this.player2.playerMesh.scale.y = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
+
+			this.player2.playerMesh.scale.x = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
 		}
 	}
 
@@ -452,25 +449,26 @@ export class Pong {
 
 		this.namesFinished = true;
 
-		this.matchText = new Text3D(`${nicks[0]} vs ${nicks[1]}`, { x: -0, y: 50, z: 6 }, 0xffff00, 30, 1);
-		let len = this.matchText.getTextLength();
+		this.matchText = new Text3D(`${nicks[0]} vs ${nicks[1]}`, { x: 0, y: 50, z: 0 }, 0xffff00, 30, 1);
 
 		this.matchText.createText((textMesh) => {
 			this.matchupMesh = textMesh;
-
-			if (this.state.currentState !== this.state.states.LOCALCOOP && 
+			//this.matchText.centerTextZ() - this.matchText.getTextLength() / 2;
+			if (this.state.currentState !== this.state.states.LOCALCOOP &&
 				this.state.currentState !== this.state.states.TOURNAMENTS) {
+					this.matchText.centerTextZ();
 				if (this.state.player2) {
 					this.matchupMesh.rotation.y = 90 * Math.PI / 180;
 				} else {
 					this.matchupMesh.rotation.y = -90 * Math.PI / 180;
+
 				}
 			} else {
 				// COOP VIEW FROM ABOVE
 				this.matchupMesh.position.y = 100;
 				this.matchupMesh.position.z = 60;
 				//this.matchupMesh.position.x = -len / 2 * 100;
-				this.matchText.centerText();
+				this.matchText.centerTextX();
 				this.matchupMesh.rotation.x = -30 * Math.PI / 180;
 			}
 
@@ -494,7 +492,7 @@ export class Pong {
 			this.matchupMesh = null;
 		}
 
-		let countdown = 5;
+		let countdown = 3;
 		this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 50, z: 6 }, 0xffffff, 50, 1);
 		this.countdownText.createText((textMesh) => {
 			this.countdownMesh = textMesh;
@@ -562,14 +560,24 @@ export class Pong {
 		if (!this.finishMatchText) {
 			this.nicks ? this.nicks : this.nicks = ["Player 1", "Player 2"];
 			this.finishMatchText = this.showMatchUp(this.nicks);
-			return ;
+			return;
 		}
 		if (!this.start && this.finishMatchText) {
 			this.start = this.gameStart();
 			return;
 		}
 		this.player1.update();
+		this.player1.playerMesh.scale.z = THREE.MathUtils.lerp(
+			this.player1.playerMesh.scale.z, // Current value
+			1, // Target value
+			0.1 // Lerp factor
+		);
 		this.player2.update();
+		this.player2.playerMesh.scale.z = THREE.MathUtils.lerp(
+			this.player1.playerMesh.scale.z, // Current value
+			1, // Target value
+			0.1 // Lerp factor
+		);
 		if (!this.multiplayer) {
 			this.ballPhysics();
 			this.paddlePhysics();

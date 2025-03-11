@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 export class Table {
     constructor(width, height, depth) {
-        const material = new THREE.MeshLambertMaterial({ color: 0x440066 });
+        const material = new THREE.MeshLambertMaterial({ color: 0x1f51ff });
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(width, height, depth),
             material
