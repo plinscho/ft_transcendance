@@ -4,6 +4,7 @@ import { PlayerController } from './PlayerController.js';
 import { PongScene } from './PongScene.js';
 import { PongBackground } from './PongBackground.js';
 import { CameraManager } from './CameraManager.js';
+import { Stars } from './Stars.js';
 
 const BALL_SPEED = 3;
 
@@ -68,6 +69,7 @@ export class Pong {
 		this.namesFinished = false;
 
 		this.bg = new PongBackground(this.scene, this.camera1);
+		this.stars = new Stars(this.scene);
 
 		// Create Scene
 		this.pongScene = new PongScene(
@@ -566,6 +568,7 @@ export class Pong {
 			this.start = this.gameStart();
 			return;
 		}
+		this.stars.animateStars();
 		this.player1.update();
 		this.player1.playerMesh.scale.z = THREE.MathUtils.lerp(
 			this.player1.playerMesh.scale.z, // Current value
