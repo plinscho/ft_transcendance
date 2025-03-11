@@ -2,18 +2,20 @@ import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { SetNickEl } from './WaitingRoomNickEl.js';
 import { TournamentManager } from './TournamentManager.js';
+import { PongBackground } from './Pong/PongBackground.js';
 
 export class WaitingRoom {
 	constructor(state, network) {
 		this.scene = new THREE.Scene();
 		this.camera = this.createCamera();
+		new PongBackground(this.scene);
 		this.network = network;
 		this.isWaiting = true;
 		this.active = true;
 		this.state = state;
 		this.buttons = [];
 		this.SetNickEl;
-		this.isTournament = state.isTournament;
+		this.isTournament = this.state.isTournament;
 		this.boundEscapeHandler = this.escapeHandler.bind(this);
 		this.setUpKeyboard();
 		this.state.resize();
@@ -23,8 +25,8 @@ export class WaitingRoom {
 	createTournamentScreen() {
 		const backToMenu = new Text3D(
 			"ESC TO LEAVE QUEUE",
-			{ x: -8, y: 4, z: 0 },
-			0xff55ff,
+			{ x: -2, y: 1, z: 0 },
+			0xffffff,
 			0.15,
 			0,
 			() => { if (this.active) { this.backToMenu(); }}
@@ -58,9 +60,9 @@ export class WaitingRoom {
 
 		const backToMenu = new Text3D(
 			"ESC TO LEAVE QUEUE",
-			{ x: -8, y: 4, z: 0 },
-			0xff55ff,
-			0.15,
+			{ x: -2, y: 1, z: 0 },
+			0xffffff,
+			0.2,
 			0,
 			() => { if (this.active) { this.backToMenu(); }}
 		);
@@ -139,6 +141,7 @@ export class WaitingRoom {
     backToMenu() {
 		if (this.isTournament) {
 			this.SetNickEl.remove();
+			this.state.isTournament = false;
         } else {
 			this.network.sendData({ type: "QUIT" });
 			this.network.disconnect();
