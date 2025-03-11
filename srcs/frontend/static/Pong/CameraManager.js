@@ -2,9 +2,9 @@ import * as THREE from 'three';
 
 export class CameraManager {
     constructor() {
-        this.camera1 = this.createCamera(-400, 200, 0);
-        this.camera2 = this.createCamera(400, 200, 0);
-        this.localCoopCamera = this.createCamera(0, 300, 300);
+        this.camera1 = this.createCamera(-390, 150, 0);
+        this.camera2 = this.createCamera(390, 150, 0);
+        this.localCoopCamera = this.createCamera(0, 400, 300);
     }
 
     createCamera(x, y, z) {
