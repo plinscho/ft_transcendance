@@ -5,6 +5,7 @@ export class PongBackground {
         this.scene = scene;
         this.backgroundCamera = backgroundCamera;
         this.backgroundMesh = backgroundMesh;
+        this.vertices = [];
         this.createBackground();
     }
     createBackground() {
@@ -28,7 +29,7 @@ export class PongBackground {
                     varying vec2 vUv;
                     void main() {
                         float dist = distance(vUv, vec2(0.5));
-                        vec3 color = mix(uColor2, uColor1, smoothstep(0.1, 0.7, dist));
+                        vec3 color = mix(uColor2, uColor1, smoothstep(0.1, 0.4, dist));
                         gl_FragColor = vec4(color, 1.0);
                     }
                 `,
@@ -44,26 +45,12 @@ export class PongBackground {
 
         this.scene.add(this.backgroundMesh);
         
-        const vertices = [];
 
-        for (let i = 0; i < 10000; i++) {
-            const x = THREE.MathUtils.randFloatSpread(2000);
-            const y = THREE.MathUtils.randFloatSpread(2000);
-            const z = THREE.MathUtils.randFloatSpread(2000);
-
-            vertices.push(x, y, z);
-        }
-
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        const material = new THREE.PointsMaterial({ color: Math.random() * 0xffffff });
-        material.size = 4;
-        const points = new THREE.Points(geometry, material);
-        this.scene.add(points);
     }
 
     updateBackground() {
         //this.backgroundMesh.material.uniforms.uColor1.value.setHSL(Math.random(), 1, 0.5);
         //this.backgroundMesh.material.uniforms.uColor2.value.setHSL(Math.random(), 1, 0.5);
     }
+    
 }
