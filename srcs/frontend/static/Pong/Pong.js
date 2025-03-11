@@ -114,44 +114,70 @@ export class Pong {
 	createScoreboard() {
 		const scoreOffsetX = 30;
 		const scoreOffsetZ = 0;
-
+		const nameOffsetY = 40; // Ajuste de altura para los nombres
+		const nameSize = 20; // Tamaño del texto del nombre
+		if (!this.nicks) {
+			this.nicks = ["Player 1", "Player 2"];
+		}
 		// Player 1 Score (Bottom Left)
 		const positionP1 = {
 			x: -this.field_x / 2 + scoreOffsetX,
 			y: 50,
 			z: this.field_x / 2 - scoreOffsetZ,
 		};
-
+	
 		this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
 		this.scoreP1Text.createText((textMesh) => {
 			this.scoreP1Mesh = textMesh;
+	
 			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
 				if (this.state.player2) {
 					this.scoreP1Mesh.rotation.y = 90 * Math.PI / 180;
 				} else {
 					this.scoreP1Mesh.rotation.y = -90 * Math.PI / 180;
 				}
-			}
-			else {
+			} else {
 				// COOP VIEW FROM ABOVE
 				this.scoreP1Mesh.position.y = 5;
 				this.scoreP1Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
 				this.scoreP1Mesh.rotation.x = -30 * Math.PI / 180;
-
 			}
+	
 			this.scene.add(this.scoreP1Mesh);
 		});
-
+	
+		// ⬇️ Agregar el nombre del jugador 1 arriba del puntaje
+		const nameP1Position = { ...positionP1, y: positionP1.y + nameOffsetY };
+		this.nameP1Text = new Text3D(this.nicks[0], nameP1Position, 0xffffff, nameSize, 1);
+		this.nameP1Text.createText((textMesh) => {
+			this.nameP1Mesh = textMesh;
+	
+			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
+				if (this.state.player2) {
+					this.nameP1Mesh.rotation.y = 90 * Math.PI / 180;
+				} else {
+					this.nameP1Mesh.rotation.y = -90 * Math.PI / 180;
+				}
+			} else {
+				this.nameP1Mesh.position.y = 5 + nameOffsetY;
+				this.nameP1Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
+				this.nameP1Mesh.rotation.x = -30 * Math.PI / 180;
+			}
+	
+			this.scene.add(this.nameP1Mesh);
+		});
+	
 		// Player 2 Score (Top Right)
 		const positionP2 = {
 			x: this.field_x / 2 - scoreOffsetX,
 			y: 50,
 			z: -this.field_x / 2 - scoreOffsetZ,
 		};
-
+	
 		this.scoreP2Text = new Text3D(this.score2.toString(), positionP2, 0xffffff, 30, 1);
 		this.scoreP2Text.createText((textMesh) => {
 			this.scoreP2Mesh = textMesh;
+	
 			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
 				if (this.state.player2) {
 					this.scoreP2Mesh.rotation.y = 90 * Math.PI / 180;
@@ -159,13 +185,35 @@ export class Pong {
 					this.scoreP2Mesh.rotation.y = -90 * Math.PI / 180;
 				}
 			} else {
-				// COOP VIEW FROM ABOVE
 				this.scoreP2Mesh.position.x -= 25;
 				this.scoreP2Mesh.position.y = 5;
 				this.scoreP2Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
 				this.scoreP2Mesh.rotation.x = -30 * Math.PI / 180;
 			}
+	
 			this.scene.add(this.scoreP2Mesh);
+		});
+	
+		// ⬇️ Agregar el nombre del jugador 2 arriba del puntaje
+		const nameP2Position = { ...positionP2, y: positionP2.y + nameOffsetY };
+		this.nameP2Text = new Text3D(this.nicks[1], nameP2Position, 0xffffff, nameSize, 1);
+		this.nameP2Text.createText((textMesh) => {
+			this.nameP2Mesh = textMesh;
+	
+			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
+				if (this.state.player2) {
+					this.nameP2Mesh.rotation.y = 90 * Math.PI / 180;
+				} else {
+					this.nameP2Mesh.rotation.y = -90 * Math.PI / 180;
+				}
+			} else {
+				this.nameP2Mesh.position.x -= 25;
+				this.nameP2Mesh.position.y = 5 + nameOffsetY;
+				this.nameP2Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
+				this.nameP2Mesh.rotation.x = -30 * Math.PI / 180;
+			}
+	
+			this.scene.add(this.nameP2Mesh);
 		});
 	}
 
@@ -200,7 +248,6 @@ export class Pong {
 			this.ballDirZ = -this.ballSpeed * 2;
 		}
 	}
-
 
 	ballPhysics() {
 		// Si la pelota esta pausada no la muevas
@@ -577,7 +624,7 @@ export class Pong {
 		);
 		this.player2.update();
 		this.player2.playerMesh.scale.z = THREE.MathUtils.lerp(
-			this.player1.playerMesh.scale.z, // Current value
+			this.player2.playerMesh.scale.z, // Current value
 			1, // Target value
 			0.1 // Lerp factor
 		);
