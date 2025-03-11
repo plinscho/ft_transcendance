@@ -5,7 +5,7 @@ import { PongScene } from './PongScene.js';
 import { PongBackground } from './PongBackground.js';
 import { CameraManager } from './CameraManager.js';
 
-const BALL_SPEED = 5;
+const BALL_SPEED = 3;
 
 export class Pong {
 	constructor(state, multiplayer, networkManager, localcoop, nicks) {
@@ -204,7 +204,7 @@ export class Pong {
 		// Si la pelota esta pausada no la muevas
 		if (this.ballPaused) return;
 
-		if (this.ball.position.x <= -this.field_x / 2) {
+		if (this.ball.position.x <= -this.field_x / 2 - 100) {
 			// CPU scores
 			this.score2++;
 			// reset ball to center
@@ -213,7 +213,7 @@ export class Pong {
 		}
 
 		// if ball goes off the 'right' side (CPU's side)
-		if (this.ball.position.x >= this.field_x / 2) {
+		if (this.ball.position.x >= this.field_x / 2 + 100) {
 			// Player scores
 			this.score1++;
 
@@ -278,19 +278,17 @@ export class Pong {
 			}
 		}
 
-		if (this.ball.position.x <= this.paddle2.position.x + this.paddle_x
-			&& this.ball.position.x >= this.paddle2.position.x) {
-			// and if ball is aligned with paddle2 on y plane
-			if (this.ball.position.z <= this.paddle2.position.z + this.paddle_z / 2
-				&& this.ball.position.z >= this.paddle2.position.z - this.paddle_z / 2) {
-				// and if ball is travelling towards opponent (+ve direction)
+		if (this.ball.position.x <= (this.paddle2.position.x - 10) + this.paddle_x
+			&& this.ball.position.x >= (this.paddle2.position.x - 10)) {
+			if (this.ball.position.z <= (this.paddle2.position.z) + this.paddle_z / 2
+				&& this.ball.position.z >= (this.paddle2.position.z) - this.paddle_z / 2) {
 				if (this.ballDirX > 0) {
 					this.bg.updateBackground();
 					// stretch the paddle to indicate a hit
 					this.paddle2.scale.z = 1.3;
 
 					// Calculamos la desviación en función del punto de impacto
-					let impact = (this.ball.position.z - this.paddle2.position.z) / (this.paddle_z / 2);
+					let impact = (this.ball.position.z - (this.paddle2.position.z)) / (this.paddle_z / 2);
 					this.ballDirZ = impact * 1.5;
 
 					// Transferimos parte del movimiento de la pala a la pelota
@@ -345,6 +343,12 @@ export class Pong {
 			this.start = false;
 			this.finishMatchText = false;
 			this.namesFinished = false;
+			this.player1.playerMesh.position.z = 0;
+			this.player1.playerMesh.scale.z = 1;
+			this.player1.playerMesh.scale.y = 1;
+			this.player2.playerMesh.position.z = 0;
+			this.player2.playerMesh.scale.z = 1;
+			this.player2.playerMesh.scale.y = 1;
 			this.nicks = this.state.tournamentManager.next();
 			if (this.state.tournamentManager.finished())
 				this.state.loadScene(this.state.states.MENU);
