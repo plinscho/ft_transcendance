@@ -100,15 +100,15 @@ export class Pong {
 	updateCameraPlayer1() {
 		this.cameraManager.updateCamera(this.camera1);
 	}
-	
+
 	updateCameraPlayer2() {
 		this.cameraManager.updateCamera(this.camera2);
 	}
-	
+
 	updateLocalCoopCamera() {
 		this.cameraManager.updateCamera(this.localcoopCamera);
 	}
-	
+
 	createScoreboard() {
 		const scoreOffsetX = 30;
 		const scoreOffsetZ = 0;
@@ -323,7 +323,7 @@ export class Pong {
 				this.winnerText.position.y = 5;
 				this.winnerText.position.z = 0;
 				this.winnerText.position.x = -180;
-				this.winnerText.rotation.x = -30* Math.PI / 180;
+				this.winnerText.rotation.x = -30 * Math.PI / 180;
 			}
 			this.scene.add(this.winnerText);
 
@@ -352,7 +352,7 @@ export class Pong {
 			this.nicks = this.state.tournamentManager.next();
 			if (this.state.tournamentManager.finished())
 				this.state.loadScene(this.state.states.MENU);
-			return ;
+			return;
 		}
 		if (this.multiplayer) {
 			console.log("Sending QUIT signal to server");
@@ -458,7 +458,7 @@ export class Pong {
 		this.matchText.createText((textMesh) => {
 			this.matchupMesh = textMesh;
 
-			if (this.state.currentState !== this.state.states.LOCALCOOP && 
+			if (this.state.currentState !== this.state.states.LOCALCOOP &&
 				this.state.currentState !== this.state.states.TOURNAMENTS) {
 				if (this.state.player2) {
 					this.matchupMesh.rotation.y = 90 * Math.PI / 180;
@@ -562,14 +562,24 @@ export class Pong {
 		if (!this.finishMatchText) {
 			this.nicks ? this.nicks : this.nicks = ["Player 1", "Player 2"];
 			this.finishMatchText = this.showMatchUp(this.nicks);
-			return ;
+			return;
 		}
 		if (!this.start && this.finishMatchText) {
 			this.start = this.gameStart();
 			return;
 		}
 		this.player1.update();
+		this.player1.playerMesh.scale.z = THREE.MathUtils.lerp(
+			this.player1.playerMesh.scale.z, // Current value
+			1, // Target value
+			0.1 // Lerp factor
+		);
 		this.player2.update();
+		this.player2.playerMesh.scale.z = THREE.MathUtils.lerp(
+			this.player1.playerMesh.scale.z, // Current value
+			1, // Target value
+			0.1 // Lerp factor
+		);
 		if (!this.multiplayer) {
 			this.ballPhysics();
 			this.paddlePhysics();
