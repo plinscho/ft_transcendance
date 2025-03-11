@@ -33,7 +33,7 @@ export class SetNickEl extends HTMLElement {
 				flex-direction: column;
 				align-items: center;
 				justify-content: flex-start;
-				height: 600px;
+				height: auto;
 				gap: 20px;
 				padding-top: 50px;
 			}
@@ -44,7 +44,7 @@ export class SetNickEl extends HTMLElement {
 				column-gap: 35px;
 				row-gap: 15px;
 				
-				background-color: #000;
+				background-color: transparent;
 				border-radius: 10px;
 				z-index: 1;
 			}

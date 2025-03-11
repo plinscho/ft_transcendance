@@ -74,6 +74,7 @@ export class Menu {
 
     setLocalCoopMode() {
         this.state.localCoop = true;
+        this.state.isTournament = false;
     }
 
     setTournamentMode() {
