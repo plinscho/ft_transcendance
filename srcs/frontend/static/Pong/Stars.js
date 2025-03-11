@@ -28,6 +28,8 @@ export class Stars {
         this.stars.forEach((star) => {
             star.position.x += Math.random() * 0.2;
             star.position.y += Math.random() * 0.2;
+            if (star.position.x > 500) star.position.x = -500;
+            if (star.position.y > 500) star.position.y = -500;
         });
     }
 }
