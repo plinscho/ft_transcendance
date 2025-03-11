@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
+
 export class Text3D {
     constructor(text, position = { x: 0, y: 0, z: 0 }, color = 0xffffff, size = 1, depth = 0.1, onClick = () => {}) {
         this.text = text;
@@ -12,6 +13,33 @@ export class Text3D {
         this.onClick = onClick;
         this.mesh = null;
         this.font = null;
+    }
+
+    // Agrega este método a tu clase Text3D existente
+
+    updateExistingMesh(existingMesh) {
+        const fontLoader = new FontLoader();
+        
+        fontLoader.load('fonts/helvetiker_regular.typeface.json', (font) => {
+            const textGeometry = new TextGeometry(this.text, {
+                font: font,
+                size: this.size,
+                height: this.height,
+                curveSegments: 12,
+                bevelEnabled: false
+            });
+            
+            textGeometry.computeBoundingBox();
+            const centerOffset = -0.5 * (textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x);
+            
+            // Actualizar la geometría del mesh existente
+            existingMesh.geometry = textGeometry;
+            existingMesh.position.set(
+                this.position.x + centerOffset,
+                this.position.y,
+                this.position.z
+            );
+        });
     }
 
     createText(callback) {
