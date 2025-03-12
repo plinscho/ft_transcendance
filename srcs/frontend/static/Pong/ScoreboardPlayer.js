@@ -4,12 +4,12 @@ import { Text3D } from '../Text3D.js';
 export class ScoreboardPlayer {
 	#scoreOffsetX = 30;
 	#nameOffsetY = 40;
-	#scoreOffsetZ = 0;
+	#scoreOffsetZ = 40;
 	#nameSize = 20;
 
 	constructor(scene, state, nicks, field_x, field_z){
 		this.scene = scene;
-		this.currentState = state.getSceneName();
+		this.state = state;
 		this.field_x = field_x;
 		this.field_z = field_z;
 		this.front = true; // start assuming we are in "PLAY" or "MULTIPLAYER" for frontal view
@@ -28,13 +28,11 @@ export class ScoreboardPlayer {
 		this.nameP1Mesh = null;
 		this.scoreP2Mesh = null;
 		this.nameP2Mesh = null;
-
-		if (this.currentState === state.currentState.LOCALCOOP ||
-			this.currentState === state.currentState.TOURNAMENTS
+		if (this.state.currentState === this.state.states.LOCALCOOP ||
+			this.state.currentState === this.state.states.TOURNAMENTS
 		) {
 			this.front = false // change view to top view.
 		}
-		console.log(this.currentState);
 
 		this.positionP1Front = {
 			x: this.field_x / 2 + this.#scoreOffsetX,
@@ -51,13 +49,13 @@ export class ScoreboardPlayer {
 		this.positionP1Top = {
 			x: -this.field_x / 2 - this.#scoreOffsetX,
 			y: 50,
-			z: this.field_z / 2 + this.#scoreOffsetZ,
+			z: -this.field_z / 2 - this.#scoreOffsetZ,
 		};
 
 		this.positionP2Top = {
 			x: this.field_x / 2 + this.#scoreOffsetX,
 			y: 50,
-			z: this.field_z / 2 + this.#scoreOffsetZ,
+			z: -this.field_z / 2 + this.#scoreOffsetZ,
 		};
 
 	}
@@ -108,7 +106,7 @@ export class ScoreboardPlayer {
 			} else {
 				textMesh.position.x -= 25;
 				textMesh.position.y = 5;
-				textMesh.position.z = -this.field_x / 2 - scoreOffsetZ;
+				textMesh.position.z = -this.field_x / 2 - this.#scoreOffsetZ;
 				textMesh.rotation.x = rotationTopX * Math.PI / 180;
 			}
 			this.scene.add(textMesh);
@@ -143,6 +141,7 @@ export class ScoreboardPlayer {
 	}
 	
 	createP2Score() {
+		const pos = {...this.position}
 		this.createPlayerText({
 			id: 2,
 			text: this.score2.toString(),
