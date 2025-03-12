@@ -55,7 +55,7 @@ export class Pong {
 		this.scoreP2Text = null;
 		this.score1 = 0;
 		this.score2 = 0;
-		this.maxScore = 5;
+		this.maxScore = 1;
 		this.bounceTime = 0;
 
 		// Game Start Countdown
@@ -111,11 +111,25 @@ export class Pong {
 		this.cameraManager.updateCamera(this.localcoopCamera);
 	}
 
+	resetTextScoreboard() {
+		
+		if (this.scoreP1Mesh && this.nameP1Mesh && 
+			this.scoreP2Mesh && this.nameP2Mesh) {
+				this.scene.remove(this.scoreP1Mesh);
+				this.scene.remove(this.nameP1Mesh);
+				this.scene.remove(this.scoreP2Mesh);
+				this.scene.remove(this.nameP2Mesh);
+		}
+	}
+
 	createScoreboard() {
 		const scoreOffsetX = 30;
 		const scoreOffsetZ = 0;
 		const nameOffsetY = 40; // Ajuste de altura para los nombres
 		const nameSize = 20; // Tamaño del texto del nombre
+
+		this.resetTextScoreboard();
+
 		if (!this.nicks) {
 			this.nicks = ["Player 1", "Player 2"];
 		}
@@ -399,6 +413,7 @@ export class Pong {
 			this.player2.playerMesh.scale.z = 1;
 			this.player2.playerMesh.scale.y = 1;
 			this.nicks = this.state.tournamentManager.next();
+			this.createScoreboard();
 			if (this.state.tournamentManager.finished())
 				this.state.loadScene(this.state.states.MENU);
 			return;
