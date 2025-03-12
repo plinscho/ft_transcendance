@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import gsap from "https://cdn.jsdelivr.net/npm/gsap@3.12.7/index.js";
-import slow from "https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/EasePack.min.js"
 
 export class CameraManager {
     constructor() {

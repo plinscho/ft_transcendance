@@ -39,13 +39,13 @@ export class ScoreboardPlayer {
 		this.positionP1Front = {
 			x: this.field_x / 2 + this.#scoreOffsetX,
 			y: 50,
-			z: -this.field_z / 2 + this.#scoreOffsetZ,
+			z: -this.field_z / 2 - this.#scoreOffsetZ - 100,
 		};
 		
 		this.positionP2Front = {
 			x: this.field_x / 2 + this.#scoreOffsetX,
 			y: 50,
-			z: this.field_z / 2 + this.#scoreOffsetZ,
+			z: this.field_z / 2 + this.#scoreOffsetZ + 50,
 		};
 
 		this.positionP1Top = {
@@ -114,6 +114,7 @@ export class ScoreboardPlayer {
 			this.scene.add(textMesh);
 			this.meshes[meshKey] = text3D;
 		});
+		return text3D;
 	}
 
 	createP1Score() {
@@ -125,7 +126,7 @@ export class ScoreboardPlayer {
 			rotationFrontY: -90,
 			rotationTopX: -30,
 			meshKey: "scoreP1Mesh"
-		});
+		}).centerTextZ();
 	}
 	
 	createP1Name() {

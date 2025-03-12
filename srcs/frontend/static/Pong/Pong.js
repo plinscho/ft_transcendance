@@ -408,25 +408,11 @@ export class Pong {
 
 		this.matchText.createText((textMesh) => {
 			this.matchupMesh = textMesh;
-			//this.matchText.centerTextZ() - this.matchText.getTextLength() / 2;
-			if (this.state.currentState !== this.state.states.LOCALCOOP &&
-				this.state.currentState !== this.state.states.TOURNAMENTS) {
-					this.matchText.centerTextZ();
-				if (this.state.player2) {
-					this.matchupMesh.rotation.y = 90 * Math.PI / 180;
-				} else {
-					this.matchupMesh.rotation.y = -90 * Math.PI / 180;
-
-				}
-			} else {
-				// COOP VIEW FROM ABOVE
-				this.matchupMesh.position.y = 100;
-				this.matchupMesh.position.z = 60;
-				//this.matchupMesh.position.x = -len / 2 * 100;
-				this.matchText.centerTextX();
-				this.matchupMesh.rotation.x = -30 * Math.PI / 180;
-			}
-
+			this.matchupMesh.position.y = 100;
+			this.matchupMesh.position.z = 60;
+			//this.matchupMesh.position.x = -len / 2 * 100;
+			this.matchText.centerTextX();
+			this.matchupMesh.rotation.x = -30 * Math.PI / 180;
 			this.scene.add(this.matchupMesh);
 
 			setTimeout(() => {
@@ -522,7 +508,7 @@ export class Pong {
 			this.updateCameraPlayer2();
 		}
 		if (!this.finishMatchText) {
-			this.nicks ? this.nicks : this.nicks = ["Player 1", "Player 2"];
+			this.nicks ? this.nicks : this.nicks = ["P1", "P2"];
 			this.finishMatchText = this.showMatchUp(this.nicks);
 			return;
 		}
