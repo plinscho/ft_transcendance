@@ -47,13 +47,13 @@ export class ScoreboardPlayer {
 		};
 
 		this.positionP1Top = {
-			x: -this.field_x / 2 - this.#scoreOffsetX,
+			x: -this.field_x / 2 - this.#scoreOffsetX + 100,
 			y: 50,
 			z: -this.field_z / 2 - this.#scoreOffsetZ,
 		};
 
 		this.positionP2Top = {
-			x: this.field_x / 2 + this.#scoreOffsetX,
+			x: this.field_x / 2 + this.#scoreOffsetX - 50,
 			y: 50,
 			z: -this.field_z / 2 + this.#scoreOffsetZ,
 		};
@@ -88,6 +88,7 @@ export class ScoreboardPlayer {
 
 	createPlayerText({
 		text,
+		color,
 		positionFront,
 		positionTop,
 		rotationFrontY,
@@ -97,7 +98,7 @@ export class ScoreboardPlayer {
 		const isFront = this.front;
 		const position = isFront ? positionFront : positionTop;
 	
-		const text3D = new Text3D(text, position, 0xffffff, 30, 1);
+		const text3D = new Text3D(text, position, color, 30, 1);
 	
 		text3D.createText((textMesh) => {
 			text3D.mesh = textMesh;
@@ -117,8 +118,8 @@ export class ScoreboardPlayer {
 
 	createP1Score() {
 		this.createPlayerText({
-			id: 1,
 			text: this.score1.toString(),
+			color: 0xDDCAD9,
 			positionFront: this.positionP1Front,
 			positionTop: this.positionP1Top,
 			rotationFrontY: -90,
@@ -128,12 +129,15 @@ export class ScoreboardPlayer {
 	}
 	
 	createP1Name() {
-		const pos = {...this.positionP1Front, y: this.positionP1Front.y + this.#nameOffsetY};
+		if (this.front)
+			var pos1 = {...this.positionP1Front, y: this.positionP1Front.y + this.#nameOffsetY};
+		else
+			var pos2 = {...this.positionP1Top,  x: this.positionP1Top.x - this.#nameOffsetY - 10};
 		this.createPlayerText({
-			id: 0,
 			text: this.nicks[0],
-			positionFront: pos,
-			positionTop: this.positionP1Top,
+			color: 0x9E0031,
+			positionFront: pos1,
+			positionTop: pos2,
 			rotationFrontY: -90,
 			rotationTopX: -30,
 			meshKey: "nameP1Mesh"
@@ -141,10 +145,9 @@ export class ScoreboardPlayer {
 	}
 	
 	createP2Score() {
-		const pos = {...this.position}
 		this.createPlayerText({
-			id: 2,
 			text: this.score2.toString(),
+			color: 0xF87666,
 			positionFront: this.positionP2Front,
 			positionTop: this.positionP2Top,
 			rotationFrontY: -90,
@@ -154,12 +157,15 @@ export class ScoreboardPlayer {
 	}	
 
 	createP2Name() {
-		const pos = {...this.positionP2Front, y: this.positionP2Front.y + this.#nameOffsetY};
+		if (this.front)
+			var pos1 = {...this.positionP2Front, y: this.positionP2Front.y + this.#nameOffsetY};
+		else
+			var pos2 = {...this.positionP2Top,  x: this.positionP2Top.x - this.#nameOffsetY - 10};
 		this.createPlayerText({
-			id: 0,
 			text: this.nicks[1],
-			positionFront: pos,
-			positionTop: this.positionP2Top,
+			color: 0x9E0031,
+			positionFront: pos1,
+			positionTop: pos2,
 			rotationFrontY: -90,
 			rotationTopX: -30,
 			meshKey: "nameP2Mesh"
