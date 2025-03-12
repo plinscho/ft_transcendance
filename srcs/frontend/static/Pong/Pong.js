@@ -129,10 +129,12 @@ export class Pong {
 		// if ball goes off the top side (side of table)
 		if (this.ball.position.z <= -this.field_z / 2) {
 			this.ballDirZ = -this.ballDirZ;
+			this.cameraManager.screenShake(this.getCamera());
 		}
 		// if ball goes off the bottom side (side of table)
 		if (this.ball.position.z >= this.field_z / 2) {
 			this.ballDirZ = -this.ballDirZ;
+			this.cameraManager.screenShake(this.getCamera());
 		}
 
 		// update ball position over time
@@ -155,6 +157,7 @@ export class Pong {
 		if (this.ball.position.x <= -this.field_x / 2 - 100) {
 			// CPU scores
 			this.score2++;
+			this.cameraManager.followBall(this.getCamera(), this.ball);
 			// reset ball to center
 			this.scoreboard.updateScoreboard(this.score1, this.score2);
 			this.resetBall(2);
@@ -165,6 +168,7 @@ export class Pong {
 		if (this.ball.position.x >= this.field_x / 2 + 100) {
 			// Player scores
 			this.score1++;
+			this.cameraManager.followBall(this.getCamera(), this.ball);
 
 			// reset ball to center
 			this.scoreboard.updateScoreboard(this.score1, this.score2);
@@ -438,6 +442,13 @@ export class Pong {
 		if (this.starting) return false; // Prevent multiple calls
 		this.starting = true;
 
+		if (this.camera1) {
+			this.cameraManager.startCamera1Animation();
+		}
+		if (this.camera2) {
+			this.cameraManager.startCamera2Animation();
+		}
+
 		if (this.matchupMesh) {
 			this.scene.remove(this.matchupMesh);
 			this.matchupMesh = null;
@@ -500,7 +511,7 @@ export class Pong {
 
 	update() {
 		if (!this.paddle1 || !this.paddle2 || !this.ball) return;
-
+	
 		if (this.state.currentState === this.state.states.PLAY) {
 			this.updateCameraPlayer1();
 		} else if (this.state.currentState === this.state.states.LOCALCOOP || this.state.currentState === this.state.states.TOURNAMENTS) {
