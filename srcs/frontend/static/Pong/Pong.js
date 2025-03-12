@@ -5,6 +5,7 @@ import { PongScene } from './PongScene.js';
 import { PongBackground } from './PongBackground.js';
 import { CameraManager } from './CameraManager.js';
 import { Stars } from './Stars.js';
+import { ScoreboardPlayer } from './ScoreboardPlayer.js'
 
 const BALL_SPEED = 3;
 
@@ -51,11 +52,13 @@ export class Pong {
 		this.ballSpeed = BALL_SPEED;
 
 		// scores
+		
+		this.scoreboard = null;
 		this.scoreP1Text = null;
 		this.scoreP2Text = null;
 		this.score1 = 0;
 		this.score2 = 0;
-		this.maxScore = 5;
+		this.maxScore = 3;
 		this.bounceTime = 0;
 
 		// Game Start Countdown
@@ -81,7 +84,7 @@ export class Pong {
 		this.paddle1 = this.pongScene.getPaddle1();
 		this.paddle2 = this.pongScene.getPaddle2();
 		this.ball = this.pongScene.getBall();
-		this.createScoreboard();
+
 
 		//player initialization
 		this.player1 = new PlayerController(
@@ -112,128 +115,26 @@ export class Pong {
 	}
 
 	createScoreboard() {
-		const scoreOffsetX = 30;
-		const scoreOffsetZ = 0;
-		const nameOffsetY = 40; // Ajuste de altura para los nombres
-		const nameSize = 20; // Tamaño del texto del nombre
-		if (!this.nicks) {
-			this.nicks = ["Player 1", "Player 2"];
+		if (!this.scoreboard){
+			this.scoreboard = new ScoreboardPlayer(this.scene, this.state, this.nicks, this.field_x, this.field_z); // new
 		}
-		// Player 1 Score (Bottom Left)
-		const positionP1 = {
-			x: -this.field_x / 2 + scoreOffsetX,
-			y: 50,
-			z: this.field_x / 2 - scoreOffsetZ,
-		};
-	
-		this.scoreP1Text = new Text3D(this.score1.toString(), positionP1, 0xffffff, 30, 1);
-		this.scoreP1Text.createText((textMesh) => {
-			this.scoreP1Mesh = textMesh;
-	
-			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
-				if (this.state.player2) {
-					this.scoreP1Mesh.rotation.y = 90 * Math.PI / 180;
-				} else {
-					this.scoreP1Mesh.rotation.y = -90 * Math.PI / 180;
-				}
-			} else {
-				// COOP VIEW FROM ABOVE
-				this.scoreP1Mesh.position.y = 5;
-				this.scoreP1Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
-				this.scoreP1Mesh.rotation.x = -30 * Math.PI / 180;
-			}
-	
-			this.scene.add(this.scoreP1Mesh);
-		});
-	
-		// ⬇️ Agregar el nombre del jugador 1 arriba del puntaje
-		const nameP1Position = { ...positionP1, y: positionP1.y + nameOffsetY };
-		this.nameP1Text = new Text3D(this.nicks[0], nameP1Position, 0xffffff, nameSize, 1);
-		this.nameP1Text.createText((textMesh) => {
-			this.nameP1Mesh = textMesh;
-	
-			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
-				if (this.state.player2) {
-					this.nameP1Mesh.rotation.y = 90 * Math.PI / 180;
-				} else {
-					this.nameP1Mesh.rotation.y = -90 * Math.PI / 180;
-				}
-			} else {
-				this.nameP1Mesh.position.y = 5 + nameOffsetY;
-				this.nameP1Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
-				this.nameP1Mesh.rotation.x = -30 * Math.PI / 180;
-			}
-	
-			this.scene.add(this.nameP1Mesh);
-		});
-	
-		// Player 2 Score (Top Right)
-		const positionP2 = {
-			x: this.field_x / 2 - scoreOffsetX,
-			y: 50,
-			z: -this.field_x / 2 - scoreOffsetZ,
-		};
-	
-		this.scoreP2Text = new Text3D(this.score2.toString(), positionP2, 0xffffff, 30, 1);
-		this.scoreP2Text.createText((textMesh) => {
-			this.scoreP2Mesh = textMesh;
-	
-			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
-				if (this.state.player2) {
-					this.scoreP2Mesh.rotation.y = 90 * Math.PI / 180;
-				} else {
-					this.scoreP2Mesh.rotation.y = -90 * Math.PI / 180;
-				}
-			} else {
-				this.scoreP2Mesh.position.x -= 25;
-				this.scoreP2Mesh.position.y = 5;
-				this.scoreP2Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
-				this.scoreP2Mesh.rotation.x = -30 * Math.PI / 180;
-			}
-	
-			this.scene.add(this.scoreP2Mesh);
-		});
-	
-		// ⬇️ Agregar el nombre del jugador 2 arriba del puntaje
-		const nameP2Position = { ...positionP2, y: positionP2.y + nameOffsetY };
-		this.nameP2Text = new Text3D(this.nicks[1], nameP2Position, 0xffffff, nameSize, 1);
-		this.nameP2Text.createText((textMesh) => {
-			this.nameP2Mesh = textMesh;
-	
-			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
-				if (this.state.player2) {
-					this.nameP2Mesh.rotation.y = 90 * Math.PI / 180;
-				} else {
-					this.nameP2Mesh.rotation.y = -90 * Math.PI / 180;
-				}
-			} else {
-				this.nameP2Mesh.position.x -= 25;
-				this.nameP2Mesh.position.y = 5 + nameOffsetY;
-				this.nameP2Mesh.position.z = -this.field_x / 2 - scoreOffsetZ;
-				this.nameP2Mesh.rotation.x = -30 * Math.PI / 180;
-			}
-	
-			this.scene.add(this.nameP2Mesh);
-		});
-	}
-
-	updateScoreboard() {
-		if (this.scoreP1Text && this.scoreP1Mesh) {
-			this.scoreP1Text.updateText(this.score1.toString());
-		}
-		if (this.scoreP2Text && this.scoreP2Mesh) {
-			this.scoreP2Text.updateText(this.score2.toString());
-		}
+		this.scoreboard.resetTextScoreboard();
+		this.scoreboard.createP1Score();
+		this.scoreboard.createP1Name();
+		this.scoreboard.createP2Score();
+		this.scoreboard.createP2Name();
 	}
 
 	checkOfflineBallCollisions() {
 		// if ball goes off the top side (side of table)
 		if (this.ball.position.z <= -this.field_z / 2) {
 			this.ballDirZ = -this.ballDirZ;
+			this.cameraManager.screenShake(this.getCamera());
 		}
 		// if ball goes off the bottom side (side of table)
 		if (this.ball.position.z >= this.field_z / 2) {
 			this.ballDirZ = -this.ballDirZ;
+			this.cameraManager.screenShake(this.getCamera());
 		}
 
 		// update ball position over time
@@ -256,7 +157,9 @@ export class Pong {
 		if (this.ball.position.x <= -this.field_x / 2 - 100) {
 			// CPU scores
 			this.score2++;
+			this.cameraManager.followBall(this.getCamera(), this.ball);
 			// reset ball to center
+			this.scoreboard.updateScoreboard(this.score1, this.score2);
 			this.resetBall(2);
 			this.matchScoreCheck();
 		}
@@ -265,8 +168,10 @@ export class Pong {
 		if (this.ball.position.x >= this.field_x / 2 + 100) {
 			// Player scores
 			this.score1++;
+			this.cameraManager.followBall(this.getCamera(), this.ball);
 
 			// reset ball to center
+			this.scoreboard.updateScoreboard(this.score1, this.score2);
 			this.resetBall(1);
 			this.matchScoreCheck();
 		}
@@ -399,6 +304,7 @@ export class Pong {
 			this.player2.playerMesh.scale.z = 1;
 			this.player2.playerMesh.scale.y = 1;
 			this.nicks = this.state.tournamentManager.next();
+			this.createScoreboard();
 			if (this.state.tournamentManager.finished())
 				this.state.loadScene(this.state.states.MENU);
 			return;
@@ -502,25 +408,11 @@ export class Pong {
 
 		this.matchText.createText((textMesh) => {
 			this.matchupMesh = textMesh;
-			//this.matchText.centerTextZ() - this.matchText.getTextLength() / 2;
-			if (this.state.currentState !== this.state.states.LOCALCOOP &&
-				this.state.currentState !== this.state.states.TOURNAMENTS) {
-					this.matchText.centerTextZ();
-				if (this.state.player2) {
-					this.matchupMesh.rotation.y = 90 * Math.PI / 180;
-				} else {
-					this.matchupMesh.rotation.y = -90 * Math.PI / 180;
-
-				}
-			} else {
-				// COOP VIEW FROM ABOVE
-				this.matchupMesh.position.y = 100;
-				this.matchupMesh.position.z = 60;
-				//this.matchupMesh.position.x = -len / 2 * 100;
-				this.matchText.centerTextX();
-				this.matchupMesh.rotation.x = -30 * Math.PI / 180;
-			}
-
+			this.matchupMesh.position.y = 100;
+			this.matchupMesh.position.z = 60;
+			//this.matchupMesh.position.x = -len / 2 * 100;
+			this.matchText.centerTextX();
+			this.matchupMesh.rotation.x = -30 * Math.PI / 180;
 			this.scene.add(this.matchupMesh);
 
 			setTimeout(() => {
@@ -535,6 +427,13 @@ export class Pong {
 	gameStart() {
 		if (this.starting) return false; // Prevent multiple calls
 		this.starting = true;
+
+		if (this.camera1) {
+			this.cameraManager.startCamera1Animation();
+		}
+		if (this.camera2) {
+			this.cameraManager.startCamera2Animation();
+		}
 
 		if (this.matchupMesh) {
 			this.scene.remove(this.matchupMesh);
@@ -576,6 +475,7 @@ export class Pong {
 						this.ballDirX = -1;
 						this.ballDirZ = 1;
 						this.ballSpeed = BALL_SPEED;
+						this.createScoreboard();
 					}
 				}, 1000);
 			} else {
@@ -585,6 +485,7 @@ export class Pong {
 						if (data.countdown === 0) {
 							this.scene.remove(this.countdownMesh);
 							this.start = true;
+							this.createScoreboard();
 						}
 					}
 				});
@@ -596,7 +497,7 @@ export class Pong {
 
 	update() {
 		if (!this.paddle1 || !this.paddle2 || !this.ball) return;
-
+	
 		if (this.state.currentState === this.state.states.PLAY) {
 			this.updateCameraPlayer1();
 		} else if (this.state.currentState === this.state.states.LOCALCOOP || this.state.currentState === this.state.states.TOURNAMENTS) {
@@ -607,7 +508,7 @@ export class Pong {
 			this.updateCameraPlayer2();
 		}
 		if (!this.finishMatchText) {
-			this.nicks ? this.nicks : this.nicks = ["Player 1", "Player 2"];
+			this.nicks ? this.nicks : this.nicks = ["P1", "P2"];
 			this.finishMatchText = this.showMatchUp(this.nicks);
 			return;
 		}
@@ -634,7 +535,7 @@ export class Pong {
 		} else {
 			this.multiPlayerHandler();
 		}
-		this.updateScoreboard();
+		this.scoreboard.updateScoreboard(this.score1, this.score2);
 	}
 
 	getScene() {
