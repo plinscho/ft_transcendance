@@ -35,15 +35,15 @@ export class ScoreboardPlayer {
 		}
 
 		this.positionP1Front = {
-			x: this.field_x / 2 + this.#scoreOffsetX,
+			x: this.state.player2 ? -this.field_x / 2 - this.#scoreOffsetX : this.field_x / 2 + this.#scoreOffsetX,
 			y: 50,
-			z: -this.field_z / 2 - this.#scoreOffsetZ - 100,
+			z: this.state.player2 ? +this.field_z / 2 + this.#scoreOffsetZ + 100 : -this.field_z / 2 - this.#scoreOffsetZ - 100,
 		};
 		
 		this.positionP2Front = {
-			x: this.field_x / 2 + this.#scoreOffsetX,
+			x: this.state.player2 ? -this.field_x / 2 - this.#scoreOffsetX : this.field_x / 2 + this.#scoreOffsetX,
 			y: 50,
-			z: this.field_z / 2 + this.#scoreOffsetZ + 50,
+			z: this.state.player2 ? -this.field_z / 2 - this.#scoreOffsetZ - 100 : +this.field_z / 2 + this.#scoreOffsetZ + 100,
 		};
 
 		this.positionP1Top = {
@@ -122,7 +122,7 @@ export class ScoreboardPlayer {
 			color: 0xDDCAD9,
 			positionFront: this.positionP1Front,
 			positionTop: this.positionP1Top,
-			rotationFrontY: -90,
+			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
 			meshKey: "scoreP1Mesh"
 		}).centerTextZ();
@@ -138,7 +138,7 @@ export class ScoreboardPlayer {
 			color: 0x9E0031,
 			positionFront: pos1,
 			positionTop: pos2,
-			rotationFrontY: -90,
+			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
 			meshKey: "nameP1Mesh"
 		});
@@ -150,7 +150,7 @@ export class ScoreboardPlayer {
 			color: 0xF87666,
 			positionFront: this.positionP2Front,
 			positionTop: this.positionP2Top,
-			rotationFrontY: -90,
+			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
 			meshKey: "scoreP2Mesh"
 		});
@@ -166,7 +166,7 @@ export class ScoreboardPlayer {
 			color: 0x9E0031,
 			positionFront: pos1,
 			positionTop: pos2,
-			rotationFrontY: -90,
+			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
 			meshKey: "nameP2Mesh"
 		});
