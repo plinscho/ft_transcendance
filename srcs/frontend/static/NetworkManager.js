@@ -1,3 +1,7 @@
+import { ip } from './host.js';
+
+const URL = 'wss://' + ip.ip + ':8000';
+
 export class NetworkManager {
     constructor() {
         this.token = localStorage.getItem('authToken');
@@ -12,12 +16,12 @@ export class NetworkManager {
         }
         if (isTournament) {
             this.socket = new WebSocket(
-                'ws://localhost:8000/ws/tournament/?authToken=' + this.token
+                URL + '/ws/tournament/?authToken=' + this.token
             );
             this.socket.onopen = () => console.log('Connected to tournament server');
         } else {
             this.socket = new WebSocket(
-                'ws://localhost:8000/ws/pong/?authToken=' + this.token
+                URL +'/ws/pong/?authToken=' + this.token
             );
             this.socket.onopen = () => console.log('Connected to multiplayer server');
 
