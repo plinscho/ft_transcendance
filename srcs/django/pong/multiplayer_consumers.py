@@ -187,8 +187,25 @@ class PongConsumer(AsyncWebsocketConsumer):
                             'data': data
                         }
                     )
+            
             game.paddlePhysics()
             game.ball_physics()
+            if game.goalFlag:
+                game.goalFlag = False
+                goal_data = {
+                    "type": "GOAL",
+                    "score1": game.score1,
+                    "score2": game.score2,
+                    "winner": game.winner,
+                    "endgame": game.endgame,
+                }
+                await self.channel_layer.group_send(
+                    f"pong_{self.room_name}",
+                    {
+                        'type': 'goal_notification',
+                        'data': goal_data
+                    }
+                )
             await asyncio.sleep(interval)
     
     async def ball_movement(self, event):
@@ -264,22 +281,6 @@ class PongConsumer(AsyncWebsocketConsumer):
             }
         )
 
-        if pong_game.goalFlag:
-            pong_game.goalFlag = False
-            goal_data = {
-                "type": "GOAL",
-                "score1": pong_game.score1,
-                "score2": pong_game.score2,
-                "winner": pong_game.winner,
-                "endgame": pong_game.endgame,
-            }
-            await self.channel_layer.group_send(
-                f"pong_{self.room_name}",
-                {
-                    'type': 'goal_notification',
-                    'data': goal_data
-                }
-            )
 #_____________________________________________________________________________
     #El metodo se llama cuando un jugador se desconecta de la sala
     async def disconnect(self, close_code):

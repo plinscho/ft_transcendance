@@ -269,6 +269,7 @@ export class Pong {
 			if (this.state.currentState !== this.state.states.LOCALCOOP && this.state.currentState !== this.state.states.TOURNAMENTS) {
 				if (this.state.player2) {
 					this.winnerText.rotation.y = 90 * Math.PI / 180;
+					winnerText.centerTextZ();
 				} else {
 					this.winnerText.rotation.y = -90 * Math.PI / 180;
 				}
