@@ -317,7 +317,9 @@ export class Pong {
 			this.active = false;
 		}
 		delete this.player1;
+		this.state.player1 = false;
 		delete this.player2;
+		this.state.player2 = false;
 		this.state.loadScene(this.state.states.MENU);
 	}
 
