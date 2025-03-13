@@ -35,6 +35,8 @@ const initLanguageSelector = () => {
     }
 };
 
+
+
 document.addEventListener('DOMContentLoaded', async () => { 
     if (!AUTH) {
         state.authenticated = false;

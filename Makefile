@@ -9,6 +9,10 @@ COMPOSE_CMD = docker compose -f ${COMPOSE}
 all: 
 	$(COMPOSE_CMD) up --detach --build
 
+ip:
+	chmod +x ip.sh
+	./ip.sh
+
 stop:
 	@if [ ! -z "$$(docker ps -aq)" ]; then \
 		$(COMPOSE_CMD) stop; \
@@ -48,4 +52,4 @@ logs:
 
 re: clean all
 
-.PHONY: all stop down ps clean fclean test logs re
+.PHONY: all stop down ps clean fclean test logs re ip

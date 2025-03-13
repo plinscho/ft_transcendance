@@ -1,8 +1,9 @@
 import { state } from './state.js';
 import { updateInitialView, updateView } from './views.js';
 import { loadData } from './api.js';
+import { ip } from './host.js';
 
-const URL = 'https://localhost:8443';
+const URL = 'https://' + ip.ip + ':8443';
 const D = document
 
 export const login = async (email, password) => {

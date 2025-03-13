@@ -8,7 +8,7 @@ export class Stars {
     }
 
     createStars() {
-        const geometry = new THREE.SphereGeometry(1, 24, 24);
+        const geometry = new THREE.SphereGeometry(1, 8, 8);
         const material = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
         const star = new THREE.Mesh(geometry, material);
 

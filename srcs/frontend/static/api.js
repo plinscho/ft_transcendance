@@ -1,6 +1,7 @@
 import { state } from './state.js';
+import { ip } from './host.js';
 
-const URL = 'https://localhost:8443';
+const URL = 'https://' + ip.ip + ':8443';
 
 export const loadData = async () => {
   const { updateUITexts } = await import('./Languages.js');
