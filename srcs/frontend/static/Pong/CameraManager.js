@@ -15,14 +15,22 @@ export class CameraManager {
         return camera;
     }
 
-    followBall(camera, ball) {
+    followBall(camera, ball, p1) {
         const oldX = camera.position.x;
         const oldY = camera.position.y;
         const oldZ = camera.position.z;
 
+        if (p1) {
+            const tl = gsap.timeline();
+            tl.fromTo(camera.position, { x: ball.position.x, y: camera.position.y, z: ball.position.z },
+                { x: oldX, y: oldY, z: oldZ, duration: 2, ease: "power1.inOut" });
+        }
+        
+        if (!p1) {
         const tl = gsap.timeline();
-        tl.fromTo(camera.position, { x: ball.position.x, y: camera.position.y, z: ball.position.z },
+        tl.fromTo(camera.position, { x: -ball.position.x, y: camera.position.y, z: -ball.position.z },
             { x: oldX, y: oldY, z: oldZ, duration: 2, ease: "power1.inOut" });
+        }
     }
 
     screenShake(camera) {
