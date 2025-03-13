@@ -6,10 +6,11 @@ COMPOSE = srcs/docker-compose.yaml
 COMPOSE_CMD = docker compose -f ${COMPOSE}
 
 # Basic build commands
-all: 
+all: ip
 	$(COMPOSE_CMD) up --detach --build
 
 ip:
+	@mkdir -p srcs/ssl/
 	chmod +x ip.sh
 	./ip.sh
 
@@ -43,10 +44,13 @@ clean: down
 	@echo "Deleted all docker containers, volumes, networks, and images succesfully"
 
 fclean: clean
+	rm -rf srcs/ssl
 	@docker system prune -a
+
 test:
 	$(COMPOSE_CMD) run --rm home_service python manage.py test
 	$(COMPOSE_CMD) run --rm login_service python manage.py test
+
 logs:
 	$(COMPOSE_CMD) logs -f
 
