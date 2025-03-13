@@ -17,7 +17,7 @@ services:
     container_name: pgadmin
     build: ./pgadmin
     env_file:
-    - ./.env
+    - .env
     ports: 
       - 5050:80
     depends_on:
@@ -30,7 +30,7 @@ services:
     container_name: nginx
     build: ./nginx
     depends_on:
-      - django
+      - db
     ports:
       - "8080:80"
       - "8443:443"
@@ -40,6 +40,7 @@ services:
       - ./frontend:/usr/share/nginx/html
       - static_data:/vol/django_static
       - static_media:/vol/media
+      - ./ssl:/etc/letsencrypt/live/pong_server
     restart: always
 
   django:
@@ -49,15 +50,17 @@ services:
     depends_on:
       - db
       - redis
+      - nginx
     ports:
       - "8000:8000"
     env_file:
-      - ./django/.env
+      - django/.env
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings
     volumes:
       - static_data:/vol/django_static
       - static_media:/vol/media
+      - ./ssl:/etc/letsencrypt/live/pong_server
     networks:
       - transcendance
     restart: always
@@ -67,7 +70,7 @@ services:
     build: 
       context: ./postgreSQL
     env_file:
-      - ./.env
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
