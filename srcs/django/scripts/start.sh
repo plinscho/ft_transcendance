@@ -23,5 +23,8 @@ python manage.py create_first_superuser
 #gunicorn config.wsgi -b 0.0.0.0:8000
 
 # Where "config" is, its just the name of the django project (config in this case)
-daphne -b 0.0.0.0 -p 8000 config.asgi:application
+
+daphne -e ssl:8000:/etc/letsencrypt/live/pong_server/fullchain.crt:/etc/letsencrypt/live/pong_server/privkey.key config.asgi:application
+
+#daphne -b 0.0.0.0 -p 8000 config.asgi:application
 #gunicorn config.wsgi --bind 0.0.0.0:8000 --reload & daphne -b 0.0.0.0 -p 8089 config.asgi:application &
