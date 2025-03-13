@@ -20,7 +20,7 @@ export class Text3D {
     updateExistingMesh(existingMesh) {
         const fontLoader = new FontLoader();
         
-        fontLoader.load('fonts/helvetiker_regular.typeface.json', (font) => {
+        fontLoader.load('/static/fonts/droid_sans_regular.typeface.json', (font) => {
             const textGeometry = new TextGeometry(this.text, {
                 font: font,
                 size: this.size,
@@ -46,7 +46,7 @@ export class Text3D {
         const loader = new FontLoader();
         
         loader.load(
-            'https://threejs.org/examples/fonts/droid/droid_sans_regular.typeface.json',
+            '/static/fonts/droid_sans_regular.typeface.json',
             (font) => {
                 this.font = font;
                 this.geometry = new TextGeometry(this.text, {
