@@ -97,22 +97,22 @@ export const register = async (username, email, password) => {
 export const logout = () => {
     // Guardar el idioma antes de limpiar
     const currentLanguage = localStorage.getItem('userLanguage');
-    
+
     // Limpiar autenticación
     localStorage.removeItem('authToken');
     // Otros limpiezas necesarias
-    
+
     // Restaurar el idioma
     if (currentLanguage) {
         localStorage.setItem('userLanguage', currentLanguage);
     }
-    
+
     // Actualizar estado
     state.authenticated = false;
-    state.data = { 
-        language: currentLanguage || 'en' 
+    state.data = {
+        language: currentLanguage || 'en'
     };
-    
+
     // Recargar o redirigir
     location.reload();
 };
@@ -148,6 +148,31 @@ D.getElementById('loginButton').addEventListener('click', async () => {
 D.getElementById('registerButton').addEventListener('click', async () => {
     const username = D.getElementById('registerUsername').value;
     const email = D.getElementById('registerEmail').value;
-    const password = D.getElementById('registerPassword').value;
-    await register(username, email, password);
+    const passwordInput = document.getElementById('registerPassword');
+    const password = passwordInput.value;
+
+    if (checkPassword(password) === true) {
+        register(username, email, password);
+    }
 });
+
+function checkPassword(password) {
+    // Al menos 8 carácteres, una Mayus, una minus, un número y un símbolo.
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    const formDiv = D.getElementById("inputPwd");
+
+    const previousError = D.getElementById("pwdError");
+    if (previousError) previousError.remove();
+
+    if (!regex.test(password)) {
+        const errorDiv = D.createElement('div');
+        errorDiv.id = "pwdError";
+        errorDiv.style.color = "red";
+        const errorMsg = D.createTextNode("La contraseña debe tener al menos 8 caracteres,\nuna mayúscula, una minúscula, un número y un símbolo.")
+        errorDiv.append(errorMsg);
+        formDiv.appendChild(errorDiv);
+        return false;
+    }
+    return true;
+}
+
