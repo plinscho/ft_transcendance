@@ -2,6 +2,7 @@ import { state, View } from './state.js';
 import { startGame } from './game.js';
 import { updateUITexts } from './Languages.js';
 
+
 const D = document;
 
 // Determine the current view
