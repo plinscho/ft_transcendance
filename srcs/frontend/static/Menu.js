@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { logout } from './auth.js';
 import { lang } from './Languages.js';
+import gsap from "https://cdn.jsdelivr.net/npm/gsap@3.12.7/index.js";
 
 
 export class Menu {
@@ -14,6 +15,8 @@ export class Menu {
         this.selectedIndex = 0; // Track selected button index
         this.buttons = [];
         this.buttonGroup = 0;
+        this.pongTextMesh = null;
+        this.interruptor = 1;
         this.buttonConfigs = [
             { text: 'Play', state: this.state.states.PLAY },
             { text: 'Local Coop', state: this.state.states.LOCALCOOP },
@@ -84,18 +87,41 @@ export class Menu {
         console.log("Llega");
     }
 
-    pongText() {
+    update() {
+        if (!this.textMenu.mesh) return;
+        const tl = gsap.timeline({yoyo: true, repeat: -1, repeatDelay: 0.5});
+        if (this.interruptor)
+            {
+                tl.to(this.textMenu.mesh.position, {y: "+= 2", duration: 0.80, ease: "bounce"});
+                if (this.textMenu.mesh.position.y > 2) {
+                    this.interruptor = 0;
+                    this.textMenu.mesh.material.color = new THREE.Color(0x00ffff);
+                }
+            }
+            else {
+                tl.to(this.textMenu.mesh.position, {y: "-= 2", duration: 0.80, ease: "bounce"});
+                if (this.textMenu.mesh.position.y < -2.5) {
+                    this.textMenu.mesh.material.color = new THREE.Color(0x00ff00);
+                    this.interruptor = 1;
+                }
+            }
+            console.log(this.textMenu.mesh.material.color);
+        }
+        
+        pongText() {
+            const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
             const position = {
-                x: 1.25,
+                x: 1,
                 y: 0,
                 z: 0,
             }
-            const text = new Text3D("PONG!", position, 0xffffff, 1, 0.1, () => {} ,"/static/fonts/kekw.json"); 
-            text.createText((textMesh) => {
-                this.scene.add(textMesh);
+            this.textMenu = new Text3D("PONG!", position, randomColor, 1, 0.02, () => {} ,"/static/fonts/trans.json"); 
+            this.textMenu.createText((textMesh) => {
+                this.pongTextMesh = textMesh;
+                this.scene.add(this.pongTextMesh);
             });
             //this.scene.add(text);
-        }
+    }
 
 createMenuScene() {
     this.buttons = []; // Limpiar botones anteriores

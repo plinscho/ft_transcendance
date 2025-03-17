@@ -4,8 +4,8 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 
 export class Text3D {
-    constructor(text, position = { x: 0, y: 0, z: 0 }, color = 0xffffff, size = 1, depth = 0.1, onClick = () => {},
-                    fontType = '/static/fonts/droid_sans_regular.typeface.json') {
+    constructor(text, position = { x: 0, y: 0, z: 0 }, color = 0xffffff, size = 1, depth = 0.1, 
+            fontType = '/static/fonts/droid_sans_regular.typeface.json', onClick = () => {}) {
         this.text = text;
         this.position = position;
         this.color = color;
