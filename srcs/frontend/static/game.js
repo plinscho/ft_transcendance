@@ -174,7 +174,8 @@ export class Game {
             if (this.currentState === this.states.PLAY || 
                 this.currentState === this.states.MULTIPLAYER || 
                 this.currentState === this.states.LOCALCOOP ||
-                this.currentState === this.states.TOURNAMENTS) {
+                this.currentState === this.states.TOURNAMENTS ||
+                this.currentState === this.states.MENU) {
                 this.scenes[this.currentState].update();
             }
             this.renderer.render(currentScene, this.camera);
