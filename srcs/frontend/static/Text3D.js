@@ -4,7 +4,8 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 
 export class Text3D {
-    constructor(text, position = { x: 0, y: 0, z: 0 }, color = 0xffffff, size = 1, depth = 0.1, onClick = () => {}) {
+    constructor(text, position = { x: 0, y: 0, z: 0 }, color = 0xffffff, size = 1, depth = 0.1, onClick = () => {},
+                    fontType = '/static/fonts/droid_sans_regular.typeface.json') {
         this.text = text;
         this.position = position;
         this.color = color;
@@ -13,6 +14,7 @@ export class Text3D {
         this.onClick = onClick;
         this.mesh = null;
         this.font = null;
+        this.fontType = fontType;
     }
 
     // Agrega este método a tu clase Text3D existente
@@ -20,7 +22,7 @@ export class Text3D {
     updateExistingMesh(existingMesh) {
         const fontLoader = new FontLoader();
         
-        fontLoader.load('/static/fonts/droid_sans_regular.typeface.json', (font) => {
+        fontLoader.load(this.fontType, (font) => {
             const textGeometry = new TextGeometry(this.text, {
                 font: font,
                 size: this.size,
@@ -46,7 +48,7 @@ export class Text3D {
         const loader = new FontLoader();
         
         loader.load(
-            '/static/fonts/droid_sans_regular.typeface.json',
+            this.fontType,
             (font) => {
                 this.font = font;
                 this.geometry = new TextGeometry(this.text, {

@@ -1,1 +1,1 @@
-export const ip = {"ip": "10.12.7.2"}
+export const ip = {"ip": "127.0.1.1"}
