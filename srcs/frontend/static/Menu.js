@@ -88,6 +88,7 @@ export class Menu {
     }
 
     update() {
+        const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
         if (!this.textMenu.mesh) return;
         const tl = gsap.timeline({yoyo: true, repeat: -1, repeatDelay: 0.5});
         if (this.interruptor)
@@ -95,13 +96,13 @@ export class Menu {
                 tl.to(this.textMenu.mesh.position, {y: "+= 2", duration: 0.80, ease: "bounce"});
                 if (this.textMenu.mesh.position.y > 2) {
                     this.interruptor = 0;
-                    this.textMenu.mesh.material.color = new THREE.Color(0x00ffff);
+                    this.textMenu.mesh.material.color = new THREE.Color(randomColor);
                 }
             }
             else {
                 tl.to(this.textMenu.mesh.position, {y: "-= 2", duration: 0.80, ease: "bounce"});
                 if (this.textMenu.mesh.position.y < -2.5) {
-                    this.textMenu.mesh.material.color = new THREE.Color(0x00ff00);
+                    this.textMenu.mesh.material.color = new THREE.Color(randomColor);
                     this.interruptor = 1;
                 }
             }
