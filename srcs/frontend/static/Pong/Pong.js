@@ -539,6 +539,8 @@ export class Pong {
 			this.multiPlayerHandler();
 		}
 		this.scoreboard.updateScoreboard(this.score1, this.score2);
+		//shaders updaters
+		this.pongScene.table.update();
 	}
 
 	getScene() {

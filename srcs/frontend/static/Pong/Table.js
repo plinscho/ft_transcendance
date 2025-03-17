@@ -2,15 +2,48 @@ import * as THREE from 'three';
 
 export class Table {
     constructor(width, height, depth) {
-        const material = new THREE.MeshLambertMaterial({ color: 0x1f51ff });
+        this.width = width;
+        this.height = height;
+        this.depth = depth;
+        this.startTime = Date.now();
+        this.mesh = null;
+        this.material = null;
+    }
+
+    async init() {
+        const fragmentShader = await fetch('/static/Pong/shaders/fieldShader.glsl').then(response => response.text());
+        const resolution = new THREE.Vector2(this.width, this.depth);
+        this.material = new THREE.ShaderMaterial({
+            uniforms: {
+                u_time: { value: (Date.now() - this.startTime) / 1000 },
+                u_resolution: { value: resolution },
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: fragmentShader,
+            //wireframe: true,
+        });
+
         this.mesh = new THREE.Mesh(
-            new THREE.BoxGeometry(width, height, depth),
-            material
+            new THREE.BoxGeometry(this.width, this.height, this.depth),
+            this.material
         );
         this.mesh.receiveShadow = true;
     }
 
-    addToScene(scene) {
+    async addToScene(scene) {
+        if (!this.mesh) {
+            await this.init();
+        }
         scene.add(this.mesh);
+    }
+
+    update() {
+            this.material.uniforms.u_time.value = (Date.now() - this.startTime) / 1000;
     }
 }
