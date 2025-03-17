@@ -13,6 +13,7 @@ export class Menu {
         this.scene.background = new THREE.Color(0x424242);
         this.selectedIndex = 0; // Track selected button index
         this.buttons = [];
+        this.buttonGroup = 0;
         this.buttonConfigs = [
             { text: 'Play', state: this.state.states.PLAY },
             { text: 'Local Coop', state: this.state.states.LOCALCOOP },
@@ -33,6 +34,7 @@ export class Menu {
         this.createMenuScene();
         this.setupKeyboardNavigation();
         this.menuIntersect();
+        this.pongText();
 
 
         // Add event listener for screen resize
@@ -83,20 +85,17 @@ export class Menu {
     }
 
     pongText() {
-        const texts = [
-            { text: "PONG", font: black,   zindex: 1 },
-            { text: "PONG", font: outline, zindex: -1 },
-            { text: "PONG", font: outline, zindex: -2 },
-            { text: "PONG", font: outline, zindex: -3 }
-        ];
-
-        texts.forEach(({ text, font, zindex }, index) => { 
-            const position = this.getScreenRelativePosition(index);
-
-            text = new Text3D(text, position, font, z-index)
-        });
-
-}
+            const position = {
+                x: 1.25,
+                y: 0,
+                z: 0,
+            }
+            const text = new Text3D("PONG!", position, 0xffffff, 1, 0.1, () => {} ,"/static/fonts/kekw.json"); 
+            text.createText((textMesh) => {
+                this.scene.add(textMesh);
+            });
+            //this.scene.add(text);
+        }
 
 createMenuScene() {
     this.buttons = []; // Limpiar botones anteriores
@@ -151,13 +150,13 @@ createMenuScene() {
             hitbox.position.copy(textMesh.position);
 
             // Crear un grupo para mantener el texto y la caja de colisión juntos
-            const buttonGroup = new THREE.Group();
-            buttonGroup.add(textMesh);
-            buttonGroup.add(hitbox);
-            buttonGroup.userData.onClick = button.onClick;
+            this.buttonGroup = new THREE.Group();
+            this.buttonGroup.add(textMesh);
+            this.buttonGroup.add(hitbox);
+            this.buttonGroup.userData.onClick = button.onClick;
 
-            this.scene.add(buttonGroup);
-            this.buttons.push({ group: buttonGroup, index });
+            this.scene.add(this.buttonGroup);
+            this.buttons.push({ group: this.buttonGroup, index });
         });
     });
 }
@@ -232,7 +231,7 @@ menuIntersect() {
         }
 
         raycaster.setFromCamera(mouse, this.camera);
-        const intersects = raycaster.intersectObjects(this.scene.children, true); // Allow checking groups
+        const intersects = raycaster.intersectObjects(this.buttons.map(button => button.group), true); // Allow checking groups
 
         if (intersects.length > 0) {
             const hoveredObject = intersects[0].object.parent; // Get the parent group
