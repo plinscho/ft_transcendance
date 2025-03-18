@@ -262,7 +262,7 @@ export class Pong {
 	}
 
 	createWinnerBanner(text) {
-		const winnerText = new Text3D(text, { x: 0, y: 50, z: -180 }, 0xffffff, 40, 1);
+		const winnerText = new Text3D(text, { x: 0, y: 50, z: -180 }, 0xf1c40f, 40, 1);
 
 		winnerText.createText((textMesh) => {
 			this.winnerText = textMesh;
@@ -407,7 +407,7 @@ export class Pong {
 
 		this.namesFinished = true;
 
-		this.matchText = new Text3D(`${nicks[0]} vs ${nicks[1]}`, { x: 0, y: 50, z: 0 }, 0xffff00, 30, 1);
+		this.matchText = new Text3D(`${nicks[0]} vs ${nicks[1]}`, { x: 0, y: 50, z: 0 }, 0xf1c40f, 30, 1);
 
 		this.matchText.createText((textMesh) => {
 			this.matchupMesh = textMesh;
@@ -444,7 +444,7 @@ export class Pong {
 		}
 
 		let countdown = 3;
-		this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 50, z: 6 }, 0xffffff, 50, 1);
+		this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 50, z: 6 }, 0xf1c40f, 50, 1);
 		this.countdownText.createText((textMesh) => {
 			this.countdownMesh = textMesh;
 

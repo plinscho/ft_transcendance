@@ -99,14 +99,14 @@ export class Menu {
         const tl = gsap.timeline({yoyo: true, repeat: -1, repeatDelay: 0.5});
         if (this.interruptor)
             {
-                tl.to(this.textMenu.mesh.position, {y: "+= 2", duration: 0.80, ease: "bounce"});
+                tl.to(this.textMenu.mesh.position, {y: "+= 1", duration: 0.80, ease: "bounce"});
                 if (this.textMenu.mesh.position.y > 2) {
                     this.interruptor = 0;
                     this.textMenu.mesh.material.color = new THREE.Color(randomColor);
                 }
             }
             else {
-                tl.to(this.textMenu.mesh.position, {y: "-= 2", duration: 0.80, ease: "bounce"});
+                tl.to(this.textMenu.mesh.position, {y: "-= 1", duration: 0.80, ease: "bounce"});
                 if (this.textMenu.mesh.position.y < -2.5) {
                     this.textMenu.mesh.material.color = new THREE.Color(randomColor);
                     this.interruptor = 1;
