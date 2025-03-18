@@ -5,6 +5,7 @@ import { lang } from './Languages.js';
 import { Stars } from './Pong/Stars.js';
 import { Lighting } from './Pong/Lighting.js';
 import gsap from "https://cdn.jsdelivr.net/npm/gsap@3.12.7/index.js";
+import { Paddle } from './Pong/Paddle.js';
 
 
 export class Menu {
@@ -43,6 +44,11 @@ export class Menu {
         this.setupKeyboardNavigation();
         this.menuIntersect();
         this.pongText();
+        this.paddle1 = new Paddle(200, 30, 10, 0x922b21, [155, -110, -300]);
+        this.paddle1.addToScene(this.scene);
+
+        this.paddle2 = new Paddle(200, 30, 10, 0x922b21, [155, 100, -300]);
+        this.paddle2.addToScene(this.scene);
 
 
         // Add event listener for screen resize
@@ -100,14 +106,14 @@ export class Menu {
         if (this.interruptor)
             {
                 tl.to(this.textMenu.mesh.position, {y: "+= 1", duration: 0.80, ease: "bounce"});
-                if (this.textMenu.mesh.position.y > 2) {
+                if (this.textMenu.mesh.position.y > 0.5) {
                     this.interruptor = 0;
                     this.textMenu.mesh.material.color = new THREE.Color(randomColor);
                 }
             }
             else {
                 tl.to(this.textMenu.mesh.position, {y: "-= 1", duration: 0.80, ease: "bounce"});
-                if (this.textMenu.mesh.position.y < -2.5) {
+                if (this.textMenu.mesh.position.y < -1.5) {
                     this.textMenu.mesh.material.color = new THREE.Color(randomColor);
                     this.interruptor = 1;
                 }
@@ -126,7 +132,6 @@ export class Menu {
                 this.pongTextMesh = textMesh;
                 this.scene.add(this.pongTextMesh);
             });
-            //this.scene.add(text);
     }
 
 createMenuScene() {
@@ -194,8 +199,8 @@ createMenuScene() {
 }
 
 getScreenRelativePosition(index) {
-    const xOffset = -this.camera.aspect * 2.5; // Keeps menu aligned dynamically
-    const yOffset = 1 - index * 0.7; // Space between buttons
+    const xOffset = -this.camera.aspect * 2.2; // Keeps menu aligned dynamically
+    const yOffset = 1 - index * 0.6; // Space between buttons
 
     return { x: xOffset, y: yOffset, z: 0 };
 }
