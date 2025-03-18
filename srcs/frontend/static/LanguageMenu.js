@@ -9,7 +9,7 @@ export class LanguageMenu {
     constructor(state) {
         this.game = state;
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x424242);
+        this.scene.background = new THREE.Color(0x21282a);
         this.camera = this.createCamera();
         this.active = true;
 

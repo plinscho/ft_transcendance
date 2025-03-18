@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { logout } from './auth.js';
 import { lang } from './Languages.js';
+import { Stars } from './Pong/Stars.js';
+import { Lighting } from './Pong/Lighting.js';
 import gsap from "https://cdn.jsdelivr.net/npm/gsap@3.12.7/index.js";
 
 
@@ -11,7 +13,10 @@ export class Menu {
         this.state = state;
         this.camera = camera;
         this.active = true;
-        this.scene.background = new THREE.Color(0x424242);
+        this.scene.background = new THREE.Color(0x21282a);
+        this.lighting = new Lighting(this.scene);
+        this.stars = new Stars(this.scene);
+        
         this.selectedIndex = 0; // Track selected button index
         this.buttons = [];
         this.buttonGroup = 0;
@@ -106,7 +111,6 @@ export class Menu {
                     this.interruptor = 1;
                 }
             }
-            console.log(this.textMenu.mesh.material.color);
         }
         
         pongText() {

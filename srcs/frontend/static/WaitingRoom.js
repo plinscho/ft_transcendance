@@ -169,13 +169,15 @@ import { Text3D } from './Text3D.js';
 import { SetNickEl } from './WaitingRoomNickEl.js';
 import { TournamentManager } from './TournamentManager.js';
 import { PongBackground } from './Pong/PongBackground.js';
+import { Stars } from './Pong/Stars.js';
 import { lang } from './Languages.js';
 
 export class WaitingRoom {
 	constructor(state, network) {
 		this.scene = new THREE.Scene();
 		this.camera = this.createCamera();
-		new PongBackground(this.scene);
+		this.stars = new Stars(this.scene);
+		this.scene.background = new THREE.Color(0x21282a);
 		this.network = network;
 		this.isWaiting = true;
 		this.active = true;
@@ -191,6 +193,10 @@ export class WaitingRoom {
                 // Añadir un listener para cambios de idioma
                 this.languageChangedHandler = this.handleLanguageChange.bind(this);
                 window.addEventListener('languageChanged', this.languageChangedHandler);
+	}
+
+	update() {
+		this.stars.animateStars();
 	}
 
 	createTournamentScreen() {
