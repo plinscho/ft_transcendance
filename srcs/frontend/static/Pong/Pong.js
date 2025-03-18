@@ -183,12 +183,6 @@ export class Pong {
 			this.matchScoreCheck();
 		}
 		if (!this.multiplayer) this.checkOfflineBallCollisions();
-		setTimeout(() => {
-            if (this.glitchPass) {
-                this.state.composer.removePass(this.glitchPass);
-                this.glitchPass = null; // Reset reference
-            }
-        }, "5000"); // Adjust time as needed
 	}
 
 	resetBall(loser) {
@@ -204,6 +198,8 @@ export class Pong {
 				this.ballDirX = -1;
 				this.ballDirZ = 1;
 				this.ballPaused = false;
+				this.state.composer.removePass(this.glitchPass);
+                this.glitchPass = null; // Reset reference
 			}, "3000");
 		}
 		// else if opponent lost, we send ball to player
@@ -212,6 +208,8 @@ export class Pong {
 				this.ballDirX = 1;
 				this.ballDirZ = 1;
 				this.ballPaused = false;
+				this.state.composer.removePass(this.glitchPass);
+                this.glitchPass = null; // Reset reference
 			}, "3000");
 		}
 	}

@@ -19,8 +19,9 @@ export class Game {
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.renderer.shadowMap.enabled = true;
 		this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-		this.renderer.toneMapping = THREE.LinearToneMapping;
-		this.renderer.toneMappingExposure = 1.2;
+		this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		this.renderer.toneMappingExposure = 1.1;
+		this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 		this.tournamentManager;
 
 		// for game loop
