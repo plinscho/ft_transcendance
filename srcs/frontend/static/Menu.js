@@ -110,7 +110,6 @@ export class Menu {
                     this.interruptor = 1;
                 }
             }
-            console.log(this.textMenu.mesh.material.color);
         }
         
         pongText() {
