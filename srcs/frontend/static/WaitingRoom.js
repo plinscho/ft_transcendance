@@ -196,7 +196,7 @@ export class WaitingRoom {
 	createTournamentScreen() {
 		const backToMenu = new Text3D(
 			lang.waitingRoom.escToLeave,
-			{ x: -2, y: 1, z: 0 },
+			{ x: -5, y: 4, z: 0 },
 			0xffffff,
 			0.15,
 			0,
@@ -212,6 +212,7 @@ export class WaitingRoom {
 
 		this.SetNickEl = document.createElement('set-nick-el');
 		this.SetNickEl.setState(this);
+		this.SetNickEl.setGameState(this.state);
 		document.body.appendChild(this.SetNickEl);
 		//setNickElement.setNetwork(networkInstance);
 	}
@@ -349,6 +350,7 @@ export class WaitingRoom {
 
     backToMenu() {
 		if (this.isTournament) {
+			console.log("Entra backToMenu");
 			this.SetNickEl.remove();
 			this.state.isTournament = false;
         } else {
