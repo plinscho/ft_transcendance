@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { logout } from './auth.js';
 import { lang } from './Languages.js';
+import { Stars } from './Pong/Stars.js';
+import gsap from "https://cdn.jsdelivr.net/npm/gsap@3.12.7/index.js";
 
 
 export class Menu {
@@ -10,9 +12,14 @@ export class Menu {
         this.state = state;
         this.camera = camera;
         this.active = true;
-        this.scene.background = new THREE.Color(0x424242);
+        this.scene.background = new THREE.Color(0x21282a);
+        this.stars = new Stars(this.scene);
+        
         this.selectedIndex = 0; // Track selected button index
         this.buttons = [];
+        this.buttonGroup = 0;
+        this.pongTextMesh = null;
+        this.interruptor = 1;
         this.buttonConfigs = [
             { text: 'Play', state: this.state.states.PLAY },
             { text: 'Local Coop', state: this.state.states.LOCALCOOP },
@@ -33,6 +40,7 @@ export class Menu {
         this.createMenuScene();
         this.setupKeyboardNavigation();
         this.menuIntersect();
+        this.pongText();
 
 
         // Add event listener for screen resize
@@ -82,21 +90,43 @@ export class Menu {
         console.log("Llega");
     }
 
-    pongText() {
-        const texts = [
-            { text: "PONG", font: black,   zindex: 1 },
-            { text: "PONG", font: outline, zindex: -1 },
-            { text: "PONG", font: outline, zindex: -2 },
-            { text: "PONG", font: outline, zindex: -3 }
-        ];
-
-        texts.forEach(({ text, font, zindex }, index) => { 
-            const position = this.getScreenRelativePosition(index);
-
-            text = new Text3D(text, position, font, z-index)
-        });
-
-}
+    update() {
+        this.stars.animateStars();
+        const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+        if (!this.textMenu.mesh) return;
+        const tl = gsap.timeline({yoyo: true, repeat: -1, repeatDelay: 0.5});
+        if (this.interruptor)
+            {
+                tl.to(this.textMenu.mesh.position, {y: "+= 2", duration: 0.80, ease: "bounce"});
+                if (this.textMenu.mesh.position.y > 2) {
+                    this.interruptor = 0;
+                    this.textMenu.mesh.material.color = new THREE.Color(randomColor);
+                }
+            }
+            else {
+                tl.to(this.textMenu.mesh.position, {y: "-= 2", duration: 0.80, ease: "bounce"});
+                if (this.textMenu.mesh.position.y < -2.5) {
+                    this.textMenu.mesh.material.color = new THREE.Color(randomColor);
+                    this.interruptor = 1;
+                }
+            }
+            console.log(this.textMenu.mesh.material.color);
+        }
+        
+        pongText() {
+            const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+            const position = {
+                x: 1,
+                y: 0,
+                z: 0,
+            }
+            this.textMenu = new Text3D("PONG!", position, randomColor, 1, 0.02, () => {} ,"/static/fonts/trans.json"); 
+            this.textMenu.createText((textMesh) => {
+                this.pongTextMesh = textMesh;
+                this.scene.add(this.pongTextMesh);
+            });
+            //this.scene.add(text);
+    }
 
 createMenuScene() {
     this.buttons = []; // Limpiar botones anteriores
@@ -151,13 +181,13 @@ createMenuScene() {
             hitbox.position.copy(textMesh.position);
 
             // Crear un grupo para mantener el texto y la caja de colisión juntos
-            const buttonGroup = new THREE.Group();
-            buttonGroup.add(textMesh);
-            buttonGroup.add(hitbox);
-            buttonGroup.userData.onClick = button.onClick;
+            this.buttonGroup = new THREE.Group();
+            this.buttonGroup.add(textMesh);
+            this.buttonGroup.add(hitbox);
+            this.buttonGroup.userData.onClick = button.onClick;
 
-            this.scene.add(buttonGroup);
-            this.buttons.push({ group: buttonGroup, index });
+            this.scene.add(this.buttonGroup);
+            this.buttons.push({ group: this.buttonGroup, index });
         });
     });
 }
@@ -232,7 +262,7 @@ menuIntersect() {
         }
 
         raycaster.setFromCamera(mouse, this.camera);
-        const intersects = raycaster.intersectObjects(this.scene.children, true); // Allow checking groups
+        const intersects = raycaster.intersectObjects(this.buttons.map(button => button.group), true); // Allow checking groups
 
         if (intersects.length > 0) {
             const hoveredObject = intersects[0].object.parent; // Get the parent group
