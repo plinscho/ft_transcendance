@@ -234,8 +234,18 @@ export class SetNickEl extends HTMLElement {
 				align-items: center;
 				justify-content: flex-start;
 				height: auto;
-				gap: 20px;
+				gap: 40px;
 				padding-top: 50px;
+			}
+			.nick-container {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				grid-template-rows: repeat(2, 1fr);
+				column-gap: 60px;
+				row-gap: 50px;
+				background-color: transparent;
+				border-radius: 15px;
+				z-index: 1;
 			}
 			.input__container {
 				position: relative;
@@ -325,7 +335,7 @@ export class SetNickEl extends HTMLElement {
 				box-shadow: 5px 5px 0 0 #000;
 			}
 			.input__container::before {
-				content: "USERNAME";
+				content: "Player:";
 				position: absolute;
 				top: -15px;
 				left: 20px;
@@ -337,6 +347,53 @@ export class SetNickEl extends HTMLElement {
 				transform: translateZ(50px);
 				z-index: 4;
 				border: 2px solid #000;
+			}
+			.btn {
+				font-size: 17px;
+				background: transparent;
+				border: none;
+				padding: 1em 1.5em;
+				color: #ffedd3;
+				text-transform: uppercase;
+				position: relative;
+				transition: 0.5s ease;
+				cursor: pointer;
+			}
+				
+			.btn::before {
+				content: "";
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				height: 2px;
+				width: 0;
+				background-color: #ffc506;
+				transition: 0.5s ease;
+			}
+				
+			.btn:hover {
+				color: #1e1e2b;
+				transition-delay: 0.5s;
+			}
+				
+			.btn:hover::before {
+				width: 100%;
+			}
+			.btn::after {
+				content: "";
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				height: 0;
+				width: 100%;
+				background-color: #ffc506;
+				transition: 0.4s ease;
+				z-index: -1;
+			}
+			.btn:hover::after {
+				height: 100%;
+				transition-delay: 0.4s;
+				color: aliceblue;
 			}
 		`;
 
@@ -380,7 +437,7 @@ export class SetNickEl extends HTMLElement {
 
 		const button = document.createElement('button');
 		button.id = 'startButton';
-		button.className = 'btn btn-light';
+		button.className = 'btn';
 		button.textContent = lang.tournament.start;
 
 		screen.appendChild(container);
