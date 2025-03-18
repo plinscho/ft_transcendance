@@ -6,6 +6,7 @@ import { PongBackground } from './PongBackground.js';
 import { CameraManager } from './CameraManager.js';
 import { Stars } from './Stars.js';
 import { ScoreboardPlayer } from './ScoreboardPlayer.js'
+import { GlitchPass } from 'three/addons/postprocessing/GlitchPass.js';
 
 const BALL_SPEED = 3;
 
@@ -100,6 +101,9 @@ export class Pong {
 			this.paddle2,
 			false // variable solo para VS IA
 		);
+
+		// Glitch
+		this.glitchPass = null;
 	}
 
 	updateCameraPlayer1() {
@@ -158,6 +162,8 @@ export class Pong {
 			// CPU scores
 			this.score2++;
 			this.cameraManager.followBall(this.getCamera(), this.ball, false);
+			this.glitchPass = new GlitchPass();
+			this.state.composer.addPass(this.glitchPass);
 			// reset ball to center
 			this.scoreboard.updateScoreboard(this.score1, this.score2);
 			this.resetBall(2);
@@ -169,13 +175,20 @@ export class Pong {
 			// Player scores
 			this.score1++;
 			this.cameraManager.followBall(this.getCamera(), this.ball, true);
-
+			this.glitchPass = new GlitchPass();
+			this.state.composer.addPass(this.glitchPass);
 			// reset ball to center
 			this.scoreboard.updateScoreboard(this.score1, this.score2);
 			this.resetBall(1);
 			this.matchScoreCheck();
 		}
 		if (!this.multiplayer) this.checkOfflineBallCollisions();
+		setTimeout(() => {
+            if (this.glitchPass) {
+                this.state.composer.removePass(this.glitchPass);
+                this.glitchPass = null; // Reset reference
+            }
+        }, "5000"); // Adjust time as needed
 	}
 
 	resetBall(loser) {
@@ -191,7 +204,7 @@ export class Pong {
 				this.ballDirX = -1;
 				this.ballDirZ = 1;
 				this.ballPaused = false;
-			}, "2000");
+			}, "3000");
 		}
 		// else if opponent lost, we send ball to player
 		else {
@@ -199,7 +212,7 @@ export class Pong {
 				this.ballDirX = 1;
 				this.ballDirZ = 1;
 				this.ballPaused = false;
-			}, "2000");
+			}, "3000");
 		}
 	}
 
