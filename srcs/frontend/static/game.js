@@ -19,9 +19,6 @@ export class Game {
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.renderer.shadowMap.enabled = true;
 		this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-		this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		this.renderer.toneMappingExposure = 1.1;
-		this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 		this.tournamentManager;
 
 		// for game loop
@@ -181,6 +178,9 @@ export class Game {
 		this.bloomPass.threshold = 0.1;
 		this.outputPass = new OutputPass();
 		this.composer.addPass(this.outputPass);
+		this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		this.renderer.toneMappingExposure = 1.1;
+		this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 	}
 
 	resize() {
