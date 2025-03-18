@@ -147,7 +147,7 @@ export class ScoreboardPlayer {
 	createP2Score() {
 		this.createPlayerText({
 			text: this.score2.toString(),
-			color: 0xF87666,
+			color: 0xDDCAD9,
 			positionFront: this.positionP2Front,
 			positionTop: this.positionP2Top,
 			rotationFrontY: this.state.player2 ? 90 : -90,
