@@ -80,7 +80,7 @@ const languages = {
     },
     menu: {
       play: "Jugar",
-      localcoop: "Multijugador local",
+      localcoop: "Local",
       multiplayer: "Multijugador",
       tournament: "Torneo",
       languages: "Idiomas",
@@ -130,7 +130,7 @@ const languages = {
     },
     menu: {
       play: "Giocare",
-      localcoop: "Multigiocatore locale",
+      localcoop: "Locale",
       multiplayer: "Multigiocatore",
       tournament: "Torneo",
       languages: "Lingue",
@@ -180,7 +180,7 @@ const languages = {
     },
     menu: {
       play: "Jouer",
-      localcoop: "Multijoueur local",
+      localcoop: "Local",
       multiplayer: "Multijoueur",
       tournament: "Tournoi",
       languages: "Langues",
