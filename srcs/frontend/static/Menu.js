@@ -45,10 +45,13 @@ export class Menu {
         this.setupKeyboardNavigation();
         this.menuIntersect();
         this.pongText();
-        this.paddle1 = new Paddle(200, 30, 10, 0x922b21, [155, -110, -300]);
+        this.paddle1 = new Paddle(180, 20, 40, 0x922b21, [155, -110, -300]);
+
+        this.paddle1.mesh.rotation.y = -30 * Math.PI / 180;
         this.paddle1.addToScene(this.scene);
 
-        this.paddle2 = new Paddle(200, 30, 10, 0x922b21, [155, 100, -300]);
+        this.paddle2 = new Paddle(180, 20, 40, 0x922b21, [155, 110, -300]);
+        this.paddle2.mesh.rotation.y = -30 * Math.PI / 180;
         this.paddle2.addToScene(this.scene);
 
 
@@ -123,13 +126,14 @@ export class Menu {
     pongText() {
         const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
         const position = {
-            x: 1,
+            x: 2,
             y: 0,
-            z: 0,
+            z: -2,
         }
-        this.textMenu = new Text3D("PONG!", position, randomColor, 1, 0.02, () => { }, "/static/fonts/trans.json");
+        this.textMenu = new Text3D("PONG", position, randomColor, 0.9, 0.02, () => { }, "/static/fonts/trans.json");
         this.textMenu.createText((textMesh) => {
             this.pongTextMesh = textMesh;
+            this.pongTextMesh.rotation.y = -35 * Math.PI / 180;
             this.scene.add(this.pongTextMesh);
         });
     }
@@ -189,12 +193,15 @@ export class Menu {
                 hitbox.position.setX(textMesh.position.x * 0.5); // Mover la caja de colisión detrás del texto
                 hitbox.position.setY(textMesh.position.y + 0.15);
                 hitbox.position.setZ(textMesh.position.z - 0.01); // Mover la caja de colisión detrás del texto
+
+                hitbox.rotation.y = 15 * Math.PI / 180;
+                textMesh.rotation.y = 15 * Math.PI / 180;
                 // Crear un grupo para mantener el texto y la caja de colisión juntos
                 this.buttonGroup = new THREE.Group();
                 this.buttonGroup.add(textMesh);
                 this.buttonGroup.add(hitbox);
                 this.buttonGroup.userData.onClick = button.onClick;
-
+            
                 this.scene.add(this.buttonGroup);
                 this.buttons.push({ group: this.buttonGroup, index });
             });
@@ -202,7 +209,7 @@ export class Menu {
     }
 
     getScreenRelativePosition(index) {
-        const xOffset = -this.camera.aspect * 2.2; // Keeps menu aligned dynamically
+        const xOffset = -this.camera.aspect * 2.8; // Keeps menu aligned dynamically
         const yOffset = 1 - index * 0.6; // Space between buttons
 
         return { x: xOffset, y: yOffset, z: 0 };

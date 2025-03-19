@@ -10,6 +10,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { GlitchPass } from 'three/addons/postprocessing/GlitchPass.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { escMenu } from './escMenu.js';
 
 
 export class Game {
@@ -32,7 +33,6 @@ export class Game {
 
 		this.camera = null;
 
-
 		this.network = new NetworkManager();
 		this.player1 = false;
 		this.player2 = false;
@@ -50,7 +50,7 @@ export class Game {
 		};
 		this.currentState = this.states.MENU;
 		this.previousScene = null;
-
+		
 		this.scenes = {
 			menu: new Menu(this),
 			play: null,
@@ -60,8 +60,8 @@ export class Game {
 			tournament: null,
 			language_menu: null
 		};
-
-
+		
+		
 		//post processing
 		this.renderScene;
 		this.composer;
@@ -71,13 +71,15 @@ export class Game {
 		this.glitchMe = false;
 		this.updateCamera();
 		window.addEventListener('resize', this.resize.bind(this));
+
+		this.escapeMenu = new escMenu(this);
 		this.gameLoop();
 	}
-
+	
 	getSceneName() {
 		return this.currentState;
 	}
-
+	
 	loadScene(sceneName) {
 		if (this.currentState === sceneName) return;
 
@@ -175,13 +177,13 @@ export class Game {
 			0.1
 		);
 		this.composer.addPass(this.bloomPass);
-		this.bloomPass.strength = 0.17;
+		this.bloomPass.strength = 0.19;
 		this.bloomPass.radius = 0.1;
 		this.bloomPass.threshold = 0.1;
 		this.outputPass = new OutputPass();
 		this.composer.addPass(this.outputPass);
 		this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		this.renderer.toneMappingExposure = 0.9;
+		this.renderer.toneMappingExposure = 1;
 		this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 	}
 
