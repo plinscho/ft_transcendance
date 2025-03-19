@@ -26,7 +26,7 @@ export class PongScene {
         this.paddle1 = new Paddle(paddle_x, paddle_y + offset, paddle_z, 0x922b21, [(-field_x / 2 + offset), field_y + offset, 0]);
         this.paddle1.addToScene(this.scene);
 
-        this.paddle2 = new Paddle(paddle_x, paddle_y + offset, paddle_z, 0x2e86c1, [(field_x / 2 - offset), field_y + offset, 0]);
+        this.paddle2 = new Paddle(paddle_x, paddle_y + offset, paddle_z, 0x922b21, [(field_x / 2 - offset), field_y + offset, 0]);
         this.paddle2.addToScene(this.scene);
 
         // Add Lighting

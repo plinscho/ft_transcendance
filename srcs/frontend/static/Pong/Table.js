@@ -11,9 +11,9 @@ export class Table {
     }
 
     async init() {
-        const fragmentShader = await fetch('/static/Pong/shaders/fieldShader.glsl').then(response => response.text());
-        const resolution = new THREE.Vector2(this.width / 4, this.depth / 4);
-        this.material = new THREE.ShaderMaterial({
+       // const fragmentShader = await fetch('/static/Pong/shaders/fieldShader.glsl').then(response => response.text());
+       // const resolution = new THREE.Vector2(this.width / 4, this.depth / 4);
+        /*this.material = new THREE.ShaderMaterial({
             uniforms: {
                 u_time: { value: (Date.now() - this.startTime) / 1000 },
                 u_resolution: { value: resolution },
@@ -28,8 +28,8 @@ export class Table {
             `,
             fragmentShader: fragmentShader,
             //wireframe: true,
-        });
-
+        });*/
+        this.material = new THREE.MeshToonMaterial({ color: 0x85166d });
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(this.width, this.height, this.depth),
             this.material

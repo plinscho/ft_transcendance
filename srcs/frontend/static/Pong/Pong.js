@@ -557,7 +557,7 @@ export class Pong {
 		}
 		this.scoreboard.updateScoreboard(this.score1, this.score2);
 		//shaders updaters
-		this.pongScene.table.update();
+		//this.pongScene.table.update();
 	}
 
 	getScene() {
