@@ -5,6 +5,7 @@ export class SetNickEl extends HTMLElement {
 		super(); // Call the parent constructor
 		this.state = null; // Will be set after instantiation
 		this.nicknames = null;
+		this.menuButton;
 
 		const bootstrapLink = document.createElement('link');
 		bootstrapLink.rel = 'stylesheet';
@@ -147,13 +148,13 @@ export class SetNickEl extends HTMLElement {
 		this.menuButton = document.createElement('menu-scape');
 		this.menuButton.setState(this.state);
 		this.menuButton.setGameState(this.gameState);
-
+		screen.appendChild(this.menuButton);
 		
 		screen.appendChild(container);
 		screen.appendChild(button);
 
 		//screen.appendChild(button_menu);
-		screen.appendChild(this.menuButton);
+		
 
 		shadow.appendChild(bootstrapLink);
 		shadow.appendChild(style);
