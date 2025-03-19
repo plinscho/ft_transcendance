@@ -94,6 +94,7 @@ export class ScoreboardPlayer {
 		rotationFrontY,
 		rotationTopX,
 		meshKey,
+		isScore
 	}) {
 		const isFront = this.front;
 		const position = isFront ? positionFront : positionTop;
@@ -106,7 +107,10 @@ export class ScoreboardPlayer {
 				textMesh.rotation.y = rotationFrontY * Math.PI / 180;
 			} else {
 				textMesh.position.x -= 25;
-				textMesh.position.y = 5;
+				if (isScore === true)
+					textMesh.position.y = -40;
+				else
+					textMesh.position.y = 5;
 				textMesh.position.z = -this.field_x / 2 - this.#scoreOffsetZ;
 				textMesh.rotation.x = rotationTopX * Math.PI / 180;
 			}
@@ -124,7 +128,8 @@ export class ScoreboardPlayer {
 			positionTop: this.positionP1Top,
 			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
-			meshKey: "scoreP1Mesh"
+			meshKey: "scoreP1Mesh",
+			isScore: true
 		}).centerTextZ();
 	}
 	
@@ -140,7 +145,8 @@ export class ScoreboardPlayer {
 			positionTop: pos2,
 			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
-			meshKey: "nameP1Mesh"
+			meshKey: "nameP1Mesh",
+			isScore: false
 		});
 	}
 	
@@ -152,7 +158,8 @@ export class ScoreboardPlayer {
 			positionTop: this.positionP2Top,
 			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
-			meshKey: "scoreP2Mesh"
+			meshKey: "scoreP2Mesh",
+			isScore: true
 		});
 	}	
 
@@ -168,7 +175,8 @@ export class ScoreboardPlayer {
 			positionTop: pos2,
 			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
-			meshKey: "nameP2Mesh"
+			meshKey: "nameP2Mesh",
+			isScore: false
 		});
 	}
 
