@@ -6,6 +6,7 @@ import { PongBackground } from './PongBackground.js';
 import { CameraManager } from './CameraManager.js';
 import { Stars } from './Stars.js';
 import { ScoreboardPlayer } from './ScoreboardPlayer.js'
+import { GlitchPass } from 'three/addons/postprocessing/GlitchPass.js';
 
 const BALL_SPEED = 3;
 
@@ -100,6 +101,9 @@ export class Pong {
 			this.paddle2,
 			false // variable solo para VS IA
 		);
+
+		// Glitch
+		this.glitchPass = null;
 	}
 
 	updateCameraPlayer1() {
@@ -158,6 +162,8 @@ export class Pong {
 			// CPU scores
 			this.score2++;
 			this.cameraManager.followBall(this.getCamera(), this.ball, false);
+			this.glitchPass = new GlitchPass();
+			this.state.composer.addPass(this.glitchPass);
 			// reset ball to center
 			this.scoreboard.updateScoreboard(this.score1, this.score2);
 			this.resetBall(2);
@@ -169,7 +175,8 @@ export class Pong {
 			// Player scores
 			this.score1++;
 			this.cameraManager.followBall(this.getCamera(), this.ball, true);
-
+			this.glitchPass = new GlitchPass();
+			this.state.composer.addPass(this.glitchPass);
 			// reset ball to center
 			this.scoreboard.updateScoreboard(this.score1, this.score2);
 			this.resetBall(1);
@@ -191,7 +198,9 @@ export class Pong {
 				this.ballDirX = -1;
 				this.ballDirZ = 1;
 				this.ballPaused = false;
-			}, "2000");
+				this.state.composer.removePass(this.glitchPass);
+                this.glitchPass = null; // Reset reference
+			}, "3000");
 		}
 		// else if opponent lost, we send ball to player
 		else {
@@ -199,7 +208,9 @@ export class Pong {
 				this.ballDirX = 1;
 				this.ballDirZ = 1;
 				this.ballPaused = false;
-			}, "2000");
+				this.state.composer.removePass(this.glitchPass);
+                this.glitchPass = null; // Reset reference
+			}, "3000");
 		}
 	}
 
@@ -262,7 +273,7 @@ export class Pong {
 	}
 
 	createWinnerBanner(text) {
-		const winnerText = new Text3D(text, { x: 0, y: 50, z: -180 }, 0xffffff, 40, 1);
+		const winnerText = new Text3D(text, { x: 0, y: 50, z: -180 }, 0xf1c40f, 40, 1);
 
 		winnerText.createText((textMesh) => {
 			this.winnerText = textMesh;
@@ -407,7 +418,7 @@ export class Pong {
 
 		this.namesFinished = true;
 
-		this.matchText = new Text3D(`${nicks[0]} vs ${nicks[1]}`, { x: 0, y: 50, z: 0 }, 0xffff00, 30, 1);
+		this.matchText = new Text3D(`${nicks[0]} vs ${nicks[1]}`, { x: 0, y: 50, z: 0 }, 0xf1c40f, 30, 1);
 
 		this.matchText.createText((textMesh) => {
 			this.matchupMesh = textMesh;
@@ -444,7 +455,7 @@ export class Pong {
 		}
 
 		let countdown = 3;
-		this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 50, z: 6 }, 0xffffff, 50, 1);
+		this.countdownText = new Text3D(countdown.toString(), { x: 0, y: 50, z: 6 }, 0xf1c40f, 50, 1);
 		this.countdownText.createText((textMesh) => {
 			this.countdownMesh = textMesh;
 

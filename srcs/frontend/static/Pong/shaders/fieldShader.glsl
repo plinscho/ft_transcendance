@@ -47,12 +47,14 @@ void main(){
 
     gl_FragColor = vec4( color , 1.0);
 }
-*/
 
+// __________________________________________________________________
+// Bueno a partir de aqui
 #define PI 3.14159265358979323846
 
 uniform vec2 u_resolution;
 uniform float u_time;
+uniform vec3 u_color; // Añadir el uniforme u_color
 
 vec2 rotate2D(vec2 _st, float _angle){
     _st -= 0.5;
@@ -104,7 +106,24 @@ void main(void){
     st = rotate2D(st,PI*.90);
 
     vec3 color = vec3( box(offsetSt,vec2(0.95),0.01) );
-    color += vec3(0.3,0.6,0.3);
+    color += u_color; // Utilizar el uniforme u_color
 
     gl_FragColor = vec4(color,1.0);
+}
+
+*/
+#define PI 3.14159265358979323846
+
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform vec3 u_color; // Añadir el uniforme u_color
+
+void main(void){
+    vec2 st = gl_FragCoord.xy / u_resolution.xy;
+    st.y *= u_resolution.y / u_resolution.x;
+
+    // Rellenar con el color uniforme
+    vec3 color = u_color;
+
+    gl_FragColor = vec4(color, 1.0);
 }
