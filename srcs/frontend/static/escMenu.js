@@ -57,7 +57,8 @@ export class escMenu{
 			0.4,
 			0,
 			() => {
-				this.game.scenes[this.game.currentState].backToMenu();
+				if (this.menuOn)
+					this.game.scenes[this.game.currentState].backToMenu();
 			},
 			"/static/fonts/trans.json"
 		);
@@ -94,7 +95,7 @@ export class escMenu{
 	
 	createEscBox() {
 		this.scene = this.game.scenes[this.game.currentState]?.getScene();
-		if (!this.scene || this.game.currentState === this.game.states.MENU) return;
+		if (!this.scene || this.game.currentState === this.game.scenes.menu) return;
 	
 		if (!this.menuOn) {
 			// Si la caja no se ha creado aún, la creamos
