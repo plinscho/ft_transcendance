@@ -10,6 +10,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { GlitchPass } from 'three/addons/postprocessing/GlitchPass.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { MenuScape } from './MenuScape.js';
 
 
 export class Game {
@@ -61,6 +62,8 @@ export class Game {
 			language_menu: null
 		};
 
+		//Anyadimos logica ESC
+		this.menuScape = new MenuScape(this);
 
 		//post processing
 		this.renderScene;

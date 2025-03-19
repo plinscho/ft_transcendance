@@ -202,11 +202,7 @@ export class WaitingRoom {
 	createTournamentScreen() {
 		const backToMenu = new Text3D(
 			lang.waitingRoom.escToLeave,
-<<<<<<< HEAD
 			{ x: -5, y: 4, z: 0 },
-=======
-			{ x: -3.5, y: 2.5, z: 0 },
->>>>>>> origin
 			0xffffff,
 			0.15,
 			0,

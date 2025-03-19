@@ -1,4 +1,4 @@
-export class MenuScape extends HTMLElement {
+/*export class MenuScape extends HTMLElement {
 	constructor() {
 		super();
 		this.state = null;
@@ -86,4 +86,59 @@ export class MenuScape extends HTMLElement {
 	}
 }
 
-customElements.define('menu-scape', MenuScape);
+customElements.define('menu-scape', MenuScape);*/
+import { Text3D } from './Text3D.js';
+
+export class MenuScape {
+	constructor(state) {
+		this.state = state;
+		this.currentScene = this.state.scenes[this.state.currentState]?.getScene();//La escena donde se pondra
+		this.textMesh = null;
+		this.active = false; // Para saber si el menu esta visible
+		console.log("Entra en MenuScape");
+		const text = new Text3D(
+					"Back to Menu",
+					{ x: -5, y: 4, z: 0 },
+					0xffffff,
+					0.15,
+					0,
+					() => { if (this.active) { this.state.backToMenu(); }}
+				);
+
+		text.createText((textMesh) => {
+			textMesh.userData.onClick = () => this.state.backToMenu();
+			textMesh.userData.textId = 'escToLeave'; // Identificador para actualización de idioma
+			textMesh.visible = false;
+			this.textMesh = textMesh;
+			
+			if (this.currentScene) {
+				this.currentScene.add(this.textMesh);
+			}
+		});
+
+		this.handleKeyDown = this.handleKeyDown.bind(this);
+		window.addEventListener('keydown', this.handleKeyDown);
+	}
+
+	handleKeyDown(event) {
+		if (event.key === 'Escape' && this.active) {
+			this.state.backToMenu();
+		}
+	}
+
+	// para actualizar siempre que entremos en la clase
+	updateCurrentScene()
+	{
+		this.currentScene = this.state.scenes[this.state.currentState]?.getScene();
+	}
+
+	activateMenu() {
+		if (!this.textMesh)
+			return;
+
+		this.updateCurrentScene();
+		this.active = !this.active;
+		this.textMesh.visible = this.active;
+	}
+	
+}

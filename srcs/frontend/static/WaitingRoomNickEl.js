@@ -277,10 +277,10 @@ export class SetNickEl extends HTMLElement {
 		//	button_menu.appendChild(div);
 		//}
 
-		this.menuButton = document.createElement('menu-scape');
-		this.menuButton.setState(this.state);
-		this.menuButton.setGameState(this.gameState);
-		screen.appendChild(this.menuButton);
+		//this.menuButton = document.createElement('menu-scape');
+		//this.menuButton.setState(this.state);
+		//this.menuButton.setGameState(this.gameState);
+		//screen.appendChild(this.menuButton);
 		
 		screen.appendChild(container);
 		screen.appendChild(button);
