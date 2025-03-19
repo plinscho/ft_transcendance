@@ -59,7 +59,7 @@ export class Pong {
 		this.scoreP2Text = null;
 		this.score1 = 0;
 		this.score2 = 0;
-		this.maxScore = 3;
+		this.maxScore = 1;
 		this.bounceTime = 0;
 
 		// Game Start Countdown
@@ -295,6 +295,7 @@ export class Pong {
 
 			setTimeout(() => {
 				this.scene.remove(this.winnerText);
+				this.scoreboard.updateScoreboard(0, 0);
 				this.backToMenu();
 			}, 3000);
 		});
@@ -315,8 +316,11 @@ export class Pong {
 			this.player2.playerMesh.position.z = 0;
 			this.player2.playerMesh.scale.z = 1;
 			this.player2.playerMesh.scale.y = 1;
+
 			this.nicks = this.state.tournamentManager.next();
-			this.createScoreboard();
+			if (this.nicks)
+				this.scoreboard.updateNicks(this.nicks[0], this.nicks[1]);
+			//this.createScoreboard();
 			if (this.state.tournamentManager.finished())
 				this.state.loadScene(this.state.states.MENU);
 			return;
@@ -396,7 +400,7 @@ export class Pong {
 			if (this.state.isTournament)
 				this.winnerResult = [this.nicks[0], this.nicks[1]];
 			this.ballSpeed = 0; // Stop ball movement
-			this.createWinnerBanner("Player 1 Wins!");
+			this.createWinnerBanner(this.nicks[0] + " wins!");
 			// Player 1 celebration effect
 			this.bounceTime++;
 			this.player1.playerMesh.scale.x = 2 + Math.abs(Math.sin(this.bounceTime * 0.05)) * 10;
@@ -405,7 +409,7 @@ export class Pong {
 			if (this.state.isTournament)
 				this.winnerResult = [this.nicks[1], this.nicks[0]];
 			this.ballSpeed = 0; // Stop ball movement
-			this.createWinnerBanner("Player 2 Wins!");
+			this.createWinnerBanner(this.nicks[1] + " wins!");
 			// Player 2 celebration effect
 			this.bounceTime++;
 
@@ -489,7 +493,8 @@ export class Pong {
 						this.ballDirX = -1;
 						this.ballDirZ = 1;
 						this.ballSpeed = BALL_SPEED;
-						this.createScoreboard();
+						if (!this.scoreboard)
+							this.createScoreboard();
 					}
 				}, 1000);
 			} else {
@@ -499,7 +504,8 @@ export class Pong {
 						if (data.countdown === 0) {
 							this.scene.remove(this.countdownMesh);
 							this.start = true;
-							this.createScoreboard();
+							if (!this.scoreboard)
+								this.createScoreboard();
 						}
 					}
 				});
