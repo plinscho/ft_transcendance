@@ -173,13 +173,13 @@ export class Game {
 			0.1
 		);
 		this.composer.addPass(this.bloomPass);
-		this.bloomPass.strength = 0.2;
+		this.bloomPass.strength = 0.17;
 		this.bloomPass.radius = 0.1;
 		this.bloomPass.threshold = 0.1;
 		this.outputPass = new OutputPass();
 		this.composer.addPass(this.outputPass);
 		this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		this.renderer.toneMappingExposure = 1.1;
+		this.renderer.toneMappingExposure = 0.9;
 		this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 	}
 
