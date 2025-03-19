@@ -73,6 +73,7 @@ export class LanguageMenu {
                 async () => {
                     if (this.active) {
                         await this.handleLanguageChange(lang.code);
+                        this.game.loadScene(this.game.states.MENU);
                         this.setActive(false);
                     }
                 }
@@ -215,7 +216,7 @@ export class LanguageMenu {
 
     setActive(isActive) {
         this.active = isActive;
-        if (this.scene) {
+        /*if (this.scene) {
             this.scene.visible = isActive;
             // Limpiar la escena si se está desactivando
             if (!isActive) {
@@ -232,14 +233,14 @@ export class LanguageMenu {
                     this.scene.remove(child);
                 }
             }
-        }
+        }*/
     }
 
     async handleLanguageChange(langCode) {
         try {
             // 1. Actualizar el idioma en el backend
             const response = await updateLanguage(langCode);
-            if (response && response.language) {
+            /*if (response && response.language) {
                 // 2. Actualizar el estado local
                 state.data.language = langCode;
                 
@@ -258,9 +259,9 @@ export class LanguageMenu {
                 }
                 
                 // 7. Finalmente, cambiar la escena
-                this.game.loadScene(this.game.states.MENU);
                 this.setActive(false);
-            }
+                }*/
+            //this.game.loadScene(this.game.states.MENU);
         } catch (error) {
             console.error('Error changing language:', error);
         }

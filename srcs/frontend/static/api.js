@@ -102,7 +102,7 @@ export const updateLanguage = async (language) => {
 		};
 
 		// Eliminar token pero mantener idioma
-		localStorage.removeItem("authToken");
+		//localStorage.removeItem("authToken");
 
 		// Asegurarse de que userLanguage está establecido
 		localStorage.setItem('userLanguage', currentLanguage);
