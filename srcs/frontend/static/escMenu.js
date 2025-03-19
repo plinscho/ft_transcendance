@@ -20,11 +20,17 @@ export class escMenu {
 		window.addEventListener('keydown', this.escButton);
 	}
 
-	clickHandler() {
+	clickHandler(event) {
 		const raycaster = new THREE.Raycaster();
 		const mouse = new THREE.Vector2();
-		this.camera = this.game.scenes[this.game.currentState].getCamera(); 
-		if (this.menuOn === true) {
+
+		// Normalizar coordenadas del mouse
+		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+		this.camera = this.game.scenes[this.game.currentState].getCamera();
+		
+		if (this.menuOn) {
 			raycaster.setFromCamera(mouse, this.camera);
 			const intersects = raycaster.intersectObjects([this.box], true);
 
@@ -54,8 +60,12 @@ export class escMenu {
 			0.4,
 			0,
 			() => {
-				if (this.menuOn)
+				if (this.menuOn) {
 					this.game.scenes[this.game.currentState].backToMenu();
+					this.menuOn = false;
+					window.removeEventListener('click', this.clickEscape);
+					this.scene.remove(this.box);
+				}
 			},
 			"/static/fonts/trans.json"
 		);
@@ -66,13 +76,13 @@ export class escMenu {
 			textMesh.position.set(position.x, position.y, position.z);
 	
 			const hitboxGeometry = new THREE.PlaneGeometry(4, 0.6);
-			const hitboxMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide,
-				transparent: true, opacity: 0,
-				visible: true });
+			const hitboxMaterial = new THREE.MeshBasicMaterial({
+				color: 0x3f7b9d,
+				side: THREE.DoubleSide,
+				visible: true
+			});
 			const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
 			hitbox.position.copy(textMesh.position);
-			hitbox.position.y += 0.2;
-			hitbox.position.z -= 0.01;
 	
 			group.add(textMesh);
 			group.add(hitbox);
@@ -92,16 +102,18 @@ export class escMenu {
 	
 		if (!this.menuOn) {
 			if (!this.box) {
-				this.createBox(); 
-			} else {
-				this.scene.add(this.box);
+				this.createBox();
 			}
+			// Agregar listener de click solo cuando se abre el menú
+			window.addEventListener('click', this.clickEscape);
 			this.menuOn = true;
 		} else {
 			if (this.box) {
+				this.menuOn = false;
+				window.removeEventListener('click', this.clickEscape);
 				this.scene.remove(this.box);
 			}
-			this.menuOn = false;
+			// Remover listener de click cuando se cierra el menú
 		}
 	}
 }
