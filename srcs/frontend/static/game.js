@@ -30,8 +30,8 @@ export class Game {
 
 		document.body.appendChild(this.renderer.domElement);
 
-		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		this.camera.position.z = 5;
+		this.camera = null;
+
 
 		this.network = new NetworkManager();
 		this.player1 = false;
@@ -52,7 +52,7 @@ export class Game {
 		this.previousScene = null;
 
 		this.scenes = {
-			menu: new Menu(this, this.camera),
+			menu: new Menu(this),
 			play: null,
 			localcoop: null,
 			waiting_room: null,
@@ -82,11 +82,12 @@ export class Game {
 		if (this.currentState === sceneName) return;
 
 		this.unloadScene(this.currentState);
-
+		console.log(`Loading scene: ${sceneName}`);
 		if (!this.scenes[sceneName]) {
 			switch (sceneName) {
 				case this.states.MENU:
-					this.scenes[sceneName] = new Menu(this, this.camera);
+					console.log(this.camera);
+					this.scenes[sceneName] = new Menu(this);
 					break;
 				case this.states.PLAY:
 					this.scenes[sceneName] = new Pong(this, false, this.network, this.localcoop);
@@ -117,8 +118,13 @@ export class Game {
 	}
 
 	unloadScene(sceneName) {
-		if (!this.scenes[sceneName] || sceneName === this.states.MENU) return;
-
+		if (!this.scenes[sceneName]) return;
+		
+		if (this.scenes[sceneName] === this.scenes.menu) {
+			//this.scenes.menu.dispose();
+			this.scenes[sceneName] = null;
+			return;
+		}
 		console.log(`Unloading scene: ${sceneName}`);
 		const scene = this.scenes[sceneName];
 
@@ -150,11 +156,7 @@ export class Game {
 	}
 
 	updateCamera() {
-		if (this.currentState !== this.states.MENU && this.scenes[this.currentState]) {
-			this.camera = this.scenes[this.currentState].getCamera();
-		} else {
-			this.camera = this.scenes.menu.camera;
-		}
+		this.camera = this.scenes[this.currentState].getCamera();
 		this.applyPostProcessing();
 	}
 
