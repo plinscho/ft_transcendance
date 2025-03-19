@@ -40,7 +40,6 @@ export class Menu {
             0xffd300,
             0xde38c8,
         ];
-        console.log("se vuelve a llamar al constructor????");
         this.createMenuScene();
         this.setupKeyboardNavigation();
         this.menuIntersect();
@@ -53,40 +52,9 @@ export class Menu {
         this.paddle2 = new Paddle(180, 20, 40, 0x922b21, [155, 110, -300]);
         this.paddle2.mesh.rotation.y = -30 * Math.PI / 180;
         this.paddle2.addToScene(this.scene);
-
-
-        // Add event listener for screen resize
-        //window.addEventListener('resize', this.updateMenuPositions.bind(this));
-        // Bind the handler and listen for language changes
-        //this.handleLanguageChange = this.handleLanguageChange.bind(this);
-        //window.addEventListener('languageChanged', this.handleLanguageChange);
     }
 
-    /* handleLanguageChange() {
-         // Clear current scene
-         this.clearScene();
-         // Recreate menu with new language
-         this.createMenuScene();
-         // Update positions if needed
-         this.updateMenuPositions();
-     }
- 
-     clearScene() {
-         while (this.scene.children.length > 0) {
-             const child = this.scene.children[0];
-             if (child.geometry) child.geometry.dispose();
-             if (child.material) {
-                 if (Array.isArray(child.material)) {
-                     child.material.forEach(mat => mat.dispose());
-                 } else {
-                     child.material.dispose();
-                 }
-             }
-             this.scene.remove(child);
-         }
-         this.buttons = [];
-     }
- */
+
     setActive(isActive) {
         this.active = isActive;
         this.scene.visible = isActive;
@@ -99,7 +67,6 @@ export class Menu {
 
     setTournamentMode() {
         this.state.isTournament = true;
-        console.log("Llega");
     }
 
     update() {
@@ -140,7 +107,7 @@ export class Menu {
 
     createMenuScene() {
         this.buttons = []; // Limpiar botones anteriores
-        console.log("se crea aqui el menu");
+
         // Nueva estructura de configuración de botones
         const buttonConfigs = [
             { text: lang.menu.play, state: this.state.states.PLAY },
@@ -214,23 +181,6 @@ export class Menu {
 
         return { x: xOffset, y: yOffset, z: 0 };
     }
-
-    /*// Update positions when resizing
-    updateMenuPositions() {
-        this.buttons.forEach(({ group, index }) => {
-            const newPosition = this.getScreenRelativePosition(index);
-    
-            group.children.forEach((child) => {
-                child.position.set(0, 0, 0); // Reset internal offset
-            });
-            // Move the entire group (text + hitbox)
-            group.position.set(newPosition.x, newPosition.y, newPosition.z);
-    
-            // Hitbox stay at correct relative offsets inside the group
-    
-        });
-    }*/
-
 
     setupKeyboardNavigation() {
         window.addEventListener('keydown', (e) => {

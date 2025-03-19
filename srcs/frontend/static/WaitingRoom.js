@@ -19,7 +19,7 @@ export class WaitingRoom {
 		this.buttons = [];
 		this.SetNickEl;
 		this.isTournament = this.state.isTournament;
-		this.boundEscapeHandler = this.escapeHandler.bind(this);
+		//this.boundEscapeHandler = this.escapeHandler.bind(this);
 		this.setUpKeyboard();
 		this.state.resize();
 		this.createWaitingRoom();

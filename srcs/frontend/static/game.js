@@ -88,7 +88,6 @@ export class Game {
 		if (!this.scenes[sceneName]) {
 			switch (sceneName) {
 				case this.states.MENU:
-					console.log(this.camera);
 					this.scenes[sceneName] = new Menu(this);
 					break;
 				case this.states.PLAY:
