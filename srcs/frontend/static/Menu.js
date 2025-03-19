@@ -176,16 +176,19 @@ createMenuScene() {
                         action();
                     }
                 }
-            }
+            },
+            "/static/fonts/trans.json"
         );
 
         // Crear el texto y agregar el hitbox de forma más grande, como en la versión original
         button.createText((textMesh) => {
-            const hitboxGeometry = new THREE.BoxGeometry(8, 0.5, 0); // Caja de colisión más grande
-            const hitboxMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Caja de colisión invisible
+            const hitboxGeometry = new THREE.PlaneGeometry(4, 0.55); // Caja de colisión más grande
+            const hitboxMaterial = new THREE.MeshBasicMaterial( { visible: false }); // Caja de colisión invisible
             const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
             hitbox.position.copy(textMesh.position);
-
+            hitbox.position.setX(textMesh.position.x * 0.5); // Mover la caja de colisión detrás del texto
+            hitbox.position.setY(textMesh.position.y + 0.15);
+            hitbox.position.setZ(textMesh.position.z - 0.01); // Mover la caja de colisión detrás del texto
             // Crear un grupo para mantener el texto y la caja de colisión juntos
             this.buttonGroup = new THREE.Group();
             this.buttonGroup.add(textMesh);
