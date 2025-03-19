@@ -21,6 +21,13 @@ export class escMenu {
 	}
 
 	clickHandler(event) {
+		document.getElementsByClassName('esc-menu')[0].remove();
+		this.game.scenes[this.game.currentState].backToMenu();
+		this.menuOn = false;
+		window.removeEventListener('click', this.clickEscape);
+	}
+
+	/*clickHandler(event) {
 		const raycaster = new THREE.Raycaster();
 		const mouse = new THREE.Vector2();
 
@@ -32,6 +39,7 @@ export class escMenu {
 		
 		if (this.menuOn) {
 			raycaster.setFromCamera(mouse, this.camera);
+			console.log("orto", this.camera instanceof THREE.OrthographicCamera);
 			const intersects = raycaster.intersectObjects([this.box], true);
 
 			if (intersects.length > 0) {
@@ -41,7 +49,7 @@ export class escMenu {
 				}
 			}
 		}
-	}
+	}*/
 
 	// Manejo de tecla Escape
 	escapeHandler(event) {
@@ -52,13 +60,38 @@ export class escMenu {
 	}
 
 	createBox() {
+		const div = document.createElement('div');
+		div.className = 'esc-menu';
+		div.innerHTML = `
+			<div class="esc-menu__item">GOTO MENU</div>
+		`;
+		document.body.appendChild(div);
+		div.style.position = 'absolute';
+		div.style.top = `${window.innerHeight / 2 - div.clientHeight / 2}px`;
+		div.style.left = `${window.innerWidth / 2 - div.clientWidth / 2}px`;
+		div.style.color = 'white';
+		div.style.display = 'flex';
+		div.style.backgroundColor = 'rgba(0, 0, 0, 1)';
+		div.style.padding = '20px';
+		div.style.borderRadius = '10px';
+		div.style.cursor = 'pointer';
+		div.style.zIndex = '1000';
+		div.style.fontFamily = 'Arial';
+		div.style.fontSize = '20px';
+		div.style.fontWeight = 'bold';
+		div.style.textAlign = 'center';
+		
+
+	}
+
+	/*createBox() {
 		const position = { x: 0, y: 0, z: 0 };
 		const button = new Text3D(
 			"GOTO MENU",
 			position,
 			0xffffff,
-			0.4,
-			0,
+			40,
+			1,
 			() => {
 				if (this.menuOn) {
 					this.game.scenes[this.game.currentState].backToMenu();
@@ -94,7 +127,7 @@ export class escMenu {
 				this.scene.add(this.box);
 			}
 		});
-	}
+	}*/
 	
 	createEscBox() {
 		this.scene = this.game.scenes[this.game.currentState]?.getScene();
@@ -111,7 +144,8 @@ export class escMenu {
 			if (this.box) {
 				this.menuOn = false;
 				window.removeEventListener('click', this.clickEscape);
-				this.scene.remove(this.box);
+				//this.scene.remove(this.box);
+				document.getElementsByClassName('esc-menu')[0].remove();
 			}
 			// Remover listener de click cuando se cierra el menú
 		}
