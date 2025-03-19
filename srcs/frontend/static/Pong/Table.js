@@ -17,7 +17,7 @@ export class Table {
             uniforms: {
                 u_time: { value: (Date.now() - this.startTime) / 1000 },
                 u_resolution: { value: resolution },
-                u_color: {value: new THREE.Color(0xffacfc)} 
+                u_color: {value: new THREE.Color(0x85166d)} 
             },
             vertexShader: `
                 varying vec2 vUv;
