@@ -175,6 +175,10 @@ export class Menu {
         });
     }
 
+    backToMenu() {
+        
+    }
+
     getScreenRelativePosition(index) {
         const xOffset = -this.camera.aspect * 2.8; // Keeps menu aligned dynamically
         const yOffset = 1 - index * 0.6; // Space between buttons
