@@ -91,7 +91,6 @@ export class WaitingRoom {
 	}
 
 	createWaitingRoom() {
-		console.log(this.isTournament);
 		if (!this.isTournament) {
 			this.createMultiplayer();
 		}

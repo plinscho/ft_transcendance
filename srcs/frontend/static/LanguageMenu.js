@@ -132,6 +132,11 @@ export class LanguageMenu {
         });
     }
 
+    backToMenu() {
+        this.setActive(false); 
+        this.game.loadScene(this.game.states.MENU);
+    }
+
     setupEvents() {
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -193,10 +198,10 @@ export class LanguageMenu {
                 case 'Enter':
                     this.buttons[this.selectedIndex]?.group.userData?.onClick?.();
                     break;
-                case 'Escape':
+                /*case 'Escape':
                     this.game.loadScene(this.game.states.MENU);
                     this.setActive(false);    
-                    break;
+                    break;*/
             }
         });
     }
