@@ -60,6 +60,19 @@ export class ScoreboardPlayer {
 
 	}
 
+	updateNicks(nick1, nick2) {
+		// this.nicks[0] = nick1;
+		// this.nicks[1] = nick2;
+	
+		if (this.meshes["nameP1Mesh"]) {
+			this.meshes["nameP1Mesh"].updateText(nick1.toString());
+		}
+	
+		if (this.meshes["nameP2Mesh"]) {
+			this.meshes["nameP2Mesh"].updateText(nick2.toString());
+		}	
+	}
+
 	updateScoreboard(score1, score2){
 		this.score1 = score1;
 		this.score2 = score2;
@@ -94,6 +107,7 @@ export class ScoreboardPlayer {
 		rotationFrontY,
 		rotationTopX,
 		meshKey,
+		isScore
 	}) {
 		const isFront = this.front;
 		const position = isFront ? positionFront : positionTop;
@@ -106,7 +120,10 @@ export class ScoreboardPlayer {
 				textMesh.rotation.y = rotationFrontY * Math.PI / 180;
 			} else {
 				textMesh.position.x -= 25;
-				textMesh.position.y = 5;
+				if (isScore === true)
+					textMesh.position.y = -40;
+				else
+					textMesh.position.y = 5;
 				textMesh.position.z = -this.field_x / 2 - this.#scoreOffsetZ;
 				textMesh.rotation.x = rotationTopX * Math.PI / 180;
 			}
@@ -124,7 +141,8 @@ export class ScoreboardPlayer {
 			positionTop: this.positionP1Top,
 			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
-			meshKey: "scoreP1Mesh"
+			meshKey: "scoreP1Mesh",
+			isScore: true
 		}).centerTextZ();
 	}
 	
@@ -140,7 +158,8 @@ export class ScoreboardPlayer {
 			positionTop: pos2,
 			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
-			meshKey: "nameP1Mesh"
+			meshKey: "nameP1Mesh",
+			isScore: false
 		});
 	}
 	
@@ -152,7 +171,8 @@ export class ScoreboardPlayer {
 			positionTop: this.positionP2Top,
 			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
-			meshKey: "scoreP2Mesh"
+			meshKey: "scoreP2Mesh",
+			isScore: true
 		});
 	}	
 
@@ -168,7 +188,8 @@ export class ScoreboardPlayer {
 			positionTop: pos2,
 			rotationFrontY: this.state.player2 ? 90 : -90,
 			rotationTopX: -30,
-			meshKey: "nameP2Mesh"
+			meshKey: "nameP2Mesh",
+			isScore: false
 		});
 	}
 

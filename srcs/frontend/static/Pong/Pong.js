@@ -296,7 +296,6 @@ export class Pong {
 			setTimeout(() => {
 				this.scene.remove(this.winnerText);
 				this.scoreboard.updateScoreboard(0, 0);
-				this.scoreboard = null;
 				this.backToMenu();
 			}, 3000);
 		});
@@ -319,6 +318,8 @@ export class Pong {
 			this.player2.playerMesh.scale.y = 1;
 
 			this.nicks = this.state.tournamentManager.next();
+			if (this.nicks)
+				this.scoreboard.updateNicks(this.nicks[0], this.nicks[1]);
 			//this.createScoreboard();
 			if (this.state.tournamentManager.finished())
 				this.state.loadScene(this.state.states.MENU);
