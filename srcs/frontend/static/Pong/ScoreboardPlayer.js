@@ -60,6 +60,19 @@ export class ScoreboardPlayer {
 
 	}
 
+	updateNicks(nick1, nick2) {
+		// this.nicks[0] = nick1;
+		// this.nicks[1] = nick2;
+	
+		if (this.meshes["nameP1Mesh"]) {
+			this.meshes["nameP1Mesh"].updateText(nick1.toString());
+		}
+	
+		if (this.meshes["nameP2Mesh"]) {
+			this.meshes["nameP2Mesh"].updateText(nick2.toString());
+		}	
+	}
+
 	updateScoreboard(score1, score2){
 		this.score1 = score1;
 		this.score2 = score2;
