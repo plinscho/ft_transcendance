@@ -21,6 +21,7 @@ export class Game {
 		this.renderer.shadowMap.enabled = true;
 		this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 		this.tournamentManager;
+		this.forceQuit = false;
 
 		// for game loop
 		this.deltaTime = 0;

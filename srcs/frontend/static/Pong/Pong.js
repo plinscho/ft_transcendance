@@ -307,6 +307,8 @@ export class Pong {
 
 	backToMenu() {
 		if (this.state.isTournament) {
+			if (this.state.forceQuit)
+				return this.state.forceQuit = false, this.state.loadScene(this.state.states.MENU);
 			this.state.tournamentManager.setWinner(this.winnerResult);
 			this.score1 = 0;
 			this.score2 = 0;
