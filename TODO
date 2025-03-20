@@ -1,8 +1,8 @@
 X · cambiar la posicion de los nicks en el scoreboard del tournament
 X · Cuando acabe el tournament borrar el texto anterior ()
   . Centrar los textos y banners de los games (Z para vista frontal, X vista pajaro)
-	- Play : centrado
-	- Coop: centrar el winner banner
+X	- Play : centrado
+X	- Coop: centrar el winner banner
 	- Multi: player2 centrar countdown, winner banner player 2
 	- tournament: subir y nicks, subir pelota (y), centrar winner banner.
 		 

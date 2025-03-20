@@ -294,6 +294,7 @@ export class Pong {
 				this.winnerText.position.z = 0;
 				this.winnerText.position.x = -180;
 				this.winnerText.rotation.x = -30 * Math.PI / 180;
+				winnerText.centerTextX();
 			}
 			this.scene.add(this.winnerText);
 
