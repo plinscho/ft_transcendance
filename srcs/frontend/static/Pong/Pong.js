@@ -344,6 +344,13 @@ export class Pong {
 			if (data.type === "GOAL") {
 				this.score1 = data.score1;
 				this.score2 = data.score2;
+				this.cameraManager.followBall(this.getCamera(), this.ball, false);
+				this.glitchPass = new GlitchPass();
+				this.state.composer.addPass(this.glitchPass);
+
+				setTimeout(() => {
+					this.state.composer.removePass(this.glitchPass);
+				}, "3000");
 
 				if (data.endgame) {
 					console.log("Game Over", data.winner);
