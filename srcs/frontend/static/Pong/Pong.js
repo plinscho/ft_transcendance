@@ -19,6 +19,9 @@ export class Pong {
 		this.nicks = nicks;
 		this.winnerResult;
 
+		this.wallImpact = null;
+		this.paddleBallImpact = null;
+
 		this.camera1 = this.cameraManager.camera1;
 		this.camera2 = this.cameraManager.camera2;
 		this.localcoopCamera = this.cameraManager.localCoopCamera;
@@ -199,7 +202,7 @@ export class Pong {
 				this.ballDirZ = 1;
 				this.ballPaused = false;
 				this.state.composer.removePass(this.glitchPass);
-                this.glitchPass = null; // Reset reference
+				this.glitchPass = null; // Reset reference
 			}, "3000");
 		}
 		// else if opponent lost, we send ball to player
@@ -209,7 +212,7 @@ export class Pong {
 				this.ballDirZ = 1;
 				this.ballPaused = false;
 				this.state.composer.removePass(this.glitchPass);
-                this.glitchPass = null; // Reset reference
+				this.glitchPass = null; // Reset reference
 			}, "3000");
 		}
 	}
@@ -393,6 +396,13 @@ export class Pong {
 					this.ball.position.lerp(this.ball.targetPosition, 1);
 					this.ballDirX = data.data.ballDirX;
 					this.ballDirZ = data.data.ballDirZ;
+					this.wallImpact = data.wallImpact;
+					this.paddleBallImpact = data.paddleBallImpact;
+					if (this.wallImpact || this.paddleBallImpact)
+						console.log(data);
+					
+					if (this.wallImpact) this.cameraManager.screenShake(this.getCamera());
+					if (this.paddleBallImpact) this.bg.updateBackground();
 				}
 			}
 			// Recibimos el jugador que se ha quedado en la sala, será el ganador
