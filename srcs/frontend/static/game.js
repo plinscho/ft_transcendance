@@ -177,7 +177,7 @@ export class Game {
 			0.1
 		);
 		this.composer.addPass(this.bloomPass);
-		this.bloomPass.strength = 0.19;
+		this.bloomPass.strength = 0.12;
 		this.bloomPass.radius = 0.1;
 		this.bloomPass.threshold = 0.1;
 		this.outputPass = new OutputPass();
