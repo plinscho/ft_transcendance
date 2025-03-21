@@ -7,7 +7,7 @@ export class Ball {
             new THREE.SphereGeometry(radius, 16, 16),
             material
         );
-        this.mesh.position.set(0, fieldY + 5, radius);
+        this.mesh.position.set(0, fieldY + 7, radius);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
     }

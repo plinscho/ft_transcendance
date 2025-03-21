@@ -4,7 +4,7 @@ X · Cuando acabe el tournament borrar el texto anterior ()
 X	- Play : centrado
 X	- Coop: centrar el winner banner
 	- Multi: player2 centrar countdown, winner banner player 2
-	- tournament: subir y nicks, subir pelota (y), centrar winner banner.
+	- tournament: centrar winner banner.
 		 
   . Aplicar modo pause para multiplayer cuando presionamos ESC
   . Aplicar cambio de color multiplayer para rebote de la pala
