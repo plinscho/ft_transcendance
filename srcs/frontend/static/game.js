@@ -172,12 +172,12 @@ export class Game {
 		}
 		this.bloomPass =new UnrealBloomPass(
 			new THREE.Vector2(window.innerWidth, window.innerHeight),
-			0.35,
+			0.20,
 			0.1,
 			0.1
 		);
 		this.composer.addPass(this.bloomPass);
-		this.bloomPass.strength = 0.12;
+		this.bloomPass.strength = 0.10;
 		this.bloomPass.radius = 0.1;
 		this.bloomPass.threshold = 0.1;
 		this.outputPass = new OutputPass();
