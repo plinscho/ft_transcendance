@@ -161,7 +161,7 @@ export class Pong {
 		// Si la pelota esta pausada no la muevas
 		if (this.ballPaused) return;
 
-		if (this.ball.position.x <= -this.field_x / 2 - 200) {
+		if (this.ball.position.x <= -this.field_x / 2 - 50) {
 			// CPU scores
 			this.score2++;
 			this.cameraManager.followBall(this.getCamera(), this.ball, false);
@@ -174,7 +174,7 @@ export class Pong {
 		}
 
 		// if ball goes off the 'right' side (CPU's side)
-		if (this.ball.position.x >= this.field_x / 2 + 200) {
+		if (this.ball.position.x >= this.field_x / 2 + 50) {
 			// Player scores
 			this.score1++;
 			this.cameraManager.followBall(this.getCamera(), this.ball, true);

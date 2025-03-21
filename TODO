@@ -1,15 +1,16 @@
 X · cambiar la posicion de los nicks en el scoreboard del tournament
+X  . Cambiar colores en general, mas oscuritos
+X  . Hacer que la pelota no se vaya tan lejos (vista pajaro)
 X · Cuando acabe el tournament borrar el texto anterior ()
-  . Centrar los textos y banners de los games (Z para vista frontal, X vista pajaro)
+X  . Centrar los textos y banners de los games (Z para vista frontal vista 	 pajaro)
 X	- Play : centrado
 X	- Coop: centrar el winner banner
 	- Multi: player2 centrar countdown, winner banner player 2
 	- tournament: centrar winner banner.
-		 
+
+
   . Aplicar modo pause para multiplayer cuando presionamos ESC
   . Aplicar cambio de color multiplayer para rebote de la pala
-  . Cambiar colores en general, mas oscuritos
-  . Hacer que la pelota no se vaya tan lejos (vista pajaro)
   . Redirigir el signup a signin, no al menu directamente !!
   . Languages centrar un poco los textos (no es critico)
 
