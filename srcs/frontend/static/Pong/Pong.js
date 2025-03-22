@@ -290,7 +290,7 @@ export class Pong {
 				}
 			} else {
 				// COOP VIEW FROM ABOVE
-				this.winnerText.position.y = 5;
+				this.winnerText.position.y = 15;
 				this.winnerText.position.z = 0;
 				this.winnerText.position.x = -180;
 				this.winnerText.rotation.x = -30 * Math.PI / 180;
@@ -495,7 +495,7 @@ export class Pong {
 				}
 			} else {
 				// COOP VIEW FROM ABOVE
-				this.countdownMesh.position.y = 1;
+				this.countdownMesh.position.y = 15;
 				this.countdownMesh.position.z = -10;
 				this.countdownMesh.position.x = -20;
 				this.countdownMesh.rotation.x = -30 * Math.PI / 180;
