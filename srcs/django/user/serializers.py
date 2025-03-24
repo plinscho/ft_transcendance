@@ -11,7 +11,7 @@ class TwoFactorAuthSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     two_factor_auth = TwoFactorAuthSerializer(read_only=True)
-    language = serializers.CharField(default='en')  # Añadimos valor por defecto
+    language = serializers.CharField(default='en')
 
     class Meta:
         model = get_user_model()
@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=validated_data['password'],
             username=validated_data['username'],
-            language=validated_data.get('language', 'es')
+            language=validated_data.get('language', 'en')
         )
     
     def update(self, instance, validated_data):

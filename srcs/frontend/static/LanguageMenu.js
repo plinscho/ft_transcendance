@@ -1,9 +1,6 @@
 import * as THREE from 'three';
 import { Text3D } from './Text3D.js';
 import { updateLanguage } from './api.js';
-import { updateUITexts } from './Languages.js';
-import { state } from './state.js';
-import { loadData } from './api.js';
 
 export class LanguageMenu {
     constructor(state) {
@@ -198,10 +195,6 @@ export class LanguageMenu {
                 case 'Enter':
                     this.buttons[this.selectedIndex]?.group.userData?.onClick?.();
                     break;
-                /*case 'Escape':
-                    this.game.loadScene(this.game.states.MENU);
-                    this.setActive(false);    
-                    break;*/
             }
         });
     }
@@ -218,58 +211,17 @@ export class LanguageMenu {
         const selectedButton = this.buttons[this.selectedIndex].group.children[0];
         selectedButton.material.color.setHex(randomColor);
     }
-
-    setActive(isActive) {
-        this.active = isActive;
-        /*if (this.scene) {
-            this.scene.visible = isActive;
-            // Limpiar la escena si se está desactivando
-            if (!isActive) {
-                while (this.scene.children.length > 0) {
-                    const child = this.scene.children[0];
-                    if (child.geometry) child.geometry.dispose();
-                    if (child.material) {
-                        if (Array.isArray(child.material)) {
-                            child.material.forEach(mat => mat.dispose());
-                        } else {
-                            child.material.dispose();
-                        }
-                    }
-                    this.scene.remove(child);
-                }
-            }
-        }*/
-    }
-
+    
     async handleLanguageChange(langCode) {
         try {
-            // 1. Actualizar el idioma en el backend
             const response = await updateLanguage(langCode);
-            /*if (response && response.language) {
-                // 2. Actualizar el estado local
-                state.data.language = langCode;
-                
-                // 3. Cargar los nuevos datos y esperar a que terminen
-                await loadData();
-                
-                // 4. Esperar a que se actualicen los textos de la UI
-                await updateUITexts();
-                
-                // 5. Esperar un momento para asegurar que todo está listo
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // 6. Recargar el menú principal
-                if (this.game.scenes.menu) {
-                    this.game.scenes.menu.handleLanguageChange();
-                }
-                
-                // 7. Finalmente, cambiar la escena
-                this.setActive(false);
-                }*/
-            //this.game.loadScene(this.game.states.MENU);
         } catch (error) {
             console.error('Error changing language:', error);
         }
+    }
+
+    setActive(isActive) {
+        this.active = isActive;
     }
     
     getScene() {

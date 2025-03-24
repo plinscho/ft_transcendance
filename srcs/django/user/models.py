@@ -39,31 +39,12 @@ class TwoFactorAuth(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.secret}"
 
-# class User(AbstractBaseUser, PermissionsMixin):
-#     email = models.EmailField(unique=True, max_length=100)
-#     username = models.CharField(max_length=20)
-#     password = models.CharField(max_length=255)
-#     is_staff = models.BooleanField(default=False)
-#     is_active = models.BooleanField(default=True)
-#     image = models.ImageField()
-#     two_factor_auth = models.OneToOneField(TwoFactorAuth, 
-#                                         on_delete=models.CASCADE, 
-#                                         null=True, 
-#                                         blank=True, 
-#                                         related_name='user_data')
-
-#     objects = UserManager()
-
-#     USERNAME_FIELD = 'email'
-#     REQUIRED_FIELDS = ['username']
-
 class User(AbstractBaseUser, PermissionsMixin):
     LANGUAGE_CHOICES = [
         ('en', 'en'),
         ('es', 'es'),
         ('fr', 'fr'),
         ('it', 'it'),
-        # Puedes añadir más idiomas si lo deseas
     ]
     email = models.EmailField(unique=True, max_length=100)
     username = models.CharField(max_length=20)
