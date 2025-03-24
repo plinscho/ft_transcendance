@@ -11,8 +11,7 @@ export let state = {
     authenticated: false,
     error: false,
     data: {
-        // language: 'en' // inglés por defecto
-        language: localStorage.getItem('userLanguage') || 'en' // usar idioma de localStorage o inglés por defecto
+        language: localStorage.getItem('userLanguage') || 'en' //inglés por defecto
     },
 };
 
