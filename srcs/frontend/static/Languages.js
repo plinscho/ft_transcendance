@@ -58,74 +58,54 @@ updateLanguageTexts(getCurrentLanguage());
 // Función para actualizar los textos de la UI - AHORA ASÍNCRONA
 export const updateUITexts = async () => {
     try {
-        // const currentLanguage = getCurrentLanguage();
-        // console.log("Updating UI texts to language:", currentLanguage);
-        
-        // Añade este código al principio de updateUITexts() para debug
         const currentLanguage = getCurrentLanguage();
-        console.log("Current language from localStorage:", localStorage.getItem('userLanguage'));
-        console.log("Current language from state:", state.data?.language);
-        console.log("Selected language:", currentLanguage);
+        console.log("Updating UI texts to language:", currentLanguage);
         
         // Actualizar los textos del idioma actual
         updateLanguageTexts(currentLanguage);
         
-        // Login form
-        const elements = {
-            loginTitle: document.getElementById('loginTitle'),
-            loginEmailLabel: document.getElementById('loginEmailLabel'),
-            loginPasswordLabel: document.getElementById('loginPasswordLabel'),
-            loginButton: document.getElementById('loginButton'),
-            registerPrompt: document.getElementById('registerPrompt'),
-            registerLink: document.getElementById('registerLink'),
-
+        // Mapeo de IDs a claves de idioma
+        const elementMappings = {
+            // Login form
+            'loginTitle': 'login.title',
+            'loginEmailLabel': 'login.email',
+            'loginPasswordLabel': 'login.password',
+            'loginButton': 'login.submit',
+            'registerPrompt': 'login.registerPrompt',
+            'registerLink': 'login.registerLink',
+            
             // Register form
-            registerTitle: document.getElementById('registerTitle'),
-            registerUsernameLabel: document.getElementById('registerUsernameLabel'),
-            registerEmailLabel: document.getElementById('registerEmailLabel'),
-            registerPasswordLabel: document.getElementById('registerPasswordLabel'),
-            registerButton: document.getElementById('registerButton'),
-            loginPrompt: document.getElementById('loginPrompt'),
-            loginLink: document.getElementById('loginLink'),
-
+            'registerTitle': 'register.title',
+            'registerUsernameLabel': 'register.username',
+            'registerEmailLabel': 'register.email',
+            'registerPasswordLabel': 'register.password',
+            'registerButton': 'register.submit',
+            'loginPrompt': 'register.loginPrompt',
+            'loginLink': 'register.loginLink',
+            
             // 2FA form
-            twoFactorTitle: document.getElementById('twoFactorTitle'),
-            twoFactorCodeLabel: document.getElementById('twoFactorCodeLabel'),
-            twoFactorVerifyButton: document.getElementById('twoFactorVerifyButton'),
-
+            'twoFactorTitle': 'twoFactor.title',
+            'twoFactorCodeLabel': 'twoFactor.code',
+            'twoFactorVerifyButton': 'twoFactor.verify',
+            
             // Error view
-            errorTitle: document.getElementById('errorTitle'),
-            errorMessage: document.getElementById('errorMessage'),
-            errorLogin: document.getElementById('errorLogin')
+            'errorTitle': 'error.title',
+            'errorMessage': 'error.message',
+            'errorLogin': 'error.back'
         };
-
-        // Actualizar textos solo si el elemento existe
-        if (elements.loginTitle) elements.loginTitle.textContent = lang.login.title;
-        if (elements.loginEmailLabel) elements.loginEmailLabel.textContent = lang.login.email;
-        if (elements.loginPasswordLabel) elements.loginPasswordLabel.textContent = lang.login.password;
-        if (elements.loginButton) elements.loginButton.textContent = lang.login.submit;
-        if (elements.registerPrompt) elements.registerPrompt.textContent = lang.login.registerPrompt;
-        if (elements.registerLink) elements.registerLink.textContent = lang.login.registerLink;
-
-        if (elements.registerTitle) elements.registerTitle.textContent = lang.register.title;
-        if (elements.registerUsernameLabel) elements.registerUsernameLabel.textContent = lang.register.username;
-        if (elements.registerEmailLabel) elements.registerEmailLabel.textContent = lang.register.email;
-        if (elements.registerPasswordLabel) elements.registerPasswordLabel.textContent = lang.register.password;
-        if (elements.registerButton) elements.registerButton.textContent = lang.register.submit;
-        if (elements.loginPrompt) elements.loginPrompt.textContent = lang.register.loginPrompt;
-        if (elements.loginLink) elements.loginLink.textContent = lang.register.loginLink;
-
-        if (elements.twoFactorTitle) elements.twoFactorTitle.textContent = lang.twoFactor.title;
-        if (elements.twoFactorCodeLabel) elements.twoFactorCodeLabel.textContent = lang.twoFactor.code;
-        if (elements.twoFactorVerifyButton) elements.twoFactorVerifyButton.textContent = lang.twoFactor.verify;
-
-        if (elements.errorTitle) elements.errorTitle.textContent = lang.error.title;
-        if (elements.errorMessage) elements.errorMessage.textContent = lang.error.message;
-        if (elements.errorLogin) elements.errorLogin.textContent = lang.error.back;
-
-        // Devolver una promesa resuelta para confirmar que todo ha terminado
+        
+        // Actualizar cada elemento si existe
+        Object.entries(elementMappings).forEach(([elementId, langKey]) => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                // Dividir la clave por puntos para acceder a objetos anidados
+                const parts = langKey.split('.');
+                const translation = parts.reduce((obj, key) => obj?.[key], lang) || langKey;
+                element.textContent = translation;
+            }
+        });
+        
         return Promise.resolve(true);
-
     } catch (error) {
         console.error('Error updating UI texts:', error);
         return Promise.reject(error);

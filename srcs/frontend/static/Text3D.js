@@ -17,8 +17,6 @@ export class Text3D {
         this.fontType = fontType;
     }
 
-    // Agrega este método a tu clase Text3D existente
-
     updateExistingMesh(existingMesh) {
         const fontLoader = new FontLoader();
         
