@@ -59,8 +59,10 @@ updateLanguageTexts(getCurrentLanguage());
 export const updateUITexts = async () => {
     try {
         const currentLanguage = getCurrentLanguage();
-        console.log("Updating UI texts to language:", currentLanguage);
-        
+        //console.log("Current language from localStorage:", localStorage.getItem('userLanguage'));
+        //console.log("Current language from state:", state.data?.language);
+        //console.log("Selected language:", currentLanguage);
+        console.log("Updating UI texts to language:", currentLanguage);        
         // Actualizar los textos del idioma actual
         updateLanguageTexts(currentLanguage);
         
