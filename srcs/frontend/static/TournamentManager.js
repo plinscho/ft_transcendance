@@ -2,7 +2,18 @@ export class TournamentManager {
 	constructor(state, players) {
 	  this.players = players;
 	  this.state = state;
-	  this.brackets;
+	  this.playerBrackets = this.players.sort(() => Math.random() - 0.5);
+	  this.state.tournamentNicksGame = [this.playerBrackets[0], this.playerBrackets[1]];
+	  
+	  // Configuración de blockchain
+	  this.blockchainInitialized = false;
+	  this.web3Instance = null;
+	  this.contract = null;
+
+	  // Iniciar carga de Web3
+	  this.loadWeb3();
+
+	  //Seguimiento de posiciones de jugadores
 	  this.finalPlayers = [null, null];
 	  this.games = 3;
 	  this.firstPlace = null;
@@ -13,54 +24,38 @@ export class TournamentManager {
 		"third": null,
 		"fourth": null
 	  };
-	  this.playerBrackets = this.players.sort(() => Math.random() - 0.5);
-	  this.state.tournamentNicksGame = [this.playerBrackets[0], this.playerBrackets[1]];
-	  
-	  // Initialize blockchain - Async to avoid blocking
-	  this.blockchainInitialized = false;
-	  this.web3Instance = null;
-	  this.contract = null;
-	  this.loadWeb3();
 	}
   
-	// Load Web3 dynamically
+	// Cargar Web3 dinámicamente
 	loadWeb3() {
-	  // If Web3 doesn't exist, load it
 	  if (typeof Web3 === 'undefined') {
+		// Cargar script de Web3 si no está disponible
 		const script = document.createElement('script');
 		script.src = 'https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js';
 		script.async = true;
 		script.onload = () => {
-		  console.log('Web3 loaded successfully');
-		  // Once Web3 is loaded, try to initialize blockchain
+		  console.log('Web3 cargado exitosamente');
 		  this.initBlockchain();
 		};
 		script.onerror = () => {
-		  console.error('Error loading Web3');
+		  console.error('Error al cargar Web3');
 		};
 		document.head.appendChild(script);
 	  } else {
-		// Web3 is already available
+		// Si Web3 ya está disponible, inicializar blockchain
 		this.initBlockchain();
 	  }
 	}
   
-	// Initialize blockchain connection using MetaMask's window.ethereum
+	// Inicialización de conexión blockchain
 	async initBlockchain() {
 	  try {
-		// Check if MetaMask is installed
+		// Verificar si MetaMask está instalado
 		if (typeof window.ethereum !== 'undefined') {
-		  console.log('MetaMask is available');
+		  console.log('MetaMask está disponible');
 		  
-		  // Get network ID to ensure correct network
-		  const networkId = await window.ethereum.request({ method: 'net_version' });
-		  console.log('Connected to network ID:', networkId);
-		  
-		  // Configuration variables
-		  // Update this to the contract address that matches your current network
-		  this.contractAddress = "0xfebD24048bdeC746cCBa55a7Cd372D762400c8b4"; 
-		  
-		  // Complete contract ABI - ensure this matches your deployed contract
+		  // Configuraciones de contrato
+		  this.contractAddress = "0xfebD24048bdeC746cCBa55a7Cd372D762400c8b4";
 		  this.contractABI = [
 			{
 			  "inputs": [],
@@ -219,85 +214,47 @@ export class TournamentManager {
 			  "type": "function"
 			}
 		  ];
+		  // Solicitar conexión de cuenta de usuario
+		  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+		  this.account = accounts[0];
 		  
-		  // Only try to connect to MetaMask if not already initialized
-		  if (!this.blockchainInitialized) {
-			try {
-			  // Get user's wallet address
-			  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-			  this.account = accounts[0];
-			  
-			  // Initialize Web3 instance
-			  this.web3Instance = new Web3(window.ethereum);
-			  
-			  // Initialize contract instance
-			  this.contract = new this.web3Instance.eth.Contract(
-				this.contractABI, 
-				this.contractAddress
-			  );
-			  
-			  this.blockchainInitialized = true;
-			  console.log('Account connected:', this.account);
-			  
-			  // Test a simple contract read to verify connection
-			  try {
-				const resultCount = await this.contract.methods.resultCount().call();
-				console.log('Contract connection verified. Total results:', resultCount);
-			  } catch (contractReadError) {
-				console.error('Error reading from contract:', contractReadError);
-				alert('Error connecting to the tournament contract. Please make sure you\'re on the correct network.');
-				return;
-			  }
-			  
-			  // Verify if the connected account is the contract owner
-			  await this.checkOwnership();
-			} catch (connectionError) {
-			  console.error('Error connecting to MetaMask:', connectionError);
-			  alert('Error connecting to MetaMask: ' + connectionError.message);
-			}
-		  }
+		  // Inicializar instancias de Web3 y contrato
+		  this.web3Instance = new Web3(window.ethereum);
+		  this.contract = new this.web3Instance.eth.Contract(
+			this.contractABI, 
+			this.contractAddress
+		  );
+		  
+		  this.blockchainInitialized = true;
+		  
+		  // Verificar conexión y propiedad del contrato
+		  await this.checkOwnership();
 		} else {
-		  console.error('MetaMask is not installed');
-		  alert('Please install MetaMask to use blockchain features.');
+		  alert('Por favor, instala MetaMask para usar funciones blockchain');
 		}
 	  } catch (error) {
-		console.error('Error initializing blockchain:', error);
+		console.error('Error inicializando blockchain:', error);
 	  }
 	}
   
-	// Verify if the connected account is the contract owner
+	// Verificar si la cuenta conectada es propietaria del contrato
 	async checkOwnership() {
 	  try {
-		if (!this.contract) {
-		  console.error('Contract not initialized');
+		const contractOwner = await this.contract.methods.owner().call();
+		
+		if (contractOwner.toLowerCase() !== this.account.toLowerCase()) {
+		  alert("Advertencia: La cuenta conectada no es propietaria del contrato");
 		  return false;
 		}
 		
-		// Use a try-catch specifically for the owner call
-		try {
-		  const contractOwner = await this.contract.methods.owner().call();
-		  console.log("Contract owner:", contractOwner);
-		  console.log("Connected account:", this.account);
-		  
-		  if (contractOwner.toLowerCase() !== this.account.toLowerCase()) {
-			console.warn("The connected account is not the contract owner!");
-			alert("Warning: The connected account is not the contract owner. You may not be able to register tournaments.");
-			return false;
-		  }
-		  
-		  console.log("The connected account is the contract owner");
-		  return true;
-		} catch (ownerCallError) {
-		  console.error("Error calling owner() function:", ownerCallError);
-		  alert("Could not verify contract ownership. Make sure you're connected to the correct network.");
-		  return false;
-		}
+		return true;
 	  } catch (error) {
-		console.error("Error verifying ownership:", error);
+		console.error("Error verificando propiedad:", error);
 		return false;
 	  }
 	}
   
+	// Gestión de rondas del torneo
 	next() {
 	  if (this.games == 2) {
 		return [this.playerBrackets[2], this.playerBrackets[3]];
@@ -307,6 +264,7 @@ export class TournamentManager {
 	  }
 	}
   
+	// Establecer ganadores de cada ronda
 	setWinner(winnerResult) {
 	  if (this.games === 3) {
 		this.playerPositions["fourth"] = winnerResult[1];
@@ -325,127 +283,123 @@ export class TournamentManager {
 		this.playerPositions["second"] = winnerResult[1];
 		this.games--;
 		
-		// When tournament is finished, record to blockchain
+		// Cuando el torneo termina, registrar en blockchain
 		if (this.games === 0) {
 		  this.recordTournamentOnBlockchain();
 		}
 	  }
 	}
   
+	// Verificar si el torneo ha terminado
 	finished() {
-	  if (this.games === 0)
-		return true;
-	  return false;
+	  return this.games === 0;
 	}
   
-	// Record results on blockchain using web3
+	// Registrar resultados del torneo en blockchain
 	async recordTournamentOnBlockchain() {
-	  try {
-		// Verify that we have the necessary information
-		if (!this.web3Instance || !this.contract) {
-		  console.error("Web3 or contract not initialized");
-		  alert("Blockchain connection not ready. Trying to reconnect...");
-		  await this.initBlockchain();
-		  
-		  // If still not initialized, quit
-		  if (!this.web3Instance || !this.contract) {
-			alert("Could not connect to blockchain. Results not recorded.");
-			return;
-		  }
-		}
-		
-		// Prepare the data for the contract
-		const first = this.playerPositions.first || "";
-		const second = this.playerPositions.second || "";
-		const third = this.playerPositions.third || "";
-		const fourth = this.playerPositions.fourth || "";
-		
-		console.log("Sending positions to blockchain:", {first, second, third, fourth});
-		
-		// Make sure we're connected to MetaMask
-		if (!this.account) {
-		  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-		  this.account = accounts[0];
-		}
-		
-		// Estimate the necessary gas (with a fallback if estimation fails)
-		let gasEstimate;
 		try {
-		  gasEstimate = await this.contract.methods.record(first, second, third, fourth)
-			.estimateGas({ from: this.account });
-		  console.log("Gas estimate for transaction:", gasEstimate);
-		} catch (gasError) {
-		  console.warn("Gas estimation failed, using default:", gasError);
-		  gasEstimate = 300000; // Default value if estimation fails
-		}
-		
-		// Use 50% more gas than estimated to be safe
-		const gasLimit = Math.ceil(gasEstimate * 1.5);
-		
-		// Call the contract with the configured gas limit
-		const result = await this.contract.methods.record(first, second, third, fourth)
-		  .send({ 
-			from: this.account, 
-			gas: gasLimit 
-		  });
-		  
-		// Save the transaction result to a log
-		this.saveTransactionLog(result.transactionHash);
-		
-		console.log("Tournament recorded on blockchain:", result.transactionHash);
-		alert("Tournament successfully recorded on blockchain!");
-		
-		// Add a delay before verification to ensure the transaction has been processed
-		setTimeout(async () => {
-		  try {
-			// Get the current resultCount, and the ID would be resultCount-1
-			const resultCount = await this.contract.methods.resultCount().call();
-			if (resultCount > 0) {
-			  const resultId = resultCount - 1;
-			  
-			  // Verify that the tournament has been recorded correctly
-			  await this.verifyTournamentRecord(resultId);
-			} else {
-			  console.error("No results found in contract");
+		  // Verificar que web3 y contrato estén inicializados
+		  if (!this.web3Instance || !this.contract) {
+			console.error("Web3 o contrato no inicializado");
+			await this.initBlockchain();
+			
+			// Si aún no se inicializa, salir
+			if (!this.web3Instance || !this.contract) {
+			  alert("No se pudo conectar a blockchain. Resultados no registrados.");
+			  return;
 			}
-		  } catch (verifyError) {
-			console.warn("Verification postponed because the transaction has not been confirmed yet:", verifyError);
 		  }
-		}, 5000); // Wait 5 seconds before trying to verify
-		
-	  } catch (error) {
-		console.error("Error recording to blockchain:", error);
-		alert("Error recording to blockchain: " + error.message);
-	  }
+		  
+		  // Preparar datos para el contrato
+		  const { first, second, third, fourth } = this.playerPositions;
+		  
+		  console.log("Enviando posiciones a blockchain:", {first, second, third, fourth});
+		  
+		  // Asegurar conexión a MetaMask
+		  if (!this.account) {
+			const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+			this.account = accounts[0];
+		  }
+		  
+		  // Estimar gas
+		  let gasEstimate;
+		  try {
+			gasEstimate = await this.contract.methods.record(first, second, third, fourth)
+			  .estimateGas({ from: this.account });
+			console.log("Estimación de gas para la transacción:", gasEstimate);
+		  } catch (gasError) {
+			console.warn("Estimación de gas fallida, usando valor por defecto:", gasError);
+			gasEstimate = 300000; // Valor por defecto si falla la estimación
+		  }
+		  
+		  // Usar 50% más de gas para estar seguros
+		  const gasLimit = Math.ceil(gasEstimate * 1.5);
+		  
+		  // Enviar transacción al contrato
+		  const result = await this.contract.methods.record(first, second, third, fourth)
+			.send({ 
+			  from: this.account, 
+			  gas: gasLimit 
+			});
+		  
+		  // Guardar registro de transacción
+		  this.saveTransactionLog(result.transactionHash);
+		  
+		  console.log("Torneo registrado en blockchain:", result.transactionHash);
+		  alert("Torneo registrado exitosamente en blockchain!");
+		  
+		  // Añadir un retraso antes de la verificación
+		  setTimeout(async () => {
+			try {
+			  // Obtener el número actual de resultados
+			  const resultCount = await this.contract.methods.resultCount().call();
+			  if (resultCount > 0) {
+				// El ID del resultado sería resultCount - 1
+				const resultId = resultCount - 1;
+				
+				// Verificar que el torneo se ha registrado correctamente
+				await this.verifyTournamentRecord(resultId);
+			  } else {
+				console.error("No se encontraron resultados en el contrato");
+			  }
+			} catch (verifyError) {
+			  console.warn("Verificación pospuesta porque la transacción aún no se ha confirmado:", verifyError);
+			}
+		  }, 5000); // Esperar 5 segundos antes de verificar
+		  
+		} catch (error) {
+		  console.error("Error registrando en blockchain:", error);
+		  alert("Error registrando en blockchain: " + error.message);
+		}
 	}
-	
-	// Verify that the tournament has been recorded correctly
+
+	// Verificar registro del torneo
 	async verifyTournamentRecord(resultId) {
 	  try {
 		if (!this.contract) {
-		  console.error("Contract not initialized");
+		  console.error("Contrato no inicializado");
 		  return false;
 		}
 		
-		// First verify if the resultId is valid
+		// Verificar si el resultId es válido
 		let resultCount;
 		try {
 		  resultCount = await this.contract.methods.resultCount().call();
 		} catch (countError) {
-		  console.error("Error getting result count:", countError);
+		  console.error("Error obteniendo número de resultados:", countError);
 		  return false;
 		}
 		
 		if (resultId >= resultCount) {
-		  console.error(`Invalid result ID: ${resultId}. Total results: ${resultCount}`);
+		  console.error(`ID de resultado inválido: ${resultId}. Total de resultados: ${resultCount}`);
 		  return false;
 		}
 		
-		// Get the tournament result
+		// Obtener resultado del torneo
 		try {
 		  const result = await this.contract.methods.getResult(resultId).call();
 		  
-		  console.log("Successful verification. Tournament data:", {
+		  console.log("Verificación exitosa. Datos del torneo:", {
 			first: result[0],
 			second: result[1],
 			third: result[2],
@@ -453,7 +407,7 @@ export class TournamentManager {
 			timestamp: new Date(result[4] * 1000).toLocaleString()
 		  });
 		  
-		  // Show the results in table format in the console
+		  // Mostrar resultados en formato de tabla en la consola
 		  console.table({
 			first: result[0],
 			second: result[1],
@@ -464,32 +418,30 @@ export class TournamentManager {
 		  
 		  return true;
 		} catch (getResultError) {
-		  console.error("Error getting result:", getResultError);
+		  console.error("Error obteniendo resultado:", getResultError);
 		  return false;
 		}
 	  } catch (error) {
-		console.error("Error verifying tournament:", error);
+		console.error("Error verificando torneo:", error);
 		return false;
 	  }
 	}
-	
-	// Save transaction log
+  
+	// Guardar registro de transacción en localStorage
 	saveTransactionLog(txHash) {
-	  // Create object with data to save
 	  const logData = {
 		timestamp: new Date().toISOString(),
 		transactionHash: txHash,
 		playerPositions: { ...this.playerPositions },
-		network: window.ethereum.networkVersion || "unknown"
+		network: window.ethereum.networkVersion || "desconocida"
 	  };
 	  
-	  // Save to localStorage (simple solution without backend)
 	  const logs = JSON.parse(localStorage.getItem('blockchainLogs') || '[]');
 	  logs.push(logData);
 	  localStorage.setItem('blockchainLogs', JSON.stringify(logs));
 	  
-	  // Show in console for debugging
 	  console.table(logData);
 	}
-  }
-//0xfebD24048bdeC746cCBa55a7Cd372D762400c8b4
+}
+
+//Contract: 0xfebD24048bdeC746cCBa55a7Cd372D762400c8b4
