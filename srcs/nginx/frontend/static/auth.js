@@ -23,8 +23,6 @@ export const login = async (email, password) => {
     }
 
     const data = await resp.json();
-    localStorage.setItem('authToken', data.access);
-    //console.log("Authentication token: " + localStorage.getItem('authToken'));
 
     // Mostrar el formulario 2FA y ocultar el de login
     document.getElementById('2fa').classList.remove('invisible');
@@ -35,7 +33,7 @@ export const login = async (email, password) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            'Authorization': `Bearer ${data.access}`,
         },
     });
 
@@ -55,12 +53,13 @@ export const login = async (email, password) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Authorization': `Bearer ${data.access}`,
                 },
                 body: JSON.stringify({ token }),
             });
 
             if (resp.ok) {
+                localStorage.setItem('authToken', data.access);
                 state.authenticated = true;
                 document.getElementById('2faCode').value = '';
                 return loadData().then(updateInitialView);
