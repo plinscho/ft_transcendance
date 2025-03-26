@@ -87,11 +87,6 @@ export const register = async (username, email, password) => {
     }
 };
 
-// export const logout = () => {
-//     localStorage.removeItem('authToken');
-//     location.reload();
-// };
-
 // Función de logout (si está en algún archivo)
 export const logout = () => {
     // Guardar el idioma antes de limpiar

@@ -52,7 +52,6 @@ export const loadData = async () => {
 		state.error = true;
 		state.data = null;
 		localStorage.removeItem("authToken");
-		location.reload();
 		//console.log("Removed previous authToken");
 	} finally {
 		state.loading = false;
@@ -106,7 +105,6 @@ export const updateLanguage = async (language) => {
 		// Asegurarse de que userLanguage está establecido
 		localStorage.setItem('userLanguage', currentLanguage);
 
-		location.reload();
 		//console.log("Removed previous authToken, kept language:", currentLanguage);
 	} finally {
 		state.loading = false;
