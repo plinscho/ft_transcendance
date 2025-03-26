@@ -15,9 +15,10 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
 
         # Crear la instancia de TwoFactorAuth y asociarla al usuario
-        tabla = TwoFactorAuth.objects.create(user=user, secret=pyotp.random_base32())
-        user.two_factor_auth = tabla
-        user.save(using=self._db)  # Guardar el usuario nuevamente para persistir la relación
+        table = TwoFactorAuth.objects.create(user=user, secret=pyotp.random_base32())
+        user.two_factor_auth = table
+        # Guardar el usuario nuevamente para persistir la relación
+        user.save(using=self._db) 
 
         return user
 

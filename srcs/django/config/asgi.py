@@ -21,8 +21,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 from pong.routing import websocket_urlpatterns
 
-#application = get_asgi_application()
-#Router que redirige las solicitudes segun su tipo (HTTP, WebSocket,...)
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
@@ -32,7 +30,6 @@ application = ProtocolTypeRouter(
                     URLRouter(websocket_urlpatterns))
             )
         ),
-        # Aquí puedes añadir más protocolos como WebSocket
     }
 )
 

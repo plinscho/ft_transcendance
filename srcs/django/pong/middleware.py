@@ -33,6 +33,6 @@ class JWTAuthMiddleware(BaseMiddleware):
                 logger.debug("User not authenticated")
         else:
             logger.debug("No token found")
-        return await super().__call__(scope, recieve, send)
         #El super().__call__ llama al siguiente middleware en la cadena de middleware (Va a la clase BaseMiddelware)
+        return await super().__call__(scope, recieve, send)
 

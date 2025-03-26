@@ -100,10 +100,7 @@ class Generate2FACodeView(generics.GenericAPIView):
     def post(self, request):
         user = request.user
         if user:
-            # Verificar si TwoFactorAuth ya existe y actualizarla si es necesario
-
             two_factor_auth = TwoFactorAuth.objects.get(user=user)
-
             two_factor_auth, created = TwoFactorAuth.objects.get_or_create(user=user)
             if created:
                 two_factor_auth.secret = pyotp.random_base32()
@@ -115,11 +112,9 @@ class Generate2FACodeView(generics.GenericAPIView):
 
             totp = pyotp.TOTP(two_factor_auth.secret, interval=300)
             code = totp.now()
-
             # debug print
             print(f"Generated code: {code}")
 
-            # Enviar el código de verificación por correo electrónico
             try:
                 send_mail(
                     'Your verification code',

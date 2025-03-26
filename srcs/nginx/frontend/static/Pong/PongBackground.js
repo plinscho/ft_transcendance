@@ -42,10 +42,7 @@ export class PongBackground {
 
         const bgCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
         this.backgroundCamera = bgCamera;
-
         this.scene.add(this.backgroundMesh);
-        
-
     }
 
     updateBackground() {

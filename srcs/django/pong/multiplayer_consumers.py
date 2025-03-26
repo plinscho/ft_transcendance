@@ -1,5 +1,3 @@
-#Se define el consumidor o consumidores de WebSockets y sus métodos (Lógica del Juego)
-
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer #Crear consumidores de WebSockets asincronos
 import logging
@@ -17,7 +15,7 @@ class RoomManager:
         self.lock = asyncio.Lock()
         self.games = {}
 
-    # Se llama después del connect
+    # Se llama en el connect
     async def join_or_create_room(self, channel_name):
         room_name = None
         player_type = None
@@ -76,10 +74,10 @@ class RoomManager:
 # PONG CONSUMER
 # --------------------------------------------------------------------------------------------
 
-#Clase que hereda de AsyncWebsocketConsumer para crear un consumidor de WebSockets y define tres metodos
-#Connect: Se llama cuando un cliente se conecta al servidor con un WebSocket. Se acepta la conexión
-#Disconnect: Se llama cuando un cliente se desconecta del servidor. No se hace nada especial
-#Receive: Se llama cuando el servidor recibe un mensaje del cliente. Se envía el mismo mensaje de vuelta al cliente
+# Clase que hereda de AsyncWebsocketConsumer para crear un consumidor de WebSockets y define tres metodos
+#   Connect: Se llama cuando un cliente se conecta al servidor con un WebSocket. Se acepta la conexión
+#   Disconnect: Se llama cuando un cliente se desconecta del servidor. No se hace nada especial
+#   Receive: Se llama cuando el servidor recibe un mensaje del cliente. Se envía el mismo mensaje de vuelta al cliente
 class PongConsumer(AsyncWebsocketConsumer):
     #Método que se llama cuando un cliente se conecta al servidor a travś de un WebSocket
     async def connect(self):
@@ -146,10 +144,8 @@ class PongConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({'type': 'START_GAME'}))
 #_____________________________________________________________________________
     async def start_countdown(self):
-            #await asyncio.sleep(1)
             start_game_timer = 5
             while start_game_timer >= 0:
-                #logger.debug(f"Vuelta con timer = {start_game_timer}\n")
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {

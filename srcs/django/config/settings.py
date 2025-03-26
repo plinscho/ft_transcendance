@@ -34,7 +34,6 @@ ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://0.0.0.0']
 
 # Application definition
-
 INSTALLED_APPS = [
     'daphne', # Para el servidor de WebSockets (Daphne)
     'pong.apps.PongConfig', # pong/apps.py
@@ -54,7 +53,7 @@ INSTALLED_APPS = [
 # Configuración de channels (Se define en el config/file asgi.py):
 ASGI_APPLICATION = 'config.asgi.application'
 
-# Configuración del canal de capas (puedes usar Redis o InMemoryChannelLayer para desarrollo)
+# Configuración del canal de capas Redis
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
