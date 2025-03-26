@@ -21,7 +21,7 @@ export const login = async (email, password) => {
 
     const data = await resp.json();
     localStorage.setItem('authToken', data.access);
-    c//onsole.log("Authentication token: " + localStorage.getItem('authToken'));
+    //console.log("Authentication token: " + localStorage.getItem('authToken'));
 
     // Mostrar el formulario 2FA y ocultar el de login
     document.getElementById('2fa').classList.remove('invisible');
