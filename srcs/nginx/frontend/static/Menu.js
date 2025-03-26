@@ -187,15 +187,17 @@ export class Menu {
     }
 
     setupKeyboardNavigation() {
-        window.addEventListener('keydown', (e) => {
+        this.onKeyDown = (e) => {
             if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
                 this.moveSelection(-1);
             } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
                 this.moveSelection(1);
             } else if (e.key === 'Enter') {
-                this.buttons[this.selectedIndex]?.group.userData?.onClick?.();
+                this.buttons?.[this.selectedIndex]?.group?.userData?.onClick?.();
             }
-        });
+        };
+    
+        window.addEventListener('keydown', this.onKeyDown);
     }
 
     moveSelection(direction) {
@@ -274,6 +276,13 @@ export class Menu {
         if (this.onClick) {
             window.removeEventListener('click', this.onClick);
             this.onClick = null;
+        }
+    }
+
+    removeKeyboardNavigation() {
+        if (this.onKeyDown) {
+            window.removeEventListener('keydown', this.onKeyDown);
+            this.onKeyDown = null;
         }
     }
 

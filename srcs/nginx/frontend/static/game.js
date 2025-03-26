@@ -232,7 +232,10 @@ export class Game {
 
 	removeRenderer() {
 		this.forceQuit = true;
+		this.unloadScene(this.scenes.menu);
 		this.scenes.menu.removeEventListeners();
+		this.scenes.menu.removeKeyboardNavigation();
+
 		if (this.renderer.domElement.parentElement) {
 			this.renderer.domElement.parentElement.removeChild(this.renderer.domElement);
 			if (this.renderer) this.renderer.dispose();
@@ -241,7 +244,7 @@ export class Game {
 			this.composer = null;
 			this.escapeMenu = null;
 			this.NetworkManager = null;
-			this.scenes = null;
+			this.scenes.menu = null;
 			this.states = null;
 			this.currentState = null;
 		}
