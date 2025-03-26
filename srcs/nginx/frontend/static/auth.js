@@ -16,6 +16,11 @@ export const login = async (email, password) => {
 
     if (!resp.ok) {
         state.error = true;
+        D.getElementById('registerEmail').value = '';
+        D.getElementById('registerUsername').value = '';
+        document.getElementById('registerPassword').value = '';
+        D.getElementById('loginEmail').value = '';
+        D.getElementById('loginPassword').value = '';
         updateView();
         return;
     }
@@ -137,6 +142,11 @@ export const  backToLogin = () => {
     state.error = false;
     document.getElementById('2fa').classList.add('invisible');
     document.getElementById('loginForm').classList.remove('invisible');
+    D.getElementById('registerEmail').value = '';
+    D.getElementById('registerUsername').value = '';
+    document.getElementById('registerPassword').value = '';
+    D.getElementById('loginEmail').value = '';
+    D.getElementById('loginPassword').value = '';
     updateView();
 }
 
