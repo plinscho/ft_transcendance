@@ -230,7 +230,7 @@ export class TournamentManager {
 		  // Verificar conexión y propiedad del contrato
 		  await this.checkOwnership();
 		} else {
-		  alert('Por favor, instala MetaMask para usar funciones blockchain');
+
 		}
 	  } catch (error) {
 		//console.error('Error inicializando blockchain:', error);
@@ -243,7 +243,6 @@ export class TournamentManager {
 		const contractOwner = await this.contract.methods.owner().call();
 		
 		if (contractOwner.toLowerCase() !== this.account.toLowerCase()) {
-		  alert("Advertencia: La cuenta conectada no es propietaria del contrato");
 		  return false;
 		}
 		
@@ -305,7 +304,7 @@ export class TournamentManager {
 			
 			// Si aún no se inicializa, salir
 			if (!this.web3Instance || !this.contract) {
-			  //alert("No se pudo conectar a blockchain. Resultados no registrados.");
+
 			  return;
 			}
 		  }
@@ -346,7 +345,7 @@ export class TournamentManager {
 		  this.saveTransactionLog(result.transactionHash);
 		  
 		  //console.log("Torneo registrado en blockchain:", result.transactionHash);
-		  //alert("Torneo registrado exitosamente en blockchain!");
+
 		  
 		  // Añadir un retraso antes de la verificación
 		  setTimeout(async () => {
@@ -369,7 +368,7 @@ export class TournamentManager {
 		  
 		} catch (error) {
 		  //console.error("Error registrando en blockchain:", error);
-		  //alert("Error registrando en blockchain: " + error.message);
+
 		}
 	}
 
