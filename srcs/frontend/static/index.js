@@ -29,7 +29,7 @@ const initLanguageSelector = () => {
                 
                 await updateUITexts();
             } catch (error) {
-                console.error('Error updating language:', error);
+                //console.error('Error updating language:', error);
             }
         });
     }
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (storedLang) {
             state.data.language = storedLang;
         }
-        console.log("No AUTH token, using language:", state.data.language);
+        //console.log("No AUTH token, using language:", state.data.language);
         updateView();
         initLanguageSelector();
         await updateUITexts();

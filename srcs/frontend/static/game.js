@@ -85,7 +85,7 @@ export class Game {
 		if (this.currentState === sceneName) return;
 
 		this.unloadScene(this.currentState);
-		console.log(`Loading scene: ${sceneName}`);
+		//console.log(`Loading scene: ${sceneName}`);
 		if (!this.scenes[sceneName]) {
 			switch (sceneName) {
 				case this.states.MENU:
@@ -110,7 +110,7 @@ export class Game {
 					this.scenes[sceneName] = new LanguageMenu(this);
 					break;
 				default:
-					console.error(`This scene only exists in your head: ${sceneName}`);
+					//console.error(`This scene only exists in your head: ${sceneName}`);
 					this.loadScene(this.states.MENU);
 					return;
 			}
@@ -127,7 +127,7 @@ export class Game {
 			this.scenes[sceneName] = null;
 			return;
 		}
-		console.log(`Unloading scene: ${sceneName}`);
+		//console.log(`Unloading scene: ${sceneName}`);
 		const scene = this.scenes[sceneName];
 
 		scene.getScene().children.forEach((child) => {

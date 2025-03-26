@@ -34,19 +34,18 @@ export const loadData = async () => {
 		}
 
 		const data = await dataResp.json();
-		console.log("Data received from backend:", data);
+		//console.log("Data received from backend:", data);
 
 		if (data) {
 			state.data = {
 				...state.data,
 				...data
 			};
-			// Actualizar los textos de la UI cuando cambia el idioma - AHORA CON AWAIT
 			await updateUITexts();
 		}
 
 		state.error = false;
-		console.log("State after update:", state);
+		//console.log("State after update:", state);
 
 	} catch (error) {
 		console.error("Error:", error);
@@ -54,7 +53,7 @@ export const loadData = async () => {
 		state.data = null;
 		localStorage.removeItem("authToken");
 		location.reload();
-		console.log("Removed previous authToken");
+		//console.log("Removed previous authToken");
 	} finally {
 		state.loading = false;
 	}
@@ -83,14 +82,14 @@ export const updateLanguage = async (language) => {
 
 			return data;
 		} else {
-			throw new Error('Failed to update language');
+			//throw new Error('Failed to update language');
 		}
 		// } catch (error) {
 		// 	console.error('Error:', error);
 		// 	throw error;
 		// }
 	} catch (error) {
-		console.error("Error:", error);
+		//console.error("Error:", error);
 		state.error = true;
 
 		// Guardar el idioma actual antes de resetear
@@ -108,7 +107,7 @@ export const updateLanguage = async (language) => {
 		localStorage.setItem('userLanguage', currentLanguage);
 
 		location.reload();
-		console.log("Removed previous authToken, kept language:", currentLanguage);
+		//console.log("Removed previous authToken, kept language:", currentLanguage);
 	} finally {
 		state.loading = false;
 	}

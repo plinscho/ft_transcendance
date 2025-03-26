@@ -29,7 +29,7 @@ export class Menu {
             { text: 'Local Coop', state: this.state.states.LOCALCOOP },
             { text: 'Multiplayer', state: this.state.states.WAITING_ROOM },
             { text: 'Tournament', state: this.state.states.WAITING_ROOM },
-            { text: 'Languages', action: () => console.log("Languages menu not implemented") },
+            { text: 'Languages', action: () => {}},
             { text: 'Logout', action: () => logout() }
         ];
 
@@ -135,11 +135,11 @@ export class Menu {
                         if (state && this.state.changeState) {
                             if (text === lang.menu.tournament) {
                                 this.setTournamentMode();
-                                console.log("Entra tournament");
+                                //console.log("Entra tournament");
                             }
                             if (text === lang.menu.localcoop) {
                                 this.setLocalCoopMode();
-                                console.log("Entra localcoop");
+                                //console.log("Entra localcoop");
                             }
                             this.state.loadScene(state);
                             this.setActive(false); // Ocultar el menú al cambiar de escena
@@ -227,7 +227,7 @@ export class Menu {
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
             if (!this.camera) {
-                console.error("Error: Camera is not defined in Menu.js");
+                //console.error("Error: Camera is not defined in Menu.js");
                 return;
             }
 

@@ -140,11 +140,11 @@ export class WaitingRoom {
 	}
 	
 	handleServerMessage(data) {
-        console.log("Received message from server: ", data);
+        //console.log("Received message from server: ", data);
         if (data.type === "PLAYER_ONE") this.state.player1 = true;
         if (data.type === "PLAYER_TWO") this.state.player2 = true;
         if (data.type === "START_GAME") {
-            console.log("Match found! Starting game...");
+            //console.log("Match found! Starting game...");
             this.isWaiting = false;
             if (this.SetNickEl)
                 this.SetNickEl.remove();
@@ -154,7 +154,7 @@ export class WaitingRoom {
     }
 
     startMultiplayerGame() {
-        console.log("Starting multiplayer Pong...");
+        //console.log("Starting multiplayer Pong...");
         this.state.loadScene(this.state.states.MULTIPLAYER);
     }
 

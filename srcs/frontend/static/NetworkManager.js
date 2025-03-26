@@ -18,15 +18,15 @@ export class NetworkManager {
             this.socket = new WebSocket(
                 URL + '/ws/tournament/?authToken=' + this.token
             );
-            this.socket.onopen = () => console.log('Connected to tournament server');
+            this.socket.onopen = () => {};
         } else {
             this.socket = new WebSocket(
                 URL +'/ws/pong/?authToken=' + this.token
             );
-            this.socket.onopen = () => console.log('Connected to multiplayer server');
+            this.socket.onopen = () => {};
 
         }
-        // Esto siempre está disponible porque ya existe el websocket (la conexión)
+
         this.socket.onmessage = (msg) => {
             const data = JSON.parse(msg.data);
             //console.log("Server data:", data);
@@ -36,16 +36,16 @@ export class NetworkManager {
             if (this.messageCallback) {
                 this.messageCallback(data);
             } else {
-                console.warn("No message callback set for received data:", data);
+                //console.warn("No message callback set for received data:", data);
             }
         };
 
         this.socket.onerror = (error) => {
-            console.error("WebSocket error:", error);
+            //console.error("WebSocket error:", error);
         };
 
         this.socket.onclose = (event) => {
-            console.warn("WebSocket closed:", event.reason || "No reason provided");
+            //console.warn("WebSocket closed:", event.reason || "No reason provided");
         };
     }
 
@@ -69,7 +69,7 @@ export class NetworkManager {
             this.socket.send(JSON.stringify(data));
         }
         else {
-            console.warn("WebSocket is not connected. Message not sent:", data);
+            //console.warn("WebSocket is not connected. Message not sent:", data);
         }
     }
 }

@@ -216,7 +216,7 @@ export class LanguageMenu {
         try {
             const response = await updateLanguage(langCode);
         } catch (error) {
-            console.error('Error changing language:', error);
+            //console.error('Error changing language:', error);
         }
     }
 

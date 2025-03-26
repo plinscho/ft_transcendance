@@ -65,7 +65,7 @@ export class Text3D {
                 callback(this.mesh);
             },
             undefined,
-            (error) => console.error('Error loading font:', error)
+            (error) => {}
         );
     }
 

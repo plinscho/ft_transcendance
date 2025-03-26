@@ -30,7 +30,7 @@ let $$viewNodes = [
 
 // DOM updates
 export const updateView = () => {
-    console.log("Updating view with state:", state);
+    //console.log("Updating view with state:", state);
     let $nextView = $$viewNodes[currentView()];
     if ($nextView === $currentView) return;
     $currentView.classList.add('invisible');
@@ -41,7 +41,7 @@ export const updateView = () => {
 
 
 export const  updateInitialView = () => {
-    console.log(state);
+    //console.log(state);
 	updateView();
     startGame();
 };

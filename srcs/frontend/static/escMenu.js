@@ -23,7 +23,7 @@ export class escMenu {
 	// Mostrar/ocultar menú al presionar ESC
 	escapeHandler(event) {
 		if (event.key === 'Escape') {
-			console.log("ESC PRESSED");
+			//console.log("ESC PRESSED");
 			this.createEscBox();
 		}
 	}

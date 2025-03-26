@@ -195,24 +195,22 @@ export class Pong {
 		this.ball.position.z = 0;
 		this.ballSpeed = BALL_SPEED;
 
-		// if player lost the last point, we send the ball to opponent
 		if (loser == 1) {
 			setTimeout(() => {
 				this.ballDirX = -1;
 				this.ballDirZ = 1;
 				this.ballPaused = false;
 				this.state.composer.removePass(this.glitchPass);
-				this.glitchPass = null; // Reset reference
+				this.glitchPass = null; 
 			}, "3000");
 		}
-		// else if opponent lost, we send ball to player
 		else {
 			setTimeout(() => {
 				this.ballDirX = 1;
 				this.ballDirZ = 1;
 				this.ballPaused = false;
 				this.state.composer.removePass(this.glitchPass);
-				this.glitchPass = null; // Reset reference
+				this.glitchPass = null;
 			}, "3000");
 		}
 	}
@@ -264,7 +262,7 @@ export class Pong {
 					if (Math.abs(this.ballDirZ) < 0.2) {
 						this.ballDirZ = 0.2 * Math.sign(this.ballDirZ);
 					}
-					// Invertimos dirección en X (rebote)
+					// rebote
 					this.ballDirX = -this.ballDirX * 1.05;
 
 					// Aumentamos velocidad si la pala estaba en movimiento
@@ -333,7 +331,7 @@ export class Pong {
 			return;
 		}
 		if (this.multiplayer) {
-			console.log("Sending QUIT signal to server");
+			//console.log("Sending QUIT signal to server");
 			this.networkManager.sendData({ type: "QUIT" });
 			this.networkManager.disconnect();
 			this.active = false;
@@ -360,14 +358,14 @@ export class Pong {
 				}, "3000");
 
 				if (data.endgame) {
-					console.log("Game Over", data.winner);
+					//console.log("Game Over", data.winner);
 					this.createWinnerBanner(data.winner);
 				}
 			}
 
 			if (data.type === "MOVE") {
 				if (data.player === this.state.apiState.data.username) {
-					console.log("Ignoring own movement update:", data);
+					//console.log("Ignoring own movement update:", data);
 					return; // Ignore our own sent movement
 				}
 				// Update paddle position
@@ -401,14 +399,11 @@ export class Pong {
 					this.ballDirZ = data.data.ballDirZ;
 					this.wallImpact = data.wallImpact;
 					this.paddleBallImpact = data.paddleBallImpact;
-					if (this.wallImpact || this.paddleBallImpact)
-						console.log(data);
 					
 					if (this.wallImpact) this.cameraManager.screenShake(this.getCamera());
 					if (this.paddleBallImpact) this.bg.updateBackground();
 				}
 			}
-			// Recibimos el jugador que se ha quedado en la sala, será el ganador
 			if (data.type === "OPPONENT_DISCONNECTED") {
 				this.createWinnerBanner("YOU WIN!");
 			}

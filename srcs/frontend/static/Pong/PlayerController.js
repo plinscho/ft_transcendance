@@ -263,48 +263,4 @@ export class PlayerController {
 		this.networkManager.sendData(data);
 	}
 
-	/*receiveMovement() {
-		if (!this.networkManager) return;
-
-		this.networkManager.onMessage((data) => {
-			if (data.type === "MOVE") {
-                if (data.player === this.gameState.apiState.data.username) {
-                    console.log("Ignoring own movement update:", data);
-                    return; // Ignore our own sent movement
-                }
-    
-                // Update paddle position
-                    if (this.gameState.player2) {
-                        this.paddle1.targetPosition = new THREE.Vector3(
-                            this.paddle1.position.x,
-                            this.paddle1.position.y,
-                            data.paddleZ
-                        );
-                        this.paddle1.position.lerp(this.paddle1.targetPosition, 0.1);
-                    }
-                    if (this.gameState.player1 && this.paddle2) {
-                        this.paddle2.targetPosition = new THREE.Vector3(
-                            this.paddle2.position.x,
-                            this.paddle2.position.y,
-                            data.paddleZ
-                        );
-                        this.paddle2.position.lerp(this.paddle2.targetPosition, 0.1);
-					}
-
-			// Update ball position and direction (only for Player 2)
-			if (data.type === "BALL") {
-				if (this.ball) {
-					this.ball.targetPosition = new THREE.Vector3(
-						data.ballX,
-						data.ballY,
-						data.ballZ
-					);
-					this.ball.position.lerp(this.ball.targetPosition, 0.1);
-					this.ballDirX = data.ballDirX;
-					this.ballDirZ = data.ballDirZ;
-				}
-			}
-		});
-	}*/
-
 }

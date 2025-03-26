@@ -485,11 +485,11 @@ export class SetNickEl extends HTMLElement {
 				return;
 			}
 
-			console.log('Nicknames:', nicknames); // <-- Para depuración
+			//console.log('Nicknames:', nicknames); // <-- Para depuración
 
 			if (nicknames.length === 4) {
 				this.nicknames = nicknames; // <-- Asigna el valor correctamente
-				console.log('Sent nicknames:', this.nicknames);
+				//console.log('Sent nicknames:', this.nicknames);
 				screen.style.display = 'none'; // Hide the nickname input after sending
 				this.state.launchTournament();
 			}

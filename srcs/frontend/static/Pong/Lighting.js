@@ -5,7 +5,7 @@ export class Lighting {
         const neonColorsArray = [0xc292b7/*, 0x9E0031, 0xF87666*/];
 
         this.neonColors = neonColorsArray[Math.floor(Math.random() * neonColorsArray.length)];
-        console.log(this.neonColors);
+        //console.log(this.neonColors);
 
         const ambientLight = new THREE.AmbientLight(this.neonColors, 0.2);
         scene.add(ambientLight);
