@@ -13,14 +13,11 @@ export const login = async (email, password) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
     });
+    D.getElementById('loginEmail').value = '';
+    D.getElementById('loginPassword').value = '';
 
     if (!resp.ok) {
         state.error = true;
-        D.getElementById('registerEmail').value = '';
-        D.getElementById('registerUsername').value = '';
-        document.getElementById('registerPassword').value = '';
-        D.getElementById('loginEmail').value = '';
-        D.getElementById('loginPassword').value = '';
         updateView();
         return;
     }
@@ -114,7 +111,10 @@ export const logout = () => {
 
     document.getElementById('2fa').classList.add('invisible');
     document.getElementById('loginForm').classList.remove('invisible');
-    state.gameRef.removeRenderer();
+    if (state.gameRef) {
+        state.gameRef.removeRenderer();
+        state.gameRef = null;
+    }
 
     // Recargar o redirigir
     updateView();

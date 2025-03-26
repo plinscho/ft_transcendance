@@ -75,6 +75,7 @@ export class Game {
 
 		this.escapeMenu = new escMenu(this);
 		this.gameLoop();
+		this.forceQuit = false;
 	}
 	
 	getSceneName() {
@@ -188,6 +189,7 @@ export class Game {
 	}
 
 	resize() {
+		if (!this.camera || !this.renderer || !this.composer) return;
 		this.camera.aspect = window.innerWidth / window.innerHeight;
 		this.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -205,6 +207,7 @@ export class Game {
 
 	// TODO: Add 30 fps limit
 	gameLoop() {
+		if (this.forceQuit) return;
 		requestAnimationFrame(() => this.gameLoop()); // Always request the next frame
 	
 		const timeNow = Date.now();
@@ -228,8 +231,19 @@ export class Game {
 	}
 
 	removeRenderer() {
+		this.forceQuit = true;
+		this.scenes.menu.removeEventListeners();
 		if (this.renderer.domElement.parentElement) {
 			this.renderer.domElement.parentElement.removeChild(this.renderer.domElement);
+			if (this.renderer) this.renderer.dispose();
+			this.camera = null;
+			this.renderer = null;
+			this.composer = null;
+			this.escapeMenu = null;
+			this.NetworkManager = null;
+			this.scenes = null;
+			this.states = null;
+			this.currentState = null;
 		}
 	}
 	

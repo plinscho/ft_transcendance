@@ -216,60 +216,65 @@ export class Menu {
         selectedButton.material.color.setHex(randomColor);
     }
 
-
     menuIntersect() {
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
-        let lastHoveredObject = null; // Store the last hovered button
-
-        window.addEventListener('mousemove', (e) => {
+        let lastHoveredObject = null; 
+    
+        // Store function references for removal
+        this.onMouseMove = (e) => {
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-            if (!this.camera) {
-                //console.error("Error: Camera is not defined in Menu.js");
-                return;
-            }
-
+    
+            if (!this.camera) return;
+    
             raycaster.setFromCamera(mouse, this.camera);
-            const intersects = raycaster.intersectObjects(this.buttons.map(button => button.group), true); // Allow checking groups
-
+            const intersects = raycaster.intersectObjects(this.buttons.map(button => button.group), true);
+    
             if (intersects.length > 0) {
-                const hoveredObject = intersects[0].object.parent; // Get the parent group
-
-                if (hoveredObject !== lastHoveredObject) { // Change only if a different button is hovered
+                const hoveredObject = intersects[0].object.parent;
+    
+                if (hoveredObject !== lastHoveredObject) { 
                     const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
-
-                    // Reset the previous hovered button color
+    
                     if (lastHoveredObject) {
                         lastHoveredObject.children[0].material.color.setHex(0xffffff);
                     }
-
-                    // Highlight the new hovered button
+    
                     hoveredObject.children[0].material.color.setHex(randomColor);
-
-                    // Update tracking variables
                     lastHoveredObject = hoveredObject;
                 }
             } else if (lastHoveredObject) {
-                // If no button is hovered, reset the last hovered button color
                 lastHoveredObject.children[0].material.color.setHex(0xffffff);
-                lastHoveredObject = null; // Reset tracking variable
+                lastHoveredObject = null;
             }
-        });
-
-        window.addEventListener('click', (e) => {
+        };
+    
+        this.onClick = (e) => {
             raycaster.setFromCamera(mouse, this.camera);
             const intersects = raycaster.intersectObjects(this.scene.children, true);
-
+    
             if (intersects.length > 0) {
-                const clickedObject = intersects[0].object.parent; // Get the parent group
-
+                const clickedObject = intersects[0].object.parent;
                 if (clickedObject.userData.onClick) {
                     clickedObject.userData.onClick();
                 }
             }
-        });
+        };
+    
+        window.addEventListener('mousemove', this.onMouseMove);
+        window.addEventListener('click', this.onClick);
+    }
+
+    removeEventListeners() {
+        if (this.onMouseMove) {
+            window.removeEventListener('mousemove', this.onMouseMove);
+            this.onMouseMove = null;
+        }
+        if (this.onClick) {
+            window.removeEventListener('click', this.onClick);
+            this.onClick = null;
+        }
     }
 
     dispose() {
