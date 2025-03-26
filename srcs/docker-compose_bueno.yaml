@@ -1,0 +1,105 @@
+# 
+# DOCKER COMPOSE - FT_TRANSCENDANCE (  ctrl + alt + flechita   para incersion multiple de lineas  )
+# 
+# Cada microservicio tiene su propio docker con django instalado y su proyecto propio. 
+# Todos los django están conectados a la misma base de datos, que es postgreSQL.
+# El frontend hará peticiones a cada endpoint levantado por cada servicio, y no
+# interactua directamente con la base de datos
+#
+# En concepto arquitectura monolito sería un único django 
+# pero con múltiples apps y un solo Dockefile.
+# 
+#
+
+services:
+
+  pgadmin:
+    container_name: pgadmin
+    build: ./pgadmin
+    env_file:
+    - .env
+    ports: 
+      - 5050:80
+    depends_on:
+      - db
+    networks:
+      - transcendance
+    restart: on-failure
+
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    depends_on:
+      - db
+    ports:
+      - "8080:80"
+      - "8443:443"
+    networks:
+      - transcendance
+    volumes:
+     # - nginx_front:/usr/share/nginx/html
+      - static_data:/vol/django_static
+      - static_media:/vol/media
+      - nginx_ssl:/etc/letsencrypt/live/pong_server
+    restart: always
+
+  django:
+    container_name: django
+    build:
+      context: ./django/
+    depends_on:
+      - db
+      - redis
+      - nginx
+    ports:
+      - "8000:8000"
+    env_file:
+      - django/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+    volumes:
+      - static_data:/vol/django_static
+      - static_media:/vol/media
+      - nginx_ssl:/etc/letsencrypt/live/pong_server
+    networks:
+      - transcendance
+    restart: always
+    
+  db:
+    container_name: postgres
+    build: 
+      context: ./postgreSQL
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - transcendance
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6380:6380"
+    networks:
+      - transcendance
+    restart: always
+  
+volumes:
+  nginx_front:
+  nginx_ssl:
+  sgoinfree_data:
+  postgres_data:
+  static_data:
+  static_media:
+
+networks:
+  transcendance:

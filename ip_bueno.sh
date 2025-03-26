@@ -1,0 +1,1 @@
+hostname -I | awk '{print "export const ip = {\"ip\": \"" $1 "\"}"}' > srcs/nginx/frontend/static/host.js
