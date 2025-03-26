@@ -135,6 +135,8 @@ let $viewNeedsLogin = D.getElementById('view-needs-login');
 export const  backToLogin = () => {
     state.authenticated = false;
     state.error = false;
+    document.getElementById('2fa').classList.add('invisible');
+    document.getElementById('loginForm').classList.remove('invisible');
     updateView();
 }
 
