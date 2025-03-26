@@ -2,6 +2,7 @@ import { state } from './state.js';
 import { updateInitialView, updateView } from './views.js';
 import { loadData } from './api.js';
 import { ip } from './host.js';
+import { startGame } from './game.js';
 
 const URL = 'https://' + ip.ip + ':8443';
 const D = document
@@ -59,6 +60,7 @@ export const login = async (email, password) => {
 
             if (resp.ok) {
                 state.authenticated = true;
+                document.getElementById('2faCode').value = '';
                 return loadData().then(updateInitialView);
             } else {
                 localStorage.removeItem('authToken');
@@ -110,8 +112,12 @@ export const logout = () => {
         language: currentLanguage || 'en'
     };
 
+    document.getElementById('2fa').classList.add('invisible');
+    document.getElementById('loginForm').classList.remove('invisible');
+    state.gameRef.removeRenderer();
+
     // Recargar o redirigir
-    location.reload();
+    updateView();
 };
 
 let $loginForm = D.getElementById('loginForm');
@@ -121,12 +127,17 @@ let $2fa = D.getElementById('2fa');
 let toggleRegister = () => {
     $loginForm.classList.toggle('invisible');
     $registerForm.classList.toggle('invisible');
+    D.getElementById('registerEmail').value = '';
+    D.getElementById('registerUsername').value = '';
+    document.getElementById('registerPassword').value = '';
+    D.getElementById('loginEmail').value = '';
+    D.getElementById('loginPassword').value = '';
 };
 
 let $viewFailure = D.getElementById('view-failure');
 let $viewNeedsLogin = D.getElementById('view-needs-login');
 
-let backToLogin = () => {
+export const  backToLogin = () => {
     state.authenticated = false;
     state.error = false;
     updateView();
@@ -150,6 +161,10 @@ D.getElementById('registerButton').addEventListener('click', async () => {
 
     if (checkPassword(password) === true) {
         register(username, email, password);
+        //remove input message 
+        D.getElementById('registerEmail').value = '';
+        D.getElementById('registerUsername').value = '';
+        document.getElementById('registerPassword').value = '';
     }
 });
 

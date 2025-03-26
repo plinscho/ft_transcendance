@@ -226,7 +226,13 @@ export class Game {
 			this.composer.render();
 		}
 	}
+
+	removeRenderer() {
+		if (this.renderer.domElement.parentElement) {
+			this.renderer.domElement.parentElement.removeChild(this.renderer.domElement);
+		}
+	}
 	
 }
 
-export const startGame = () => new Game(state);
+export const startGame = () => state.gameRef = new Game(state);
