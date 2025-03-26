@@ -50,23 +50,37 @@ export class PlayerController {
 	}
 
 	setupLocalControls() {
-		window.addEventListener('keydown', (e) => {
+		this.onKeyDown = (e) => {
 			const key = e.key.toLowerCase();
 			if (e.key === "ArrowUp" || e.key === "ArrowDown") {
 				this.activeKeys[e.key] = true;
 			} else {
 				this.activeKeys[key] = true;
 			}
-		});
-
-		window.addEventListener('keyup', (e) => {
+		};
+	
+		this.onKeyUp = (e) => {
 			const key = e.key.toLowerCase();
 			if (e.key === "ArrowUp" || e.key === "ArrowDown") {
 				this.activeKeys[e.key] = false;
 			} else {
 				this.activeKeys[key] = false;
 			}
-		});
+		};
+	
+		window.addEventListener('keydown', this.onKeyDown);
+		window.addEventListener('keyup', this.onKeyUp);
+	}
+	
+	removeLocalControls() {
+		if (this.onKeyDown) {
+			window.removeEventListener('keydown', this.onKeyDown);
+			this.onKeyDown = null;
+		}
+		if (this.onKeyUp) {
+			window.removeEventListener('keyup', this.onKeyUp);
+			this.onKeyUp = null;
+		}
 	}
 
 	update() {

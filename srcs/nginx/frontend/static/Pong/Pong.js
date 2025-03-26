@@ -56,7 +56,7 @@ export class Pong {
 		this.ballSpeed = BALL_SPEED;
 
 		// scores
-		
+
 		this.scoreboard = null;
 		this.scoreP1Text = null;
 		this.scoreP2Text = null;
@@ -122,7 +122,7 @@ export class Pong {
 	}
 
 	createScoreboard() {
-		if (!this.scoreboard){
+		if (!this.scoreboard) {
 			this.scoreboard = new ScoreboardPlayer(this.scene, this.state, this.nicks, this.field_x, this.field_z); // new
 		}
 		this.scoreboard.resetTextScoreboard();
@@ -201,7 +201,7 @@ export class Pong {
 				this.ballDirZ = 1;
 				this.ballPaused = false;
 				this.state.composer.removePass(this.glitchPass);
-				this.glitchPass = null; 
+				this.glitchPass = null;
 			}, "3000");
 		}
 		else {
@@ -326,9 +326,12 @@ export class Pong {
 			if (this.nicks)
 				this.scoreboard.updateNicks(this.nicks[0], this.nicks[1]);
 			//this.createScoreboard();
-			if (this.state.tournamentManager.finished())
+			if (this.state.tournamentManager.finished()) {
+				this.player1.removeLocalControls();
+				this.player2.removeLocalControls();
 				this.state.loadScene(this.state.states.MENU);
-			return;
+				return;
+			}
 		}
 		if (this.multiplayer) {
 			//console.log("Sending QUIT signal to server");
@@ -336,6 +339,9 @@ export class Pong {
 			this.networkManager.disconnect();
 			this.active = false;
 		}
+
+		this.player1.removeLocalControls();
+		this.player2.removeLocalControls();
 		delete this.player1;
 		this.state.player1 = false;
 		delete this.player2;
@@ -399,7 +405,7 @@ export class Pong {
 					this.ballDirZ = data.data.ballDirZ;
 					this.wallImpact = data.wallImpact;
 					this.paddleBallImpact = data.paddleBallImpact;
-					
+
 					if (this.wallImpact) this.cameraManager.screenShake(this.getCamera());
 					if (this.paddleBallImpact) this.bg.updateBackground();
 				}
@@ -535,7 +541,7 @@ export class Pong {
 
 	update() {
 		if (!this.paddle1 || !this.paddle2 || !this.ball) return;
-	
+
 		if (this.state.currentState === this.state.states.PLAY) {
 			this.updateCameraPlayer1();
 		} else if (this.state.currentState === this.state.states.LOCALCOOP || this.state.currentState === this.state.states.TOURNAMENTS) {

@@ -19,14 +19,12 @@ export class WaitingRoom {
 		this.buttons = [];
 		this.SetNickEl;
 		this.isTournament = this.state.isTournament;
-		//this.boundEscapeHandler = this.escapeHandler.bind(this);
-		this.setUpKeyboard();
 		this.state.resize();
 		this.createWaitingRoom();
-                
-                // Añadir un listener para cambios de idioma
-                this.languageChangedHandler = this.handleLanguageChange.bind(this);
-                window.addEventListener('languageChanged', this.languageChangedHandler);
+
+		// Añadir un listener para cambios de idioma
+		this.languageChangedHandler = this.handleLanguageChange.bind(this);
+		window.addEventListener('languageChanged', this.languageChangedHandler);
 	}
 
 	update() {
@@ -40,7 +38,7 @@ export class WaitingRoom {
 			0xffffff,
 			0.15,
 			0,
-			() => { if (this.active) { this.backToMenu(); }}
+			() => { if (this.active) { this.backToMenu(); } }
 		);
 
 		backToMenu.createText((textMesh) => {
@@ -53,7 +51,6 @@ export class WaitingRoom {
 		this.SetNickEl = document.createElement('set-nick-el');
 		this.SetNickEl.setState(this);
 		document.body.appendChild(this.SetNickEl);
-		//setNickElement.setNetwork(networkInstance);
 	}
 
 	createMultiplayer() {
@@ -63,7 +60,7 @@ export class WaitingRoom {
 			0xffffff,
 			0.4,
 			0,
-			() => {}
+			() => { }
 		);
 
 		waitingText.createText((textMesh) => {
@@ -77,7 +74,7 @@ export class WaitingRoom {
 			0xffffff,
 			0.2,
 			0,
-			() => { if (this.active) { this.backToMenu(); }}
+			() => { if (this.active) { this.backToMenu(); } }
 		);
 
 		backToMenu.createText((textMesh) => {
@@ -138,77 +135,72 @@ export class WaitingRoom {
 		this.state.tournamentManager = new TournamentManager(this.state, this.SetNickEl.getNickNames());
 		this.state.loadScene(this.state.states.TOURNAMENTS);
 	}
-	
+
 	handleServerMessage(data) {
-        //console.log("Received message from server: ", data);
-        if (data.type === "PLAYER_ONE") this.state.player1 = true;
-        if (data.type === "PLAYER_TWO") this.state.player2 = true;
-        if (data.type === "START_GAME") {
-            //console.log("Match found! Starting game...");
-            this.isWaiting = false;
-            if (this.SetNickEl)
-                this.SetNickEl.remove();
-            this.startMultiplayerGame();
-        }
-    
-    }
+		//console.log("Received message from server: ", data);
+		if (data.type === "PLAYER_ONE") this.state.player1 = true;
+		if (data.type === "PLAYER_TWO") this.state.player2 = true;
+		if (data.type === "START_GAME") {
+			//console.log("Match found! Starting game...");
+			this.isWaiting = false;
+			if (this.SetNickEl)
+				this.SetNickEl.remove();
+			this.startMultiplayerGame();
+		}
 
-    startMultiplayerGame() {
-        //console.log("Starting multiplayer Pong...");
-        this.state.loadScene(this.state.states.MULTIPLAYER);
-    }
+	}
 
-    createCamera() {
-        const aspect = window.innerWidth / window.innerHeight;
-        const frustumSize = 5;
+	startMultiplayerGame() {
+		//console.log("Starting multiplayer Pong...");
+		this.state.loadScene(this.state.states.MULTIPLAYER);
+	}
 
-        const camera = new THREE.OrthographicCamera(
-            -frustumSize * aspect,
-            frustumSize * aspect,
-            frustumSize,
-            -frustumSize,
-            0.1, 100
-        );
+	createCamera() {
+		const aspect = window.innerWidth / window.innerHeight;
+		const frustumSize = 5;
 
-        camera.position.set(0, 0, 10);
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
+		const camera = new THREE.OrthographicCamera(
+			-frustumSize * aspect,
+			frustumSize * aspect,
+			frustumSize,
+			-frustumSize,
+			0.1, 100
+		);
 
-        return camera;
-    }
+		camera.position.set(0, 0, 10);
+		camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    setUpKeyboard() {
-        window.addEventListener('keydown', this.boundEscapeHandler);
-    }
+		return camera;
+	}
 
-    escapeHandler(event) {
-        if (event.key === 'Escape' && this.isWaiting && this.active) {
-            this.backToMenu();
-        }
-    }
 
-    backToMenu() {
+	escapeHandler(event) {
+		if (event.key === 'Escape' && this.isWaiting && this.active) {
+			this.backToMenu();
+		}
+	}
+
+	backToMenu() {
 		if (this.isTournament) {
 			this.SetNickEl.remove();
 			this.state.isTournament = false;
-        } else {
+		} else {
 			this.network.sendData({ type: "QUIT" });
 			this.network.disconnect();
 		}
-		window.removeEventListener('keydown', this.boundEscapeHandler);
 		this.active = false;
-        this.state.loadScene(this.state.states.MENU);
-    }
+		this.state.loadScene(this.state.states.MENU);
+	}
 
-    cleanup() {
-        window.removeEventListener('keydown', this.boundEscapeHandler);
-        window.removeEventListener('languageChanged', this.languageChangedHandler);
-    }
+	cleanup() {
+		window.removeEventListener('languageChanged', this.languageChangedHandler);
+	}
 
-    getScene() {
-        return this.scene;
-    }
+	getScene() {
+		return this.scene;
+	}
 
-    getCamera() {
-        return this.camera;
-    }
+	getCamera() {
+		return this.camera;
+	}
 }

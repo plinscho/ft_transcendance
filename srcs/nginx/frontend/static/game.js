@@ -207,7 +207,7 @@ export class Game {
 
 	// TODO: Add 30 fps limit
 	gameLoop() {
-		if (this.forceQuit) return;
+		if (this.quit) return;
 		requestAnimationFrame(() => this.gameLoop()); // Always request the next frame
 	
 		const timeNow = Date.now();
@@ -231,7 +231,7 @@ export class Game {
 	}
 
 	removeRenderer() {
-		this.forceQuit = true;
+		this.quit = true;
 		this.unloadScene(this.scenes.menu);
 		this.scenes.menu.removeEventListeners();
 		this.scenes.menu.removeKeyboardNavigation();
