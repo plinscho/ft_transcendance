@@ -37,10 +37,10 @@ services:
     networks:
       - transcendance
     volumes:
-      - ./frontend:/usr/share/nginx/html
+     # - nginx_front:/usr/share/nginx/html
       - static_data:/vol/django_static
       - static_media:/vol/media
-      - ./ssl:/etc/letsencrypt/live/pong_server
+      - nginx_ssl:/etc/letsencrypt/live/pong_server
     restart: always
 
   django:
@@ -60,13 +60,13 @@ services:
     volumes:
       - static_data:/vol/django_static
       - static_media:/vol/media
-      - ./ssl:/etc/letsencrypt/live/pong_server
+      - nginx_ssl:/etc/letsencrypt/live/pong_server
     networks:
       - transcendance
     restart: always
     
   db:
-    container_name: postgre
+    container_name: postgres
     build: 
       context: ./postgreSQL
     env_file:
@@ -94,6 +94,9 @@ services:
     restart: always
   
 volumes:
+  nginx_front:
+  nginx_ssl:
+  sgoinfree_data:
   postgres_data:
   static_data:
   static_media:

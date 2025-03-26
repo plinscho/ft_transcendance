@@ -4,6 +4,7 @@
 # Docker compose file location
 COMPOSE = srcs/docker-compose.yaml
 COMPOSE_CMD = docker compose -f ${COMPOSE}
+DOCKER_DATA_ROOT=/home/$(USER)/sgoinfre
 
 # Basic build commands
 all: ip
@@ -45,6 +46,7 @@ clean: down
 
 fclean: clean
 	rm -rf srcs/ssl
+	rm -rf $(DOCKER_DATA_ROOT)/ft_transcendance
 	@docker system prune -a
 
 test:

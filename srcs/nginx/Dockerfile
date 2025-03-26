@@ -6,6 +6,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy the gen_openssl.sh script and make it executable
 COPY gen_openssl.sh /usr/local/bin/gen_openssl.sh
+COPY frontend/ /usr/share/nginx/html/
 
 EXPOSE 8080
 EXPOSE 8443
