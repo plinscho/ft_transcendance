@@ -155,6 +155,9 @@ class Verify2FACodeView(generics.GenericAPIView):
             if totp.verify(code):
                 user.two_factor_auth.is_verified = True
                 user.two_factor_auth.save()
+                # Reset verification code when verified
+                user.two_factor_auth.secret = pyotp.random_base32()
+                user.two_factor_auth.save()
                 print(f"User {user.username} logged in succesfully!")
                 return Response({"message": "Verification successful"}, status=status.HTTP_200_OK)
             else:
