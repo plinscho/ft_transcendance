@@ -26,6 +26,8 @@ class BallPhysics:
 		self.score_winner = 5
 		self.endgame = False
 		self.gameStarted = False
+		self.isImpact = False
+		self.isPaddleBallImpact = False
 
 	def get_paddle1_position_z(self):
 		return self.paddle1_position['z']
@@ -47,6 +49,7 @@ class BallPhysics:
 						impact = (self.ball_position['z'] - self.paddle1_position['z']) / (self.paddle_z / 2)
 						self.ball_dir_z = impact * 1.5
 						self.ball_dir_z += self.paddle1_dir_z * 0.2
+						self.isPaddleBallImpact = True
 						
 						if abs(self.ball_dir_z) < 0.2:
 							self.ball_dir_z = 0.2 * (1 if self.ball_dir_z >= 0 else -1)
@@ -58,6 +61,7 @@ class BallPhysics:
 						impact = (self.ball_position['z'] - self.paddle2_position['z']) / (self.paddle_z / 2)
 						self.ball_dir_z = impact * 1.5
 						self.ball_dir_z += self.paddle2_dir_z * 0.5
+						self.isPaddleBallImpact = True
 						
 						if abs(self.ball_dir_z) < 0.2:
 							self.ball_dir_z = 0.2 * (1 if self.ball_dir_z >= 0 else -1)
@@ -84,7 +88,8 @@ class BallPhysics:
 				self.winner = "Player2"
 				self.endgame = True
 			if self.ball_position['z'] <= -self.field_z / 2 or self.ball_position['z'] >= self.field_z / 2:
-				self.ball_dir_z = -self.ball_dir_z        
+				self.ball_dir_z = -self.ball_dir_z
+				self.isImpact = True
 			self.ball_position['x'] += self.ball_dir_x * self.ball_speed  #* delta_time
 			self.ball_position['z'] += self.ball_dir_z * self.ball_speed  #* delta_time        
 			if self.ball_dir_z > self.ball_speed * 2:

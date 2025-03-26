@@ -27,10 +27,11 @@ export class escMenu {
 			this.createEscBox();
 		}
 	}
-
+	
 	// Acción al hacer clic en el botón del menú
 	clickHandler() {
 		this.hideMenu();
+		this.game.forceQuit = true;
 		this.game.scenes[this.game.currentState].backToMenu();
 	}
 

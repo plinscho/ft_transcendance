@@ -19,6 +19,9 @@ export class Pong {
 		this.nicks = nicks;
 		this.winnerResult;
 
+		this.wallImpact = null;
+		this.paddleBallImpact = null;
+
 		this.camera1 = this.cameraManager.camera1;
 		this.camera2 = this.cameraManager.camera2;
 		this.localcoopCamera = this.cameraManager.localCoopCamera;
@@ -158,7 +161,7 @@ export class Pong {
 		// Si la pelota esta pausada no la muevas
 		if (this.ballPaused) return;
 
-		if (this.ball.position.x <= -this.field_x / 2 - 200) {
+		if (this.ball.position.x <= -this.field_x / 2 - 50) {
 			// CPU scores
 			this.score2++;
 			this.cameraManager.followBall(this.getCamera(), this.ball, false);
@@ -171,7 +174,7 @@ export class Pong {
 		}
 
 		// if ball goes off the 'right' side (CPU's side)
-		if (this.ball.position.x >= this.field_x / 2 + 200) {
+		if (this.ball.position.x >= this.field_x / 2 + 50) {
 			// Player scores
 			this.score1++;
 			this.cameraManager.followBall(this.getCamera(), this.ball, true);
@@ -199,7 +202,7 @@ export class Pong {
 				this.ballDirZ = 1;
 				this.ballPaused = false;
 				this.state.composer.removePass(this.glitchPass);
-                this.glitchPass = null; // Reset reference
+				this.glitchPass = null; // Reset reference
 			}, "3000");
 		}
 		// else if opponent lost, we send ball to player
@@ -209,7 +212,7 @@ export class Pong {
 				this.ballDirZ = 1;
 				this.ballPaused = false;
 				this.state.composer.removePass(this.glitchPass);
-                this.glitchPass = null; // Reset reference
+				this.glitchPass = null; // Reset reference
 			}, "3000");
 		}
 	}
@@ -287,10 +290,11 @@ export class Pong {
 				}
 			} else {
 				// COOP VIEW FROM ABOVE
-				this.winnerText.position.y = 5;
+				this.winnerText.position.y = 15;
 				this.winnerText.position.z = 0;
 				this.winnerText.position.x = -180;
 				this.winnerText.rotation.x = -30 * Math.PI / 180;
+				winnerText.centerTextX();
 			}
 			this.scene.add(this.winnerText);
 
@@ -304,6 +308,8 @@ export class Pong {
 
 	backToMenu() {
 		if (this.state.isTournament) {
+			if (this.state.forceQuit)
+				return this.state.forceQuit = false, this.state.loadScene(this.state.states.MENU);
 			this.state.tournamentManager.setWinner(this.winnerResult);
 			this.score1 = 0;
 			this.score2 = 0;
@@ -393,6 +399,13 @@ export class Pong {
 					this.ball.position.lerp(this.ball.targetPosition, 1);
 					this.ballDirX = data.data.ballDirX;
 					this.ballDirZ = data.data.ballDirZ;
+					this.wallImpact = data.wallImpact;
+					this.paddleBallImpact = data.paddleBallImpact;
+					if (this.wallImpact || this.paddleBallImpact)
+						console.log(data);
+					
+					if (this.wallImpact) this.cameraManager.screenShake(this.getCamera());
+					if (this.paddleBallImpact) this.bg.updateBackground();
 				}
 			}
 			// Recibimos el jugador que se ha quedado en la sala, será el ganador
@@ -482,7 +495,7 @@ export class Pong {
 				}
 			} else {
 				// COOP VIEW FROM ABOVE
-				this.countdownMesh.position.y = 1;
+				this.countdownMesh.position.y = 15;
 				this.countdownMesh.position.z = -10;
 				this.countdownMesh.position.x = -20;
 				this.countdownMesh.rotation.x = -30 * Math.PI / 180;

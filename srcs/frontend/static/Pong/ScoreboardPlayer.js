@@ -4,7 +4,7 @@ import { Text3D } from '../Text3D.js';
 export class ScoreboardPlayer {
 	#scoreOffsetX = 30;
 	#nameOffsetY = 40;
-	#scoreOffsetZ = 40;
+	#scoreOffsetZ = 50;
 	#nameSize = 20;
 
 	constructor(scene, state, nicks, field_x, field_z){
@@ -47,14 +47,14 @@ export class ScoreboardPlayer {
 		};
 
 		this.positionP1Top = {
-			x: -this.field_x / 2 - this.#scoreOffsetX + 100,
-			y: 50,
+			x: -this.field_x / 2 - this.#scoreOffsetX - 75,
+			y: 70,
 			z: -this.field_z / 2 - this.#scoreOffsetZ,
 		};
 
 		this.positionP2Top = {
-			x: this.field_x / 2 + this.#scoreOffsetX - 50,
-			y: 50,
+			x: this.field_x / 2 + this.#scoreOffsetX + 75,
+			y: 70,
 			z: -this.field_z / 2 + this.#scoreOffsetZ,
 		};
 
@@ -119,9 +119,9 @@ export class ScoreboardPlayer {
 			if (isFront) {
 				textMesh.rotation.y = rotationFrontY * Math.PI / 180;
 			} else {
-				textMesh.position.x -= 25;
+				textMesh.position.x -= 1;
 				if (isScore === true)
-					textMesh.position.y = -40;
+					textMesh.position.y = -50;
 				else
 					textMesh.position.y = 5;
 				textMesh.position.z = -this.field_x / 2 - this.#scoreOffsetZ;
@@ -143,14 +143,14 @@ export class ScoreboardPlayer {
 			rotationTopX: -30,
 			meshKey: "scoreP1Mesh",
 			isScore: true
-		}).centerTextZ();
+		});
 	}
 	
 	createP1Name() {
 		if (this.front)
 			var pos1 = {...this.positionP1Front, y: this.positionP1Front.y + this.#nameOffsetY};
 		else
-			var pos2 = {...this.positionP1Top,  x: this.positionP1Top.x - this.#nameOffsetY - 10};
+			var pos2 = {...this.positionP1Top,  x: this.positionP1Top.x - this.#nameOffsetY };
 		this.createPlayerText({
 			text: this.nicks[0],
 			color: 0x9E0031,

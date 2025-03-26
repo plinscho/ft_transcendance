@@ -174,11 +174,17 @@ class PongConsumer(AsyncWebsocketConsumer):
         if not game: return
 
         while not game.endgame:
+            if game.isPaddleBallImpact:
+                logger.debug(f"\n\n\n\n\nPaddle {game.isPaddleBallImpact}\n\n\n\n\n")
+            if game.isImpact:
+                logger.debug(f"\n\n\n\n\nWall {game.isImpact}\n\n\n\n\n")
             data = {
                 "ballX": game.ball_position['x'],
                 "ballZ": game.ball_position['z'],
                 "ballDirX": game.ball_dir_x,
                 "ballDirZ": game.ball_dir_z,
+                "wallImpact": game.isImpact,
+                "paddleBallImpact": game.isPaddleBallImpact,
             }
             await self.channel_layer.group_send(
                         self.room_group_name,
@@ -187,7 +193,9 @@ class PongConsumer(AsyncWebsocketConsumer):
                             'data': data
                         }
                     )
-            
+            game.isImpact = False
+            game.isPaddleBallImpact = False
+            #logger.debug(game.isImpact)
             game.paddlePhysics()
             game.ball_physics()
             if game.goalFlag:
