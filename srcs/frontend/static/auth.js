@@ -78,10 +78,7 @@ export const register = async (username, email, password) => {
     });
 
     if (resp.ok) {
-        const data = await resp.json();
-        localStorage.setItem('authToken', data.token);
-        state.authenticated = true;
-        return loadData().then(updateInitialView);
+        toggleRegister();
     } else {
         state.error = true;
         updateView();
