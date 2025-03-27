@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { lang } from './Languages.js';
 
 export class escMenu {
 	constructor(game) {
@@ -7,23 +6,24 @@ export class escMenu {
 		this.scene = null; // Asignada en createEscBox()
 		this.menuOn = false;
 		this.box = null;
+
 		// Binding
 		this.escButton = this.escapeHandler.bind(this);
 		this.clickEscape = this.clickHandler.bind(this);
-		this.handleLanguageChange = this.updateLanguage.bind(this);
+
 		this.setListeners();
 		this.createBox(); // Crear el HTML una vez
 	}
 
-	// Escuchar ESC y cambios de idioma
+	// Escuchar ESC
 	setListeners() {
 		window.addEventListener('keydown', this.escButton);
-		window.addEventListener('languageChanged', this.handleLanguageChange);
 	}
 
 	// Mostrar/ocultar menú al presionar ESC
 	escapeHandler(event) {
 		if (event.key === 'Escape') {
+			//console.log("ESC PRESSED");
 			this.createEscBox();
 		}
 	}
@@ -39,10 +39,12 @@ export class escMenu {
 	createBox() {
 		const div = document.createElement('div');
 		div.className = 'esc-menu';
-		div.innerHTML = `<div class="esc-menu__item">${lang.escMenu.gotoMenu}</div>`;
+		div.innerHTML = `<div class="esc-menu__item">MENU</div>`;
 		document.body.appendChild(div);
+
 		// Guardar referencia
 		this.box = div;
+
 		// Estilos
 		Object.assign(div.style, {
 			position: 'fixed',
@@ -62,24 +64,16 @@ export class escMenu {
 			textAlign: 'center',
 			userSelect: 'none'
 		});
+
 		// Añadir el listener solo una vez
 		div.addEventListener('click', this.clickEscape);
-	}
-
-	// Actualizar texto cuando cambia el idioma
-	updateLanguage() {
-		if (this.box) {
-			const menuItem = this.box.querySelector('.esc-menu__item');
-			if (menuItem) {
-				menuItem.textContent = lang.escMenu.gotoMenu;
-			}
-		}
 	}
 
 	// Muestra o esconde el menú
 	createEscBox() {
 		this.scene = this.game.scenes[this.game.currentState]?.getScene();
 		if (!this.scene || this.game.currentState === this.game.states.MENU) return;
+
 		if (!this.menuOn) {
 			this.showMenu();
 		} else {
@@ -95,11 +89,5 @@ export class escMenu {
 	hideMenu() {
 		this.box.style.display = 'none';
 		this.menuOn = false;
-	}
-
-	// Cleanup method to remove event listeners
-	dispose() {
-		window.removeEventListener('keydown', this.escButton);
-		window.removeEventListener('languageChanged', this.handleLanguageChange);
 	}
 }
