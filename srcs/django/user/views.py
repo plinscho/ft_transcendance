@@ -144,6 +144,7 @@ class Verify2FACodeView(generics.GenericAPIView):
     def post(self, request):
         user = request.user
         code = request.data.get('token')
+        code = code.strip()
         #debug print
         print(f"Request Code from browser: {code}")
 

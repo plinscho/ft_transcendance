@@ -79,12 +79,15 @@ export const register = async (username, email, password) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
     });
+    if (!resp.ok) {
+        state.error = true;
+        D.getElementById('registerForm').classList.add('invisible');
+        updateView();
+        return;
+    }
 
     if (resp.ok) {
         toggleRegister();
-    } else {
-        state.error = true;
-        updateView();
     }
 };
 
