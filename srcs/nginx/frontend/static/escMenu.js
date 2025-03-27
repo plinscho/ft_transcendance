@@ -39,7 +39,7 @@ export class escMenu {
 	createBox() {
 		const div = document.createElement('div');
 		div.className = 'esc-menu';
-		div.innerHTML = `<div class="esc-menu__item">GOTO MENU</div>`;
+		div.innerHTML = `<div class="esc-menu__item">MENU</div>`;
 		document.body.appendChild(div);
 
 		// Guardar referencia
