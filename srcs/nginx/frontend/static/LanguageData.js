@@ -1,3 +1,5 @@
+import { escMenu } from "./escMenu";
+
 const languages = {
   en: {
     loading: "Loading...",
@@ -47,6 +49,9 @@ const languages = {
       start: "Start!",
       nickEmpty: "Watch out! Nickname can't be empty",
       duplicateNick: "Duplicate nickname"
+    },
+    escMenu: {
+      gotoMenu: "Go To Menu"
     }
   },
   es: {
@@ -97,6 +102,9 @@ const languages = {
       start: "¡Comenzar!",
       nickEmpty: "¡Cuidado! El apodo no puede estar vacío",
       duplicateNick: "Apodo duplicado"
+    },
+    escMenu: {
+      gotoMenu: "Ir al Menú"
     }
   },
   it: {
@@ -117,7 +125,7 @@ const languages = {
     twoFactor: {
       title: "2FA",
       code: "Codice 2FA",
-      verify: "Verifica"
+      verify: "Verificare"
     },
     register: {
       title: "Registrati",
@@ -126,7 +134,7 @@ const languages = {
       password: "Password",
       submit: "Registrati",
       loginPrompt: "Hai già un account?",
-      loginLink: "Accedi"
+      loginLink: "Accesso"
     },
     menu: {
       play: "Giocare",
@@ -147,6 +155,9 @@ const languages = {
       start: "Inizia!",
       nickEmpty: "Attenzione! Il nickname non può essere vuoto",
       duplicateNick: "Nickname duplicato"
+    },
+    escMenu: {
+      gotoMenu: "Vai al menu"
     }
   },
   fr: {
@@ -197,6 +208,9 @@ const languages = {
       start: "Commencer!",
       nickEmpty: "Attention! Le surnom ne peut pas être vide",
       duplicateNick: "Surnom en double"
+    },
+    escMenu: {
+      gotoMenu: "Allez au Menu"
     }
   }
 };
