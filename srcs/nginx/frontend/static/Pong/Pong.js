@@ -330,8 +330,8 @@ export class Pong {
 				this.player1.removeLocalControls();
 				this.player2.removeLocalControls();
 				this.state.loadScene(this.state.states.MENU);
+				return;
 			}
-			return;
 		}
 		if (this.multiplayer) {
 			//console.log("Sending QUIT signal to server");
