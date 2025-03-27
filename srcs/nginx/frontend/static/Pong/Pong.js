@@ -338,10 +338,16 @@ export class Pong {
 			this.networkManager.sendData({ type: "QUIT" });
 			this.networkManager.disconnect();
 			this.active = false;
-		}
+			if (this.state.player2)
+				this.player2.removeLocalControls();
+			else
+				this.player1.removeLocalControls();
 
-		this.player1.removeLocalControls();
-		this.player2.removeLocalControls();
+		}
+		if (!this.multiplayer) {
+			this.player1.removeLocalControls();
+			this.player2.removeLocalControls();
+		}
 		delete this.player1;
 		this.state.player1 = false;
 		delete this.player2;
