@@ -34,15 +34,10 @@ export class TournamentManager {
 		script.src = 'https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js';
 		script.async = true;
 		script.onload = () => {
-		  //console.log('Web3 cargado exitosamente');
 		  this.initBlockchain();
-		};
-		script.onerror = () => {
-		  //console.error('Error al cargar Web3');
 		};
 		document.head.appendChild(script);
 	  } else {
-		// Si Web3 ya está disponible, inicializar blockchain
 		this.initBlockchain();
 	  }
 	}
@@ -52,7 +47,6 @@ export class TournamentManager {
 	  try {
 		// Verificar si MetaMask está instalado
 		if (typeof window.ethereum !== 'undefined') {
-		  //console.log('MetaMask está disponible');
 		  
 		  // Configuraciones de contrato
 		  this.contractAddress = "0xfebD24048bdeC746cCBa55a7Cd372D762400c8b4";
@@ -230,10 +224,9 @@ export class TournamentManager {
 		  // Verificar conexión y propiedad del contrato
 		  await this.checkOwnership();
 		} else {
-
+		  alert('Por favor, instala MetaMask para usar funciones blockchain');
 		}
 	  } catch (error) {
-		//console.error('Error inicializando blockchain:', error);
 	  }
 	}
   
@@ -243,17 +236,16 @@ export class TournamentManager {
 		const contractOwner = await this.contract.methods.owner().call();
 		
 		if (contractOwner.toLowerCase() !== this.account.toLowerCase()) {
+		  alert("Advertencia: La cuenta conectada no es propietaria del contrato");
 		  return false;
 		}
 		
 		return true;
 	  } catch (error) {
-		//console.error("Error verificando propiedad:", error);
 		return false;
 	  }
 	}
   
-	// Gestión de rondas del torneo
 	next() {
 	  if (this.games == 2) {
 		return [this.playerBrackets[2], this.playerBrackets[3]];
@@ -299,20 +291,16 @@ export class TournamentManager {
 		try {
 		  // Verificar que web3 y contrato estén inicializados
 		  if (!this.web3Instance || !this.contract) {
-			//console.error("Web3 o contrato no inicializado");
 			await this.initBlockchain();
 			
 			// Si aún no se inicializa, salir
 			if (!this.web3Instance || !this.contract) {
-
 			  return;
 			}
 		  }
 		  
 		  // Preparar datos para el contrato
 		  const { first, second, third, fourth } = this.playerPositions;
-		  
-		  //console.log("Enviando posiciones a blockchain:", {first, second, third, fourth});
 		  
 		  // Asegurar conexión a MetaMask
 		  if (!this.account) {
@@ -325,13 +313,10 @@ export class TournamentManager {
 		  try {
 			gasEstimate = await this.contract.methods.record(first, second, third, fourth)
 			  .estimateGas({ from: this.account });
-			//console.log("Estimación de gas para la transacción:", gasEstimate);
 		  } catch (gasError) {
-			//console.warn("Estimación de gas fallida, usando valor por defecto:", gasError);
 			gasEstimate = 300000; // Valor por defecto si falla la estimación
 		  }
 		  
-		  // Usar 50% más de gas para estar seguros
 		  const gasLimit = Math.ceil(gasEstimate * 1.5);
 		  
 		  // Enviar transacción al contrato
@@ -341,11 +326,9 @@ export class TournamentManager {
 			  gas: gasLimit 
 			});
 		  
-		  // Guardar registro de transacción
 		  this.saveTransactionLog(result.transactionHash);
 		  
-		  //console.log("Torneo registrado en blockchain:", result.transactionHash);
-
+		  // console.log("Torneo registrado en blockchain:", result.transactionHash);
 		  
 		  // Añadir un retraso antes de la verificación
 		  setTimeout(async () => {
@@ -368,7 +351,6 @@ export class TournamentManager {
 		  
 		} catch (error) {
 		  //console.error("Error registrando en blockchain:", error);
-
 		}
 	}
 
@@ -376,7 +358,7 @@ export class TournamentManager {
 	async verifyTournamentRecord(resultId) {
 	  try {
 		if (!this.contract) {
-		  //console.error("Contrato no inicializado");
+		  // console.error("Contrato no inicializado");
 		  return false;
 		}
 		
@@ -385,18 +367,35 @@ export class TournamentManager {
 		try {
 		  resultCount = await this.contract.methods.resultCount().call();
 		} catch (countError) {
-		  //console.error("Error obteniendo número de resultados:", countError);
+		 // console.error("Error obteniendo número de resultados:", countError);
 		  return false;
 		}
 		
 		if (resultId >= resultCount) {
-		  console.error(`ID de resultado inválido: ${resultId}. Total de resultados: ${resultCount}`);
+		  // console.error(`ID de resultado inválido: ${resultId}. Total de resultados: ${resultCount}`);
 		  return false;
 		}
 		
 		// Obtener resultado del torneo
 		try {
 		  const result = await this.contract.methods.getResult(resultId).call();
+		  
+		  /*console.log("Verificación exitosa. Datos del torneo:", {
+			first: result[0],
+			second: result[1],
+			third: result[2],
+			fourth: result[3],
+			timestamp: new Date(result[4] * 1000).toLocaleString()
+		  });*/
+		  
+		  // Mostrar resultados en formato de tabla en la consola
+		  console.table({
+			first: result[0],
+			second: result[1],
+			third: result[2],
+			fourth: result[3],
+			timestamp: new Date(result[4] * 1000).toLocaleString()
+		  });
 		  
 		  return true;
 		} catch (getResultError) {
