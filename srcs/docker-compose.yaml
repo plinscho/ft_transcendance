@@ -28,7 +28,9 @@ services:
 
   nginx:
     container_name: nginx
-    build: ./nginx
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
     depends_on:
       - db
     ports:
@@ -37,10 +39,10 @@ services:
     networks:
       - transcendance
     volumes:
-      - ./frontend:/usr/share/nginx/html
+      - frontend_data:/usr/share/nginx/html
       - static_data:/vol/django_static
       - static_media:/vol/media
-      - ./ssl:/etc/letsencrypt/live/pong_server
+      - ssl_data:/etc/letsencrypt/live/pong_server
     restart: always
 
   django:
@@ -60,7 +62,7 @@ services:
     volumes:
       - static_data:/vol/django_static
       - static_media:/vol/media
-      - ./ssl:/etc/letsencrypt/live/pong_server
+      - ssl_data:/etc/letsencrypt/live/pong_server
     networks:
       - transcendance
     restart: always
@@ -97,6 +99,9 @@ volumes:
   postgres_data:
   static_data:
   static_media:
+  ssl_data:
+  frontend_data:
+    driver: local
 
 networks:
   transcendance:
