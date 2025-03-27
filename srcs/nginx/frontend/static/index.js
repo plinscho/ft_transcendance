@@ -4,6 +4,8 @@ import { updateInitialView, updateView } from './views.js';
 import { AUTH, state } from './state.js';
 import { updateLanguage } from './api.js';
 
+var globalVar = false;
+
 // Función para inicializar el selector de idiomas
 const initLanguageSelector = () => {
     const languageSelector = document.getElementById('languageSelector');
@@ -38,9 +40,10 @@ const initLanguageSelector = () => {
 
 
 document.addEventListener('DOMContentLoaded', async () => { 
-    if (!AUTH) {
+    if (!AUTH || !globalVar) {
         state.authenticated = false;
         state.loading = false;
+        globalVar = true;
         // Asegurarse de que el idioma de localStorage se cargue correctamente
         const storedLang = localStorage.getItem('userLanguage');
         if (storedLang) {

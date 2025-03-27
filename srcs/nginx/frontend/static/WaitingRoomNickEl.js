@@ -213,7 +213,7 @@ export class SetNickEl extends HTMLElement {
 			const inputSearch = document.createElement('input');
 			inputSearch.type = 'text';
 			inputSearch.name = 'username';
-			inputSearch.setAttribute("maxlength", "10");
+			inputSearch.setAttribute("maxlength", "8");
 			inputSearch.setAttribute("autocomplete", "off");
 			inputSearch.className = 'input__search nick-input';
 			inputSearch.placeholder = lang.tournament.placeholder;
