@@ -42,10 +42,10 @@ class TwoFactorAuth(models.Model):
 
 class User(AbstractBaseUser, PermissionsMixin):
     LANGUAGE_CHOICES = [
-        ('en', 'en'),
-        ('es', 'es'),
-        ('fr', 'fr'),
-        ('it', 'it'),
+    ('en', 'English'),
+    ('es', 'Spanish'),
+    ('fr', 'French'),
+    ('it', 'Italian')
     ]
     email = models.EmailField(unique=True, max_length=100)
     username = models.CharField(max_length=20)
