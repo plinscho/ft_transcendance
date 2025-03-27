@@ -170,23 +170,22 @@ class UpdateUserLanguageView(generics.UpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
-
+    
     def get_object(self):
         return self.request.user
-
+    
     def patch(self, request, *args, **kwargs):
         user = self.get_object()
         language = request.data.get('language')
         User = get_user_model()
         
-        valid_languages = {code: name for code, name in User.LANGUAGE_CHOICES}
-        
-        if language not in valid_languages:
+        # Valida directamente contra la lista de idiomas
+        if language not in User.LANGUAGE_CHOICES:
             return Response(
-                {"error": f"Invalid language choice. Available options: {', '.join(valid_languages.keys())}"},
+                {"error": f"Invalid language choice. Available options: {', '.join(User.LANGUAGE_CHOICES)}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
+        
         # Usar update parcial directo con el idioma validado
         serializer = self.get_serializer(user, data={'language': language}, partial=True)
         
