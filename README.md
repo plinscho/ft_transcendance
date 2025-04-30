@@ -1,18 +1,17 @@
-# USE WEBSITE:
-To use the website go to https://localhost:8443
+# 🏓 ft_transcendance
 
-___________________________________________________________________________________________________
-# PGADMIN CONNECTION:
-1) go to localhost:5050
-2) Insert the email provided in the .env
-3) Click in "add new server"
-4) In the "General" tab, enter a name for the server
-5) In the "Connection" tab, enter the following details (also found in .env):
-   Hostname/address: db (service name)
-   Port: 5432
-   Maintenance database: postgres
-   Username: postgres
-   Password: postgres
+A full-stack multiplayer Pong game built with vanilla Javascript, PostgreSQL and WebSockets. 
+Developed as the final project at [42 Barcelona](https://42barcelona.com/), this project simulates an end-to-end modern web app with **authentication**, **real-time gameplay**, and **user interaction**.
+
+## 🔧 Tech Stack
+
+**Backend:**
+- **Django (Python)** – Implementation for API endpoints and Django Channels for Websockets
+- **PostgreSQL** –  Object-relational database system
+- **Authentication** – 2FA authentication using JWT (JSON Web Tokens)
+- **DevOps & tools** – Docker compose with nginx reverse proxy, pgadmin and redis cache.
+- **Frontend** – Javascript with ThreeJS and Bootstrap
+- **CI/CD** - Git and Github.
 
 ___________________________________________________________________________________________________
 # DJANGO 
@@ -31,16 +30,6 @@ project/app/views.py:
 project/app/urls.py
     -   Executes de view. It can allocate multiple urls for different
         views, so it can redirect to a certain urls depending on the view.
-
-___________________________________________________________________________________________________
-# DJANGO/API/USER
-
-This appication is meant to manage the user data.
-Creating a user, getting the authentication token and changing some fields from the user
-will be managed by this application.
-
-The url for those api is https://localhost/api/user.
-You can access the correspondant API by addind /signup or /login.
 
 ___________________________________________________________________________________________________
 
